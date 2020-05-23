@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-23T06:18:10.627Z</updated>
+  <updated>2020-05-23T15:47:56.834Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,39 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PowerMOSFET</title>
+    <link href="http://yoursite.com/2020/05/23/Power-MOSFET/"/>
+    <id>http://yoursite.com/2020/05/23/Power-MOSFET/</id>
+    <published>2020-05-23T15:08:39.000Z</published>
+    <updated>2020-05-23T15:47:56.834Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="硬件基础" scheme="http://yoursite.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="MOSFET" scheme="http://yoursite.com/tags/MOSFET/"/>
+    
+      <category term="大功率设备" scheme="http://yoursite.com/tags/%E5%A4%A7%E5%8A%9F%E7%8E%87%E8%AE%BE%E5%A4%87/"/>
+    
+      <category term="大电流元件" scheme="http://yoursite.com/tags/%E5%A4%A7%E7%94%B5%E6%B5%81%E5%85%83%E4%BB%B6/"/>
+    
+      <category term="米勒电容" scheme="http://yoursite.com/tags/%E7%B1%B3%E5%8B%92%E7%94%B5%E5%AE%B9/"/>
+    
+  </entry>
   
   <entry>
     <title>STM32</title>
