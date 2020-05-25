@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-24T16:08:33.446Z</updated>
+  <updated>2020-05-25T16:15:41.478Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,72 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>爱与被爱</title>
+    <link href="http://yoursite.com/2020/05/26/%E7%88%B1%E4%B8%8E%E8%A2%AB%E7%88%B1/"/>
+    <id>http://yoursite.com/2020/05/26/%E7%88%B1%E4%B8%8E%E8%A2%AB%E7%88%B1/</id>
+    <published>2020-05-25T16:14:22.000Z</published>
+    <updated>2020-05-25T16:15:41.478Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="爱情" scheme="http://yoursite.com/tags/%E7%88%B1%E6%83%85/"/>
+    
+      <category term="人生哲理" scheme="http://yoursite.com/tags/%E4%BA%BA%E7%94%9F%E5%93%B2%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>UART-DMA</title>
+    <link href="http://yoursite.com/2020/05/25/UART-DMA/"/>
+    <id>http://yoursite.com/2020/05/25/UART-DMA/</id>
+    <published>2020-05-25T13:28:44.000Z</published>
+    <updated>2020-05-25T16:12:13.761Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="嵌入式驱动" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
+    
+    
+      <category term="嵌入式" scheme="http://yoursite.com/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/"/>
+    
+      <category term="STM32" scheme="http://yoursite.com/tags/STM32/"/>
+    
+      <category term="IOT" scheme="http://yoursite.com/tags/IOT/"/>
+    
+      <category term="实验记录" scheme="http://yoursite.com/tags/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/"/>
+    
+      <category term="UART" scheme="http://yoursite.com/tags/UART/"/>
+    
+      <category term="DMA" scheme="http://yoursite.com/tags/DMA/"/>
+    
+  </entry>
   
   <entry>
     <title>Sunflower</title>
@@ -81,7 +147,7 @@
     <link href="http://yoursite.com/2020/05/23/STM32H7/"/>
     <id>http://yoursite.com/2020/05/23/STM32H7/</id>
     <published>2020-05-23T02:11:55.000Z</published>
-    <updated>2020-05-23T06:18:10.627Z</updated>
+    <updated>2020-05-25T13:29:09.072Z</updated>
     
     <summary type="html">
     
@@ -89,14 +155,14 @@
       
         
         
-          &lt;h1 id=&quot;目录&quot;&gt;&lt;a href=&quot;#目录&quot; class=&quot;headerlink&quot;
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
         
       
     
     </summary>
     
     
-      <category term="嵌入式硬件" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A1%AC%E4%BB%B6/"/>
+      <category term="嵌入式驱动" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
     
     
       <category term="嵌入式" scheme="http://yoursite.com/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/"/>
