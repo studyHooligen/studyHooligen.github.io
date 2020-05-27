@@ -193,6 +193,15 @@
   
   <nav class="article-nav">
     
+      <a href="/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            PID控制器
+          
+        </div>
+      </a>
+    
     
       <a href="/2020/05/26/%E7%88%B1%E4%B8%8E%E8%A2%AB%E7%88%B1/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
@@ -533,7 +542,35 @@
 
 <!-- MathJax -->
 
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
 <!-- Katex -->
+
+
+    
+
 
 <!-- busuanzi  -->
 
