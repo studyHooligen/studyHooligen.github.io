@@ -115,7 +115,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">478</span>
+            <span class="post-count">526</span>
         </span>
     </span>
 
@@ -124,7 +124,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
+            <span class="post-count">2 min</span>
         </span>
     </span>
 </div>
@@ -199,11 +199,15 @@
 <ul>
 <li>PID控制器的Laplace变换式</li>
 </ul>
-<p>$$<br>\because E(s)= \mathcal{L} {e(t)} \ \therefore<br>X(s)=\mathcal{L} {PIDer(t)} = K_p\cdot E(s) + K_i\cdot \frac{E(s)}{s} + K_d \cdot s E(s)<br>$$</p>
+<p>$$<br>\because E(s)= \mathcal{L} [e(t)]<br>$$<br>$$<br>\therefore<br>X(s)=\mathcal{L} [PIDer(t)] = K_p\cdot E(s) + K_i\cdot \frac{E(s)}{s} + K_d \cdot s E(s)<br>$$</p>
 <h2 id="控制器加受控对象的总体传递函数"><a href="#控制器加受控对象的总体传递函数" class="headerlink" title="控制器加受控对象的总体传递函数"></a>控制器加受控对象的总体传递函数</h2><ol>
-<li><p>首先，对于误差信号,是输入信号和输出的执行结果量之差<br>$$<br>e(t) = i(t) - o(t)<br>$$</p>
+<li><p>首先，对于误差信号,是输入信号和输出的执行结果量之差<br> $$<br> e(t) = i(t) - o(t)<br> $$</p>
 </li>
-<li><p>先写到这里吧…困了</p>
+<li><p>将误差信号做Laplace变换<br> $$<br> E(s) = I(s)-O(s)<br> $$</p>
+</li>
+<li><p>已知输出信号和PID控制器的输出间的关系为<br> $$<br> O(s)=X(s)\cdot H(s)<br> $$</p>
+</li>
+<li><p>则误差信号为<br> $$<br> E(s)=I(s)-X(s)\cdot H(s)<br> $$</p>
 </li>
 </ol>
 
