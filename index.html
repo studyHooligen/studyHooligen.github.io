@@ -115,7 +115,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">526</span>
+            <span class="post-count">1.1k</span>
         </span>
     </span>
 
@@ -124,7 +124,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
+            <span class="post-count">4 min</span>
         </span>
     </span>
 </div>
@@ -155,13 +155,31 @@
 </ul>
 <p><img src="https://s1.ax1x.com/2020/05/27/tE4Pne.png" alt="PID.png"></p>
 <ul>
-<li>主要参数如图中所示，共有3个系数<ul>
-<li>比例系数$$ K_p $$</li>
-<li>积分系数$$ K_i $$</li>
-<li>微分系数$$ K_d $$</li>
+<li>主要参数如图中所示，共有3个系数（及对阶跃响应的影响）<ul>
+<li>比例系数<br>$$ K_p $$<ul>
+<li>过冲量：增大</li>
+<li>响应时间：变小</li>
+<li>稳态误差：减小</li>
+</ul>
+</li>
+<li>积分系数<br>$$ K_i $$<ul>
+<li>过冲量：增大</li>
+<li>响应时间：增大</li>
+<li>稳态误差：稳态误差为0</li>
+</ul>
+</li>
+<li>微分系数<br>$$ K_d $$<ul>
+<li>过冲量：减小</li>
+<li>响应时间：变小</li>
+<li>稳态误差：没有影响</li>
 </ul>
 </li>
 </ul>
+</li>
+</ul>
+<blockquote>
+<p>对于稳态时的影响，可以很容易从时域上肉眼直接看出，当然下面也通过数学来解释</p>
+</blockquote>
 <h2 id="控制器调试原则"><a href="#控制器调试原则" class="headerlink" title="控制器调试原则"></a>控制器调试原则</h2><p>调试目标和准则：输出不震荡</p>
 <ul>
 <li><p>增大比例系数</p>
@@ -189,27 +207,37 @@
 </blockquote>
 </li>
 </ul>
-<h2 id="控制器的传递函数"><a href="#控制器的传递函数" class="headerlink" title="控制器的传递函数"></a>控制器的传递函数</h2><blockquote>
-<p>以上的调试原则都是经验之谈，下面将从数学的角度解释</p>
+<h2 id="控制器的传递函数"><a href="#控制器的传递函数" class="headerlink" title="控制器的传递函数"></a>控制器的传递函数</h2><p>以上的调试原则都是经验之谈，下面将从数学的角度解释</p>
+<ul>
+<li><p>PID控制器输出的时域表达式<br>  $$<br>  PIDer(t) = K_p e(t)+K_i \int e(\tau) d\tau + K_d \frac{de(t)}{dt}<br>  $$</p>
+<blockquote>
+<p>注意：此时，若已经达到稳态，对3个参数做独立简要分析如下：</p>
 </blockquote>
 <ul>
-<li>PID控制器的时域表达式</li>
+<li>比例参数(若没有积分和微分)：回忆使用运算放大器的负反馈做信号的放大，所以，若此时比例系数无穷大，则可以达到误差非常小，但是仍然且必定会有误差存在</li>
+<li>积分系数：由于积分器的稳态，必须要求输入误差信号为0，所以加入积分器可以使得稳态误差为0</li>
+<li>微分器：显然稳态情况下，常数微分为0</li>
 </ul>
-<p>$$<br>PIDer(t) = K_p e(t)+K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt}<br>$$</p>
-<ul>
-<li>PID控制器的Laplace变换式</li>
+</li>
+<li><p>PID控制器输出的Laplace变换式</p>
+</li>
 </ul>
-<p>$$<br>\because E(s)= \mathcal{L} [e(t)]<br>$$<br>$$<br>\therefore<br>X(s)=\mathcal{L} [PIDer(t)] = K_p\cdot E(s) + K_i\cdot \frac{E(s)}{s} + K_d \cdot s E(s)<br>$$</p>
+<p>$$<br>\because E(s)= \mathcal{L} [e(t)]<br>\ \therefore<br>C(s)=\mathcal{L} [PIDer(t)] = K_p\cdot E(s) + K_i\cdot \frac{E(s)}{s} + K_d \cdot s E(s)<br>\ \therefore \frac{C(s)}{E(s)}=K_p+\frac{K_i}{s}+K_d\cdot s<br>$$<br><strong>注意：将上式合并，将在原点有一个极点，且在s左半平面有两个可以任意配置的零点！</strong><br>$$<br>\frac{C(s)}{E(s)}= \frac{K_d(s+z_1)(s+z_2)}{s}<br>$$</p>
+<blockquote>
+<p>仅将PID控制器与受控对象级联，就已经可以通过这两个零点很好地调整整体响应，下面将继续讨论整体闭环系统</p>
+</blockquote>
 <h2 id="控制器加受控对象的总体传递函数"><a href="#控制器加受控对象的总体传递函数" class="headerlink" title="控制器加受控对象的总体传递函数"></a>控制器加受控对象的总体传递函数</h2><ol>
-<li><p>首先，对于误差信号,是输入信号和输出的执行结果量之差<br> $$<br> e(t) = i(t) - o(t)<br> $$</p>
-</li>
-<li><p>将误差信号做Laplace变换<br> $$<br> E(s) = I(s)-O(s)<br> $$</p>
-</li>
-<li><p>已知输出信号和PID控制器的输出间的关系为<br> $$<br> O(s)=X(s)\cdot H(s)<br> $$</p>
-</li>
-<li><p>则误差信号为<br> $$<br> E(s)=I(s)-X(s)\cdot H(s)<br> $$</p>
+<li>首先，对于误差信号,是输入信号和输出的执行结果量之差<br> $$<br> e(t) = x(t) - y(t)<br> $$<br> 将误差信号做Laplace变换<br> $$<br> E(s) = X(s)-Y(s)<br> $$</li>
+<li>已知输出信号和PID控制器的输出间的关系为<br> $$<br> \because 假设受控对象传函数为H(s)<br> \ \therefore<br> Y(s)=C(s)\cdot H(s)<br> $$<br>则误差信号为<br> $$<br> E(s)=X(s)-C(s)\cdot H(s)<br> $$</li>
+<li>联立上各式得：<br> $$<br> Y(s)=[X(s)-Y(s)][K_p+K_i\frac{1}{s}+K_d\cdot s]H(s)<br> $$<br> 即<br> $$<br> \frac{Y(s)}{X(s)}=\frac{[K_p+K_i\frac{1}{s}+K_d\cdot s]H(s)}{1+[K_p+K_i\frac{1}{s}+K_d\cdot s]H(s)}<br> $$</li>
+<li>这时考虑一个有两个零点的受控对象<blockquote>
+<p>此论述借用了《现代控制系统-第12版》中7.6中的例子<br> $$<br> H(s)=\frac{1}{(s+2)(s+3)}<br> $$<br> 采取的PID控制器假设为有两个零点为：<br> $$<br> -z_1=-3+j,-z_2=-\hat z_1<br> $$<br> 则系统的整体响应(代入化简省略)<br> $$<br> \frac{Y(s)}{X(s)}=\frac{K_d(s+z_1)(s+\hat{z_1})}{(s+r_2)(s+\hat r_1)(s+\hat r_1)}<br> $$</p>
+</blockquote>
 </li>
 </ol>
+<blockquote>
+<p>显然，从上面的论述可以发现，PID对线性系统的控制可以通过对零极点的控制很好地达到任意想要的效果。当然，对于非线性系统就是另一回事了（笔者困了，后面再写…）</p>
+</blockquote>
 
       
       <!-- reward -->
@@ -1630,6 +1658,10 @@
     
     <li class="nav-item">
       <a class="nav-item-link" href="/categories/%E9%9A%8F%E7%AC%94">随笔</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/%E6%83%85%E9%9B%A8%E6%91%98">情雨摘</a>
     </li>
     
     <li class="nav-item">
