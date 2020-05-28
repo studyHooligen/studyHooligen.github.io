@@ -223,13 +223,13 @@
       <category term="嵌入式驱动" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
     
     
+      <category term="笔记" scheme="http://yoursite.com/tags/%E7%AC%94%E8%AE%B0/"/>
+    
       <category term="嵌入式" scheme="http://yoursite.com/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/"/>
     
       <category term="STM32" scheme="http://yoursite.com/tags/STM32/"/>
     
       <category term="IOT" scheme="http://yoursite.com/tags/IOT/"/>
-    
-      <category term="笔记" scheme="http://yoursite.com/tags/%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
@@ -246,7 +246,7 @@
       
         
         
-          &lt;h5 id=&quot;新的起点&quot;&gt;&lt;a href=&quot;#新的起点&quot; class=&quot;headerlink&quot;
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
         
       
     
