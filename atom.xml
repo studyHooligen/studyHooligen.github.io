@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>SH-blog</title>
+  <title>Singularity-blog</title>
   
   
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-28T15:50:01.186Z</updated>
+  <updated>2020-05-29T02:04:05.185Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,17 +21,19 @@
     <link href="http://yoursite.com/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/"/>
     <id>http://yoursite.com/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/</id>
     <published>2020-05-27T13:41:34.000Z</published>
-    <updated>2020-05-28T15:50:01.186Z</updated>
+    <updated>2020-05-29T02:04:05.185Z</updated>
     
     <summary type="html">
     
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
-        
-      
+      &lt;blockquote&gt;
+&lt;p&gt;前言：PID是一种很常用的控制器了，笔者在校期间也曾调过该控制器，但是没有研究过这神奇的控制器的理论原理。恰巧这次疫情，让笔者有机会闭关在家深入研究。PID控制器诞生已有80年左右，优质的论文非常多，笔者将仅使用《信号与系统》课程中的基础知识进行分析&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1 id=&quot;PID控制器目录&quot;&gt;&lt;a href=&quot;#PID控制器目录&quot; class=&quot;headerlink&quot; title=&quot;PID控制器目录&quot;&gt;&lt;/a&gt;PID控制器目录&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;控制器形式及主要参数&lt;/li&gt;
+&lt;li&gt;控制器调试原则&lt;/li&gt;
+&lt;li&gt;控制器的传递函数&lt;/li&gt;
+&lt;li&gt;控制器加受控对象的总体传递函数&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     
@@ -79,7 +81,7 @@
     <link href="http://yoursite.com/2020/05/26/%E7%88%B1%E4%B8%8E%E8%A2%AB%E7%88%B1/"/>
     <id>http://yoursite.com/2020/05/26/%E7%88%B1%E4%B8%8E%E8%A2%AB%E7%88%B1/</id>
     <published>2020-05-25T16:14:22.000Z</published>
-    <updated>2020-05-25T16:15:41.478Z</updated>
+    <updated>2020-05-29T02:20:16.096Z</updated>
     
     <summary type="html">
     
@@ -108,17 +110,21 @@
     <link href="http://yoursite.com/2020/05/25/UART-DMA/"/>
     <id>http://yoursite.com/2020/05/25/UART-DMA/</id>
     <published>2020-05-25T13:28:44.000Z</published>
-    <updated>2020-05-25T16:12:13.761Z</updated>
+    <updated>2020-05-29T02:23:14.973Z</updated>
     
     <summary type="html">
     
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
-        
-      
+      &lt;h1 id=&quot;目录&quot;&gt;&lt;a href=&quot;#目录&quot; class=&quot;headerlink&quot; title=&quot;目录&quot;&gt;&lt;/a&gt;目录&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;CubeMX配置&lt;ul&gt;
+&lt;li&gt;UART&lt;/li&gt;
+&lt;li&gt;DMA&lt;/li&gt;
+&lt;li&gt;其他&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;思路框架&lt;/li&gt;
+&lt;li&gt;核心代码&lt;/li&gt;
+&lt;li&gt;实验结果&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     
