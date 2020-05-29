@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    STM32 |  Singularity-blog
+    STM32H7 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -51,7 +51,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  STM32
+  STM32H7
 </h1>
  
 
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.9k</span>
+            <span class="post-count">2.7k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">11 min</span>
+            <span class="post-count">10 min</span>
         </span>
     </span>
 </div>
@@ -109,14 +109,16 @@
       
 
       
-      <h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><ul>
+      <h1 id="STM32H7概览"><a href="#STM32H7概览" class="headerlink" title="STM32H7概览"></a>STM32H7概览</h1><ul>
 <li>Cube工程结构</li>
-<li>HAL库小知识</li>
-<li>调试编程小知识</li>
+<li>HAL库及编程tips</li>
 <li>H7内存及总线</li>
 <li>外设使用</li>
 </ul>
-<h2 id="Cube工程结构"><a href="#Cube工程结构" class="headerlink" title="Cube工程结构"></a>Cube工程结构</h2><ul>
+<h2 id="Cube工程结构"><a href="#Cube工程结构" class="headerlink" title="Cube工程结构"></a>Cube工程结构</h2><blockquote>
+<p>Keil中打开</p>
+</blockquote>
+<ul>
 <li>driver<ul>
 <li>Application/MDK-ARM<ul>
 <li>启动文件：startup_stm32xxxx.s</li>
@@ -136,15 +138,24 @@
 </ul>
 </li>
 </ul>
-<h2 id="HAL库小知识"><a href="#HAL库小知识" class="headerlink" title="HAL库小知识"></a>HAL库小知识</h2><ul>
+<blockquote>
+<p>文件夹中打开</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">--+ Project             &#x2F;&#x2F;工程根目录</span><br><span class="line">    --+ Drivers         &#x2F;&#x2F;驱动源文件（CubeMX生成）</span><br><span class="line">        --+ CMSIS                   &#x2F;&#x2F;ARM的MCU软件接口标准</span><br><span class="line">        --+ STM32H7xx_HAL_Driver    &#x2F;&#x2F;H7芯片的HAL库</span><br><span class="line">    --+ inc             &#x2F;&#x2F;外设初始化头文件（CubeMX生成）</span><br><span class="line">    --+ MDK-ARM         &#x2F;&#x2F;Keil工程目录</span><br><span class="line">    --+ Middlewares     &#x2F;&#x2F;第三方软件包</span><br><span class="line">    --+ Src             &#x2F;&#x2F;外设初始化源文件（CubeMX生成）</span><br><span class="line">    --+ Task            &#x2F;&#x2F;如果有OS的话，该文件夹为任务or线程文件</span><br><span class="line">    --+ BSP             &#x2F;&#x2F;BSP文件</span><br><span class="line">    --+ REFERENCE       &#x2F;&#x2F;使用到的参考资料（笔者自己添加的）</span><br><span class="line">        --+ link.md</span><br><span class="line">        --- ...</span><br><span class="line">    --+ Project.ioc     &#x2F;&#x2F;CubeMX工程文件</span><br><span class="line">    --+ README.md       &#x2F;&#x2F;README文件（笔者自己加的）</span><br></pre></td></tr></table></figure>
+
+<h2 id="HAL库及编程tips"><a href="#HAL库及编程tips" class="headerlink" title="HAL库及编程tips"></a>HAL库及编程tips</h2><a id="more"></a>
+
+<ul>
 <li>_IO成员变量修饰符：相当于const、variable等</li>
-<li>HAL_Delay()中断原理，所以有时会误差严重</li>
+<li>HAL_Delay()采用的是中断原理，所以有时会误差严重</li>
 <li>注意H7的Dcache功能，若不开启强制透写，可能出现与ram数据不同步bug</li>
-</ul>
-<h2 id="调试编程小知识"><a href="#调试编程小知识" class="headerlink" title="调试编程小知识"></a>调试编程小知识</h2><ul>
+<li>一定一定注意H7的总线结构噢！在AXI总线上的告诉存储是不能被普通DMA访问的！</li>
 <li>在不进行固件升级下，ST-link最大速度为1.8MHz</li>
 <li>_weak函数修饰符：用户可以再次定义为自己的函数内容</li>
-<li>volatile修饰符：修饰的变量是随时改变的，比如被硬件改变，所以编译器不应该对这个变量做优化，每次读取的时候都要从变量地址读出</li>
+<li>volatile修饰符：修饰的变量是随时改变的，每次读取的时候都要乖乖从变量地址读出<blockquote>
+<p>该修饰符主要用于修饰特殊状态寄存器，这些寄存器是硬件触发改变状态的！</p>
+</blockquote>
+</li>
 <li>__align()修饰符：内存对齐</li>
 <li>内存定位  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">uint8_t</span> mpudata[<span class="number">128</span>] __attribute__((at(<span class="number">0x20002000</span>)));</span><br></pre></td></tr></table></figure>
 
@@ -196,6 +207,10 @@
 </ul>
 </li>
 </ul>
+<p><img src="https://s1.ax1x.com/2020/05/29/tKErAP.png" alt="H7总线"></p>
+<blockquote>
+<p>显然挂在内核上的高速RAM是只能被主DMA设备(MDMA)和内核本身访问！这个不注意会坑得很死<br>还有H7的AXI总线是64位的呢！可以说和存储设备的访问简直nice到没盆友</p>
+</blockquote>
 <h2 id="外设使用"><a href="#外设使用" class="headerlink" title="外设使用"></a>外设使用</h2><h3 id="GPIO"><a href="#GPIO" class="headerlink" title="GPIO"></a>GPIO</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HAL_GPIO_WritePin(GPIOx,GPIO_PIN_x,GPIO_PIN_xxx);   <span class="comment">//写端口</span></span><br><span class="line">HAL_GPIO_ReadPin(GPIOx,GPIO_PIN_x); <span class="comment">//读端口状态</span></span><br><span class="line">HAL_GPIO_TogglePin(GPIOx,GPIO_PIN_x);   <span class="comment">//端口翻转</span></span><br></pre></td></tr></table></figure>
 
 <p>复位后一般默认输入模式</p>
@@ -277,50 +292,6 @@
 <li>缓冲：写入一定数量后一次性写（提高性能）</li>
 <li>子Rigion属性和主一样</li>
 <li>Rigion必须8等分为子Rigion</li>
-</ul>
-<h3 id="FMC"><a href="#FMC" class="headerlink" title="FMC"></a>FMC</h3><ul>
-<li>突发模式：一个地址，存储器自动增减地址</li>
-</ul>
-<h4 id="FLASH"><a href="#FLASH" class="headerlink" title="FLASH"></a>FLASH</h4><ul>
-<li>NOR：可随机读写</li>
-<li>NAND：区块读写<ul>
-<li>映射地址：0x8000 0000 -&gt; 0x8FFF FFFF</li>
-</ul>
-</li>
-<li>eMMC：NAND+主控</li>
-</ul>
-<h4 id="SDRAM"><a href="#SDRAM" class="headerlink" title="SDRAM"></a>SDRAM</h4><ul>
-<li>预充电操作：SDRAM进行读写后如果要对同一Bank的另一行进行寻址，就要关闭现有行</li>
-<li>刷新操作：原理上SDRAM需要不断刷新充电，刷新占用9个时钟周期（PC133标准）</li>
-<li>注意：读命令下达后需要等待CL延迟才能从数据线上读数据；写数据没有这个参数</li>
-<li>分为两块<ul>
-<li>区域1：0xC000 0000 -&gt; 0xCFFF FFFF</li>
-<li>区域2：0xD000 0000 -&gt; 0xDFFF FFFF</li>
-</ul>
-</li>
-</ul>
-<h4 id="控制信号"><a href="#控制信号" class="headerlink" title="控制信号"></a>控制信号</h4><ul>
-<li>CLK：时钟</li>
-<li>CKE：时钟使能，静止时自动刷新</li>
-<li>CS#：低电平片选</li>
-<li>RAS#：低电平选通行地址</li>
-<li>CAS#：低电平选通列地址</li>
-<li>WE#：低电平试能写</li>
-<li>BS-x:BANK地址</li>
-<li>DQM：数据掩码，表示数据线的有效部分</li>
-</ul>
-<h4 id="初始化过程"><a href="#初始化过程" class="headerlink" title="初始化过程"></a>初始化过程</h4><ol>
-<li>上电，使能时钟，发送NOP命令；</li>
-<li>等待最少200us</li>
-<li>发送所有Bank预充电命令</li>
-<li>发送至少8次自动刷新命令（注意刷新时间间隔）</li>
-<li>设置SDRAM内部的模式寄存器</li>
-</ol>
-<h4 id="异步模式"><a href="#异步模式" class="headerlink" title="异步模式"></a>异步模式</h4><ul>
-<li>A</li>
-<li>B</li>
-<li>C</li>
-<li>D</li>
 </ul>
 <h3 id="DMA"><a href="#DMA" class="headerlink" title="DMA"></a>DMA</h3><p><strong>注意</strong>：非MDMA使用时，注意总线域访问问题</p>
 <h4 id="用于图像的DMA2D"><a href="#用于图像的DMA2D" class="headerlink" title="用于图像的DMA2D"></a>用于图像的DMA2D</h4><ul>
@@ -537,82 +508,6 @@
 <li>高速USB要外扩高速物理接口芯片，480Mbps</li>
 <li>全速，12Mbps</li>
 <li>低速，1.5Mbps</li>
-</ul>
-<h3 id="Internet"><a href="#Internet" class="headerlink" title="Internet"></a>Internet</h3><ul>
-<li>使用外部PHY，能达到100Mbps</li>
-<li>可编程帧长，最大16KB</li>
-<li>64位时间戳</li>
-<li>专用DMA</li>
-</ul>
-<h4 id="硬件层-1"><a href="#硬件层-1" class="headerlink" title="硬件层"></a>硬件层</h4><ul>
-<li>SMI接口（访问PHY寄存器）<ul>
-<li>MDC时钟</li>
-<li>MDIO数据</li>
-</ul>
-</li>
-<li>MII接口<ul>
-<li>TX_CLK</li>
-<li>TX_CLK</li>
-<li>TX_EN</li>
-<li>TXD[3:0]</li>
-<li>CRS：载波侦听信号</li>
-<li>COL：冲突检测信号</li>
-<li>RXD[3:0]</li>
-<li>RX_DV：接收数据有效</li>
-<li>RX_ER：接收错误</li>
-</ul>
-</li>
-<li>RMII接口<ul>
-<li>REF_CLK：参考时钟，必须50MHz</li>
-<li>MDIO</li>
-<li>MDC</li>
-<li>CRS_DV</li>
-<li>RXD[1:0]</li>
-<li>TX_EN</li>
-<li>TXD[1:0]</li>
-</ul>
-</li>
-</ul>
-<h4 id="协议层"><a href="#协议层" class="headerlink" title="协议层"></a>协议层</h4><table>
-<thead>
-<tr>
-<th align="center">OSI模型</th>
-<th align="center">TCP/IP模型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">应用层</td>
-<td align="center">应用层</td>
-</tr>
-<tr>
-<td align="center">表示层</td>
-<td align="center">\</td>
-</tr>
-<tr>
-<td align="center">会话层</td>
-<td align="center">\</td>
-</tr>
-<tr>
-<td align="center">传输层</td>
-<td align="center">传输层</td>
-</tr>
-<tr>
-<td align="center">网络层</td>
-<td align="center">互联层</td>
-</tr>
-<tr>
-<td align="center">数据链路层</td>
-<td align="center">链路层</td>
-</tr>
-<tr>
-<td align="center">物理层</td>
-<td align="center">\</td>
-</tr>
-</tbody></table>
-<h4 id="协议栈"><a href="#协议栈" class="headerlink" title="协议栈"></a>协议栈</h4><ul>
-<li>LWIP</li>
-<li>UCP</li>
-<li>TCP</li>
 </ul>
 
       

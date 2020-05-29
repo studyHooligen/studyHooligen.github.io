@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-05-29T13:07:50.300Z</updated>
+  <updated>2020-05-29T14:38:34.280Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Pay for Beauty</title>
+    <link href="http://yoursite.com/2020/05/29/%E9%9A%8F%E7%AC%942020529/"/>
+    <id>http://yoursite.com/2020/05/29/%E9%9A%8F%E7%AC%942020529/</id>
+    <published>2020-05-29T14:28:03.000Z</published>
+    <updated>2020-05-29T14:38:34.280Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="努力" scheme="http://yoursite.com/tags/%E5%8A%AA%E5%8A%9B/"/>
+    
+      <category term="文艺" scheme="http://yoursite.com/tags/%E6%96%87%E8%89%BA/"/>
+    
+  </entry>
   
   <entry>
     <title>JS渲染MD公式换行问题</title>
@@ -57,7 +86,7 @@
     <link href="http://yoursite.com/2020/05/29/%E7%8E%B0%E4%BB%A3%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%9E%8B/"/>
     <id>http://yoursite.com/2020/05/29/%E7%8E%B0%E4%BB%A3%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%9E%8B/</id>
     <published>2020-05-29T08:44:33.000Z</published>
-    <updated>2020-05-29T13:04:15.118Z</updated>
+    <updated>2020-05-29T13:32:42.469Z</updated>
     
     <summary type="html">
     
@@ -73,6 +102,9 @@
 &lt;li&gt;求解系统响应&lt;/li&gt;
 &lt;li&gt;参考书目&lt;/li&gt;
 &lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;该篇公式较多，请耐心等待渲染&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h2 id=&quot;状态空间模型的数学形式&quot;&gt;&lt;a href=&quot;#状态空间模型的数学形式&quot; class=&quot;headerlink&quot; title=&quot;状态空间模型的数学形式&quot;&gt;&lt;/a&gt;状态空间模型的数学形式&lt;/h2&gt;&lt;p&gt;列向量x元素为系统的状态变量&lt;br&gt;$$&lt;br&gt;\mathbf{x}=\begin{bmatrix}&lt;br&gt;x_1&amp;amp;x_2&amp;amp;\cdots&amp;amp;x_n&lt;br&gt;\end{bmatrix}^T&lt;br&gt;$$&lt;br&gt;状态变量方程，输入为u&lt;br&gt;$$&lt;br&gt;\dot {\mathbf{x}} =\mathbf{Fx}+\mathbf{G}u&lt;br&gt;$$&lt;br&gt;输出方程&lt;br&gt;$$&lt;br&gt;y=\mathbf{Hx}+Ju&lt;br&gt;$$&lt;/p&gt;
     
     </summary>
@@ -121,11 +153,11 @@
   </entry>
   
   <entry>
-    <title>wine</title>
-    <link href="http://yoursite.com/2020/05/26/wine/"/>
-    <id>http://yoursite.com/2020/05/26/wine/</id>
+    <title>WINE</title>
+    <link href="http://yoursite.com/2020/05/26/%E9%9A%8F%E7%AC%942020527/"/>
+    <id>http://yoursite.com/2020/05/26/%E9%9A%8F%E7%AC%942020527/</id>
     <published>2020-05-26T12:51:49.000Z</published>
-    <updated>2020-05-27T13:38:07.048Z</updated>
+    <updated>2020-05-29T14:36:03.935Z</updated>
     
     <summary type="html">
     
@@ -149,10 +181,10 @@
   
   <entry>
     <title>爱与被爱</title>
-    <link href="http://yoursite.com/2020/05/26/%E7%88%B1%E4%B8%8E%E8%A2%AB%E7%88%B1/"/>
-    <id>http://yoursite.com/2020/05/26/%E7%88%B1%E4%B8%8E%E8%A2%AB%E7%88%B1/</id>
+    <link href="http://yoursite.com/2020/05/26/%E9%9A%8F%E7%AC%942020526/"/>
+    <id>http://yoursite.com/2020/05/26/%E9%9A%8F%E7%AC%942020526/</id>
     <published>2020-05-25T16:14:22.000Z</published>
-    <updated>2020-05-29T02:20:16.096Z</updated>
+    <updated>2020-05-29T14:35:11.679Z</updated>
     
     <summary type="html">
     
@@ -219,10 +251,10 @@
   
   <entry>
     <title>Sunflower</title>
-    <link href="http://yoursite.com/2020/05/24/%E5%9D%9A%E5%BC%BA%E7%9A%84%E5%90%91%E6%97%A5%E8%91%B5/"/>
-    <id>http://yoursite.com/2020/05/24/%E5%9D%9A%E5%BC%BA%E7%9A%84%E5%90%91%E6%97%A5%E8%91%B5/</id>
+    <link href="http://yoursite.com/2020/05/24/%E9%9A%8F%E7%AC%942020524/"/>
+    <id>http://yoursite.com/2020/05/24/%E9%9A%8F%E7%AC%942020524/</id>
     <published>2020-05-24T15:45:08.000Z</published>
-    <updated>2020-05-24T16:08:33.446Z</updated>
+    <updated>2020-05-29T14:34:58.510Z</updated>
     
     <summary type="html">
     
@@ -278,21 +310,49 @@
   </entry>
   
   <entry>
-    <title>STM32</title>
+    <title>STM32H7</title>
     <link href="http://yoursite.com/2020/05/23/STM32H7/"/>
     <id>http://yoursite.com/2020/05/23/STM32H7/</id>
     <published>2020-05-23T02:11:55.000Z</published>
-    <updated>2020-05-25T13:29:09.072Z</updated>
+    <updated>2020-05-29T13:57:11.398Z</updated>
     
     <summary type="html">
     
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
-        
-      
+      &lt;h1 id=&quot;STM32H7概览&quot;&gt;&lt;a href=&quot;#STM32H7概览&quot; class=&quot;headerlink&quot; title=&quot;STM32H7概览&quot;&gt;&lt;/a&gt;STM32H7概览&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;Cube工程结构&lt;/li&gt;
+&lt;li&gt;HAL库及编程tips&lt;/li&gt;
+&lt;li&gt;H7内存及总线&lt;/li&gt;
+&lt;li&gt;外设使用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;Cube工程结构&quot;&gt;&lt;a href=&quot;#Cube工程结构&quot; class=&quot;headerlink&quot; title=&quot;Cube工程结构&quot;&gt;&lt;/a&gt;Cube工程结构&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;Keil中打开&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;driver&lt;ul&gt;
+&lt;li&gt;Application/MDK-ARM&lt;ul&gt;
+&lt;li&gt;启动文件：startup_stm32xxxx.s&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Application/User&lt;ul&gt;
+&lt;li&gt;主程序文件：main.c&lt;/li&gt;
+&lt;li&gt;中断服务定义文件：stm32xxxx_it.c&lt;/li&gt;
+&lt;li&gt;进行芯片级别硬件初始化设置：stm32xxxx_hal_msp.c&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Drivers/STM32xxxx_HAL_Driver&lt;br&gt;  标准HAL库驱动 &lt;/li&gt;
+&lt;li&gt;Drivers/CMSIS&lt;ul&gt;
+&lt;li&gt;定义系统初始化函数及时钟更新函数：system_stm32xxxx.c&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;文件夹中打开&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;--+ Project             &amp;#x2F;&amp;#x2F;工程根目录&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Drivers         &amp;#x2F;&amp;#x2F;驱动源文件（CubeMX生成）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --+ CMSIS                   &amp;#x2F;&amp;#x2F;ARM的MCU软件接口标准&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --+ STM32H7xx_HAL_Driver    &amp;#x2F;&amp;#x2F;H7芯片的HAL库&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ inc             &amp;#x2F;&amp;#x2F;外设初始化头文件（CubeMX生成）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ MDK-ARM         &amp;#x2F;&amp;#x2F;Keil工程目录&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Middlewares     &amp;#x2F;&amp;#x2F;第三方软件包&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Src             &amp;#x2F;&amp;#x2F;外设初始化源文件（CubeMX生成）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Task            &amp;#x2F;&amp;#x2F;如果有OS的话，该文件夹为任务or线程文件&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ BSP             &amp;#x2F;&amp;#x2F;BSP文件&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ REFERENCE       &amp;#x2F;&amp;#x2F;使用到的参考资料（笔者自己添加的）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --+ link.md&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --- ...&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Project.ioc     &amp;#x2F;&amp;#x2F;CubeMX工程文件&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ README.md       &amp;#x2F;&amp;#x2F;README文件（笔者自己加的）&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;h2 id=&quot;HAL库及编程tips&quot;&gt;&lt;a href=&quot;#HAL库及编程tips&quot; class=&quot;headerlink&quot; title=&quot;HAL库及编程tips&quot;&gt;&lt;/a&gt;HAL库及编程tips&lt;/h2&gt;
     
     </summary>
     
