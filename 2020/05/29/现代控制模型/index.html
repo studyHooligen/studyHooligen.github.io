@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">953</span>
+            <span class="post-count">1.1k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
+            <span class="post-count">5 min</span>
         </span>
     </span>
 </div>
@@ -112,10 +112,10 @@
       <blockquote>
 <p>前言：对于现代控制系统的分析设计，主要采用“状态空间”方法。而传递函数分析法（根轨迹和频响），为经典控制设计。通过建立状态模型，可以很容易地使用计算机系统进行数值计算仿真；尤其当系统是多输入和多输出的系统时，矩阵形式的状态方程更加易于表达</p>
 <blockquote>
-<p>笔者将内容分为理论篇和应用篇，该篇为理论为主</p>
+<p>笔者将内容分为理论篇和应用篇，该篇以理论为主</p>
 </blockquote>
 </blockquote>
-<h1 id="理论篇内容概要"><a href="#理论篇内容概要" class="headerlink" title="理论篇内容概要"></a>理论篇内容概要</h1><ul>
+<h2 id="理论篇内容概要"><a href="#理论篇内容概要" class="headerlink" title="理论篇内容概要"></a>理论篇内容概要</h2><ul>
 <li>状态空间模型的数学形式</li>
 <li>状态方程和传输函数的相互转换</li>
 <li>求解系统响应</li>
@@ -159,13 +159,33 @@
 <p>该形式可以直接从方框图中得到</p>
 </blockquote>
 </blockquote>
+<h2 id="一般形式转控制标准型"><a href="#一般形式转控制标准型" class="headerlink" title="一般形式转控制标准型"></a>一般形式转控制标准型</h2><blockquote>
+<p>对原有矩阵，进行变量的线性变换</p>
+</blockquote>
+<p>$$<br>\mathbf{x}=\mathbf{Tz}<br>$$</p>
+<ol>
+<li>构造能控性矩阵(controllability matrix)</li>
+</ol>
+<p>$$<br>\mathcal{C}=\begin{bmatrix}<br>  \mathbf{G} &amp; \mathbf{FG} &amp;\cdots&amp; \mathbf{F}^{n-1}\mathbf{G}<br>\end{bmatrix}<br>$$</p>
+<ol start="2">
+<li>计算变换矩阵的逆矩阵的最后一行</li>
+</ol>
+<p>$$<br>\mathbf{t}_n=\begin{bmatrix}<br>  0&amp; 0&amp; \cdots &amp;1<br>\end{bmatrix}\mathcal{C}^{-1}<br>$$</p>
+<ol start="3">
+<li>构造完整的变换矩阵</li>
+</ol>
+<p>$$<br>\mathbf{T}^{-1}=\begin{bmatrix}<br>  \mathbf{t}_n\mathbf{F}^{n-1} \<br>  \mathbf{t}_n\mathbf{F}^{n-2} \<br>  \vdots \<br>  \mathbf{t}_n<br>\end{bmatrix}<br>$$</p>
+<ol start="4">
+<li>求解新的矩阵</li>
+</ol>
+<p>$$<br>\mathbf{A}=\mathbf{T^{-1}FT} \<br>\mathbf{B}=\mathbf{T^{-1}G} \<br>\mathbf{C}=\mathbf{HT} \<br>D=J<br>$$</p>
 <h2 id="求解系统响应"><a href="#求解系统响应" class="headerlink" title="求解系统响应"></a>求解系统响应</h2><p>$$<br>\because \dot{\mathbf{x}}=\mathbf{Fx}+\mathbf{G}u \\<br>\therefore s\mathbf{X}(s)-\mathbf{x}(0)=\mathbf{FX}(s)+\mathbf{G}U(s) \\<br>(s\mathbf{I-F})\mathbf{X}(s)=\mathbf{GU}(s)+\mathbf{x}(0) \\<br>X(s)=(s\mathbf{I-F})^{-1}\mathbf{G}U(s)+ (s\mathbf{I-F})^{-1}\mathbf{x}(0) \\<br>\because Y(s)=\mathbf{HX}(s)+JU(s)\\<br>\therefore Y(s)=\mathbf {H}(s\mathbf{I-F})^{-1}\mathbf{G}U(s)+ \mathbf {H}(s\mathbf{I-F})^{-1}\mathbf{x}(0)+JU(s)<br>$$</p>
 <blockquote>
 <p>注意：该式即为系统的全响应，零状态响应和零输入响应的叠加</p>
 </blockquote>
 <p>所以系统传递函数为：<br>$$<br>G(s)=\mathbf {H}(s\mathbf{I-F})^{-1}\mathbf{G}(s)+J<br>$$</p>
 <h2 id="参考书目"><a href="#参考书目" class="headerlink" title="参考书目"></a>参考书目</h2><ul>
-<li>《自动控制原理与设计（第六版）》</li>
+<li>《Feedback Control of Dynamic System Sixth Edition》</li>
 </ul>
 
       

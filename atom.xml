@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-01T10:19:34.104Z</updated>
+  <updated>2020-06-01T13:12:56.492Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,11 +21,14 @@
     <link href="http://yoursite.com/2020/06/01/%E5%80%92%E7%AB%8B%E6%91%86%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/"/>
     <id>http://yoursite.com/2020/06/01/%E5%80%92%E7%AB%8B%E6%91%86%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/</id>
     <published>2020-06-01T06:52:34.000Z</published>
-    <updated>2020-06-01T10:19:34.104Z</updated>
+    <updated>2020-06-01T13:12:56.492Z</updated>
     
     <summary type="html">
     
-      &lt;h2 id=&quot;倒立摆系统简图&quot;&gt;&lt;a href=&quot;#倒立摆系统简图&quot; class=&quot;headerlink&quot; title=&quot;倒立摆系统简图&quot;&gt;&lt;/a&gt;倒立摆系统简图&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/01/tGZdvq.jpg&quot; alt=&quot;受力分析&quot;&gt;&lt;/p&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;前言：平衡倒立摆系统是非常经典的自动控制系统，目前国际上最先进的控制技术能做到四阶（我国大连理工大学首个实现）。本文讨论的为一阶倒立摆系统的系统建模，该模型是对平衡倒立摆进行控制的基础工作，也是现在市面上流行的平衡车的工作原理之一。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;倒立摆系统简图&quot;&gt;&lt;a href=&quot;#倒立摆系统简图&quot; class=&quot;headerlink&quot; title=&quot;倒立摆系统简图&quot;&gt;&lt;/a&gt;倒立摆系统简图&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/01/tGZdvq.jpg&quot; alt=&quot;受力分析&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -109,17 +112,17 @@
     <link href="http://yoursite.com/2020/05/29/%E7%8E%B0%E4%BB%A3%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%9E%8B/"/>
     <id>http://yoursite.com/2020/05/29/%E7%8E%B0%E4%BB%A3%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%9E%8B/</id>
     <published>2020-05-29T08:44:33.000Z</published>
-    <updated>2020-05-29T13:32:42.469Z</updated>
+    <updated>2020-06-01T15:15:29.122Z</updated>
     
     <summary type="html">
     
       &lt;blockquote&gt;
 &lt;p&gt;前言：对于现代控制系统的分析设计，主要采用“状态空间”方法。而传递函数分析法（根轨迹和频响），为经典控制设计。通过建立状态模型，可以很容易地使用计算机系统进行数值计算仿真；尤其当系统是多输入和多输出的系统时，矩阵形式的状态方程更加易于表达&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;笔者将内容分为理论篇和应用篇，该篇为理论为主&lt;/p&gt;
+&lt;p&gt;笔者将内容分为理论篇和应用篇，该篇以理论为主&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;/blockquote&gt;
-&lt;h1 id=&quot;理论篇内容概要&quot;&gt;&lt;a href=&quot;#理论篇内容概要&quot; class=&quot;headerlink&quot; title=&quot;理论篇内容概要&quot;&gt;&lt;/a&gt;理论篇内容概要&lt;/h1&gt;&lt;ul&gt;
+&lt;h2 id=&quot;理论篇内容概要&quot;&gt;&lt;a href=&quot;#理论篇内容概要&quot; class=&quot;headerlink&quot; title=&quot;理论篇内容概要&quot;&gt;&lt;/a&gt;理论篇内容概要&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;状态空间模型的数学形式&lt;/li&gt;
 &lt;li&gt;状态方程和传输函数的相互转换&lt;/li&gt;
 &lt;li&gt;求解系统响应&lt;/li&gt;
