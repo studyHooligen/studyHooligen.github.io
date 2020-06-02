@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">369</span>
+            <span class="post-count">484</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
+            <span class="post-count">2 min</span>
         </span>
     </span>
 </div>
@@ -109,7 +109,10 @@
       
 
       
-      <h2 id="直流电机结构简图"><a href="#直流电机结构简图" class="headerlink" title="直流电机结构简图"></a>直流电机结构简图</h2><p><img src="https://s1.ax1x.com/2020/06/02/tt2n8P.png" alt="结构简图"></p>
+      <blockquote>
+<p>前言：直流电机（DC Motor）是最常见的电机，所以对该模型的分析是后续工作的重要前提</p>
+</blockquote>
+<h2 id="直流电机结构简图"><a href="#直流电机结构简图" class="headerlink" title="直流电机结构简图"></a>直流电机结构简图</h2><p><img src="https://s1.ax1x.com/2020/06/02/tt2n8P.png" alt="结构简图"></p>
 <a id="more"></a>
 
 <h2 id="直流电机电路模型"><a href="#直流电机电路模型" class="headerlink" title="直流电机电路模型"></a>直流电机电路模型</h2><p><img src="https://s1.ax1x.com/2020/06/02/ttw3fe.png" alt="电路模型"></p>
@@ -135,6 +138,10 @@
 <p>则将该式带入上电路方程，Laplace形式为：</p>
 </blockquote>
 <p>$$<br>(L_a\cdot s+R_a)\cdot\frac{J_m\cdot s^2+b\cdot s}{K_t}\cdot\Theta(s)=V(s)-K_e\cdot s\cdot\Theta(s) \\ \Rightarrow<br>\frac{\Theta(s)}{V(s)}=\frac{K_t}{s[(J_ms+b)(L_as+R_a)+K_tK_e]}<br>$$</p>
+<h2 id="激励源和输出转速的关系"><a href="#激励源和输出转速的关系" class="headerlink" title="激励源和输出转速的关系"></a>激励源和输出转速的关系</h2><p>利用上推导出的结果and转速和转角的微分关系</p>
+<p>$$<br>\frac{\Theta(s)}{V(s)}=\frac{K_t}{s[(J_ms+b)(L_as+R_a)+K_tK_e]}=\frac{W(s)}{sV(s)} \ \Rightarrow<br>\frac{W(s)}{V(s)} =\frac{K_t}{(J_ms+b)(L_as+R_a)+K_tK_e}<br>$$</p>
+<h2 id="Matlab-simulink建模"><a href="#Matlab-simulink建模" class="headerlink" title="Matlab@simulink建模"></a>Matlab@simulink建模</h2><p><img src="https://s1.ax1x.com/2020/06/02/ttbwMd.png" alt="直流电机Simulink"></p>
+<p>该模型已经上传至笔者的Github仓库：<br><a href="https://github.com/studyHooligen/SimulinkModel" target="_blank" rel="noopener">simulinkModel</a></p>
 
       
       <!-- reward -->
