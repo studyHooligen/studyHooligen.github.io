@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    倒立摆力学分析 |  Singularity-blog
+    直流电机模型分析 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -43,7 +43,7 @@
   <div id="app">
     <main class="content on">
       <section class="outer">
-  <article id="post-倒立摆力学分析" class="article article-type-post" itemscope
+  <article id="post-直流电机模型分析" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -51,7 +51,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  倒立摆力学分析
+  直流电机模型分析
 </h1>
  
 
@@ -60,12 +60,12 @@
 
     
     <div class="article-meta">
-      <a href="/2020/06/01/%E5%80%92%E7%AB%8B%E6%91%86%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/" class="article-date">
-  <time datetime="2020-06-01T06:52:34.000Z" itemprop="datePublished">2020-06-01</time>
+      <a href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/" class="article-date">
+  <time datetime="2020-06-02T07:28:19.000Z" itemprop="datePublished">2020-06-02</time>
 </a>
       
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E7%B3%BB%E7%BB%9F/">动力学系统</a>
+    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
   </div>
 
       
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">648</span>
+            <span class="post-count">369</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
+            <span class="post-count">1 min</span>
         </span>
     </span>
 </div>
@@ -109,65 +109,32 @@
       
 
       
-      <blockquote>
-<p>前言：平衡倒立摆系统是非常经典的自动控制系统，目前国际上最先进的控制技术能做到四阶（我国大连理工大学首个实现）。本文讨论的为一阶倒立摆系统的系统建模，该模型是对平衡倒立摆进行控制的基础工作，也是现在市面上流行的平衡车的工作原理之一。</p>
-</blockquote>
-<h2 id="倒立摆系统简图"><a href="#倒立摆系统简图" class="headerlink" title="倒立摆系统简图"></a>倒立摆系统简图</h2><p><img src="https://s1.ax1x.com/2020/06/01/tGZdvq.jpg" alt="受力分析"></p>
+      <h2 id="直流电机结构简图"><a href="#直流电机结构简图" class="headerlink" title="直流电机结构简图"></a>直流电机结构简图</h2><p><img src="https://s1.ax1x.com/2020/06/02/tt2n8P.png" alt="结构简图"></p>
 <a id="more"></a>
 
-<h2 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h2><ul>
-<li>小车</li>
-</ul>
-<p>$$<br>小车所受推力F \\<br>小车质量M \\<br>小车运动摩檫力f \\<br>小车铰链水平受力N \\<br>小车铰链竖直方向压力P \\<br>小车水平位置x<br>$$</p>
-<ul>
-<li>摆杆</li>
-</ul>
-<p>$$<br>摆杆所受铰链水平作用力N \\<br>摆杆所受铰链竖直方向支持力P \\<br>摆杆所受重力G \\<br>摆杆与竖直方向夹角\theta \\<br>摆杆质心相对铰链距离l \\<br>摆杆自身转动惯量I \\<br>摆杆质量m<br>$$</p>
-<h2 id="受力分析"><a href="#受力分析" class="headerlink" title="受力分析"></a>受力分析</h2><ul>
-<li><p>小车水平受力分析</p>
-<p>  $$<br>  \vec{F}+\vec{f}+\vec{N}=M\cdot\vec{a} \\<br>  \vec{a}=\ddot{x} \\<br>  \vec{f}=-k\cdot\dot{x}<br>  $$</p>
-<p>  小车竖直方向上的受力，在小车运行轨道不发生明显行变时，可直接视为合力为0</p>
-</li>
-<li><p>摆杆水平受力</p>
-<p>  水平所受合力作用结果相当于质心加速度</p>
-<p>  $$<br>  N= m\frac{d^2}{dt^2}(x-l\sin\theta)<br>  $$</p>
-<p>  展开可得</p>
-<p>  $$<br>  N=m\ddot{x}- ml(\cos\theta\cdot\ddot{\theta}- \sin\theta\cdot\dot{\theta}^2)<br>  $$</p>
-</li>
-</ul>
+<h2 id="直流电机电路模型"><a href="#直流电机电路模型" class="headerlink" title="直流电机电路模型"></a>直流电机电路模型</h2><p><img src="https://s1.ax1x.com/2020/06/02/ttw3fe.png" alt="电路模型"></p>
 <blockquote>
-<p>则联立上两条件公式：</p>
+<p>图片取自《Feedback Control of Dynamic System Sixth Edition》，侵删</p>
 </blockquote>
-<p>$$<br>F=(M+m)\ddot{x}-ml\cdot(\cos\theta\cdot\ddot{\theta}-\sin\theta\cdot\dot{\theta}^2)+f<br>$$</p>
-<ul>
-<li><p>摆杆垂直受力</p>
-<p>  $$<br>  P-G=m\frac{d^2}{dt^2}(l\cos\theta)=-ml(\cos\theta\cdot\dot{\theta}^2-\sin\theta\cdot\ddot{\theta})<br>  $$</p>
-</li>
-<li><p>整体摆杆的力矩平衡方程为</p>
-<p>  $$<br>  \vec{l}\times\vec{P}+\vec{l}\times\vec{N}+I\ddot{\theta}=0<br>  $$</p>
-<p>  由图中示意图和三角关系可得：</p>
-<p>  $$<br>  l\cdot P\cdot \sin\theta + l\cdot N\cdot \cos\theta+I\ddot{\theta}=0<br>  $$</p>
-</li>
-</ul>
+<h2 id="变量声明"><a href="#变量声明" class="headerlink" title="变量声明"></a>变量声明</h2><p>$$<br>激励源v_a \\<br>电流i_a \\<br>电机等效内阻R_a \\<br>电机等效电感L_a \\<br>电机转动感应反电动势e \\<br>电机转角\theta \\<br>电机角转速\omega \\<br>电机转动惯量J_m \\<br>转轴旋转粘滞系数b \\<br>电流产生的转矩T \\<br>转矩常数K_t \\<br>电动势常数K_e<br>$$</p>
+<h2 id="模型分析"><a href="#模型分析" class="headerlink" title="模型分析"></a>模型分析</h2><p>电流通过导线在磁场中产生的（元）力</p>
+<p>$$<br>\vec{F}_\Delta=I\vec{l}\times\vec{B} \\<br>$$</p>
+<p>导线（元）力相对转轴产生的（元）力矩</p>
+<p>$$<br>\vec{T}_\Delta= \vec{r}\times\vec{F}<br>$$</p>
+<p>所有线圈共同产生（合）力矩</p>
+<p>$$<br>\vec{T}=N\cdot\vec{M}_\Delta \\<br>T=K_t\cdot i_a<br>$$</p>
+<p>线圈在磁场中转动产生的反向电动势（类上，采用元累加法分析）</p>
+<p>$$<br>\because e_\Delta =Blv,v=\omega r=\dot{\theta}r \\<br>\therefore e=K_e\cdot \dot{\theta}<br>$$</p>
 <blockquote>
-<p>则联立上两条件公式和N的表达式有：</p>
+<p>综上，可以列写总体电路方程为：</p>
 </blockquote>
-<p>$$<br>(I^2+ml^2)\ddot{\theta}-ml\cdot\ddot{x}\cdot\cos\theta-mgl\cdot\sin\theta= 0<br>$$</p>
-<h2 id="线性化整体系统"><a href="#线性化整体系统" class="headerlink" title="线性化整体系统"></a>线性化整体系统</h2><p>当倒立单摆的角度偏离很小时，可做线性化近似：</p>
-<p>$$<br>\lim_{\theta\to0} \cos\theta=1 \\<br>\lim_{\theta\to0} \sin\theta=\theta \\<br>(\frac{d\theta}{dt})^2=0<br>$$</p>
-<p>则受力分析方程可近似为：</p>
-<p>$$<br>(I^2+ml^2)\ddot{\theta}-mgl\theta=ml\ddot{x} \\<br>(m+M)\ddot{x}-ml\ddot{\theta}+f=F<br>$$</p>
-<ul>
-<li>代入线性摩檫力</li>
-</ul>
-<p>$$<br>(m+M)\ddot{x}-ml\ddot{\theta}+k\dot{x}=F<br>$$</p>
-<ul>
-<li>若摩檫力为伴随噪声(高斯白噪声)的情况</li>
-</ul>
-<p>$$<br>f=k\dot{x}+N_0(t)<br>$$</p>
+<p>$$<br>L_a\frac{di_a}{dt}+R_ai_a=v_a-K_e\dot{\theta} \\<br>\underleftrightarrow{L} \\<br>L_a\cdot sI(s)+R_a\cdot I(s)=V(s)-K_e\cdot s\Theta(s)<br>$$</p>
+<p>对电机的转子进行力矩分析</p>
+<p>$$<br>T-T_f=J_m\cdot\ddot{\theta} \\<br>\because T_f=b\dot{\theta} \\ \therefore<br>K_ti_a-b\dot{\theta}=J_m\cdot\ddot{\theta} \\<br>\underleftrightarrow{L} \\<br>K_t\cdot I(s)-b\cdot s\Theta(s)=J_m\cdot s^2\Theta(s)<br>$$</p>
 <blockquote>
-<p>该情况需要结合随机过程分析，本文中不论（主要是我现在不会）</p>
+<p>则将该式带入上电路方程，Laplace形式为：</p>
 </blockquote>
+<p>$$<br>(L_a\cdot s+R_a)\cdot\frac{J_m\cdot s^2+b\cdot s}{K_t}\cdot\Theta(s)=V(s)-K_e\cdot s\cdot\Theta(s) \\ \Rightarrow<br>\frac{\Theta(s)}{V(s)}=\frac{K_t}{s[(J_ms+b)(L_as+R_a)+K_tK_e]}<br>$$</p>
 
       
       <!-- reward -->
@@ -236,14 +203,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/06/01/%E5%80%92%E7%AB%8B%E6%91%86%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/" rel="tag">动力学分析</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B3%E8%A1%A1%E5%80%92%E7%AB%8B%E6%91%86/" rel="tag">平衡倒立摆</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC%E7%94%B5%E6%9C%BA/" rel="tag">DC电机</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B/" rel="tag">电机模型</a></li></ul>
 
 
     </footer>
@@ -254,19 +221,10 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            直流电机模型分析
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/05/29/%E9%9A%8F%E7%AC%942020529/" class="article-nav-link">
+      <a href="/2020/06/01/%E5%80%92%E7%AB%8B%E6%91%86%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Pay for Beauty</div>
+        <div class="article-nav-title">倒立摆力学分析</div>
       </a>
     
   </nav>

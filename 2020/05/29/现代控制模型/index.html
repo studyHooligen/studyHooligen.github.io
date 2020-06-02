@@ -176,7 +176,7 @@
 </ol>
 <p>$$<br>\mathbf{T}^{-1}=\begin{bmatrix}<br>  \mathbf{t}_n\mathbf{F}^{n-1} \<br>  \mathbf{t}_n\mathbf{F}^{n-2} \<br>  \vdots \<br>  \mathbf{t}_n<br>\end{bmatrix}<br>$$</p>
 <ol start="4">
-<li>求解新的矩阵</li>
+<li>求解新的矩阵（标准控制型）</li>
 </ol>
 <p>$$<br>\mathbf{A}=\mathbf{T^{-1}FT} \<br>\mathbf{B}=\mathbf{T^{-1}G} \<br>\mathbf{C}=\mathbf{HT} \<br>D=J<br>$$</p>
 <h2 id="求解系统响应"><a href="#求解系统响应" class="headerlink" title="求解系统响应"></a>求解系统响应</h2><p>$$<br>\because \dot{\mathbf{x}}=\mathbf{Fx}+\mathbf{G}u \\<br>\therefore s\mathbf{X}(s)-\mathbf{x}(0)=\mathbf{FX}(s)+\mathbf{G}U(s) \\<br>(s\mathbf{I-F})\mathbf{X}(s)=\mathbf{GU}(s)+\mathbf{x}(0) \\<br>X(s)=(s\mathbf{I-F})^{-1}\mathbf{G}U(s)+ (s\mathbf{I-F})^{-1}\mathbf{x}(0) \\<br>\because Y(s)=\mathbf{HX}(s)+JU(s)\\<br>\therefore Y(s)=\mathbf {H}(s\mathbf{I-F})^{-1}\mathbf{G}U(s)+ \mathbf {H}(s\mathbf{I-F})^{-1}\mathbf{x}(0)+JU(s)<br>$$</p>
@@ -185,7 +185,8 @@
 </blockquote>
 <p>所以系统传递函数为：<br>$$<br>G(s)=\mathbf {H}(s\mathbf{I-F})^{-1}\mathbf{G}(s)+J<br>$$</p>
 <h2 id="参考书目"><a href="#参考书目" class="headerlink" title="参考书目"></a>参考书目</h2><ul>
-<li>《Feedback Control of Dynamic System Sixth Edition》</li>
+<li>《Feedback Control of Dynamic System Sixth Edition》——Gene F.Franklin[美]</li>
+<li>《Modern Control Systems Twelfth Edition》——Richard C. Dorf[美]</li>
 </ul>
 
       
