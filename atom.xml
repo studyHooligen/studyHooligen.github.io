@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-03T12:17:13.976Z</updated>
+  <updated>2020-06-05T15:29:29.746Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,39 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>DCDC</title>
+    <link href="http://yoursite.com/2020/06/05/DCDC/"/>
+    <id>http://yoursite.com/2020/06/05/DCDC/</id>
+    <published>2020-06-05T11:20:53.000Z</published>
+    <updated>2020-06-05T15:29:29.746Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：笔者最近突发奇想，要做一个超级电容UPS，所以基础的DCDC知识必然要好好复习一下&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;网络上教程很多，该文章只作为总结归纳使用&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;Buck电路（降压DCDC）&quot;&gt;&lt;a href=&quot;#Buck电路（降压DCDC）&quot; class=&quot;headerlink&quot; title=&quot;Buck电路（降压DCDC）&quot;&gt;&lt;/a&gt;Buck电路（降压DCDC）&lt;/h2&gt;
+    
+    </summary>
+    
+    
+      <category term="硬件基础" scheme="http://yoursite.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="电源变换" scheme="http://yoursite.com/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/"/>
+    
+      <category term="DC-DC" scheme="http://yoursite.com/tags/DC-DC/"/>
+    
+      <category term="Boost" scheme="http://yoursite.com/tags/Boost/"/>
+    
+      <category term="Buck" scheme="http://yoursite.com/tags/Buck/"/>
+    
+  </entry>
   
   <entry>
     <title>MCU移植控制台</title>
