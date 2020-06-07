@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-06T16:14:09.038Z</updated>
+  <updated>2020-06-07T05:38:49.809Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,41 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>SVN管理AD工程</title>
+    <link href="http://yoursite.com/2020/06/07/SVN%E7%AE%A1%E7%90%86AD%E5%B7%A5%E7%A8%8B/"/>
+    <id>http://yoursite.com/2020/06/07/SVN%E7%AE%A1%E7%90%86AD%E5%B7%A5%E7%A8%8B/</id>
+    <published>2020-06-07T03:38:00.000Z</published>
+    <updated>2020-06-07T05:38:49.809Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;工作环境&quot;&gt;&lt;a href=&quot;#工作环境&quot; class=&quot;headerlink&quot; title=&quot;工作环境&quot;&gt;&lt;/a&gt;工作环境&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;操作系统：Windows10 Pro 1909&lt;/li&gt;
+&lt;li&gt;Altium Designer：AD19.0.4&lt;/li&gt;
+&lt;li&gt;一杯咖啡☕和好心情😝&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;在AD中配置SVN&quot;&gt;&lt;a href=&quot;#在AD中配置SVN&quot; class=&quot;headerlink&quot; title=&quot;在AD中配置SVN&quot;&gt;&lt;/a&gt;在AD中配置SVN&lt;/h2&gt;
+    
+    </summary>
+    
+    
+      <category term="网站技术" scheme="http://yoursite.com/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Web" scheme="http://yoursite.com/tags/Web/"/>
+    
+      <category term="SVN" scheme="http://yoursite.com/tags/SVN/"/>
+    
+      <category term="Altium Designer" scheme="http://yoursite.com/tags/Altium-Designer/"/>
+    
+  </entry>
+  
+  <entry>
     <title>SVN服务器搭建</title>
     <link href="http://yoursite.com/2020/06/06/SVN%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/"/>
     <id>http://yoursite.com/2020/06/06/SVN%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/</id>
     <published>2020-06-06T13:09:32.000Z</published>
-    <updated>2020-06-06T16:14:09.038Z</updated>
+    <updated>2020-06-07T05:47:41.949Z</updated>
     
     <summary type="html">
     
