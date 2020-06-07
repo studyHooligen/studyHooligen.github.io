@@ -77,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">355</span>
+            <span class="post-count">570</span>
         </span>
     </span>
 
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
+            <span class="post-count">2 min</span>
         </span>
     </span>
 </div>
@@ -111,7 +111,10 @@
       
 
       
-      <h2 id="工作环境"><a href="#工作环境" class="headerlink" title="工作环境"></a>工作环境</h2><ul>
+      <blockquote>
+<p>前言：上一篇博文中探索了搭建SVN服务器，那么接下来就是使用啦！在Altium Designer中对SVN的支持是非常棒的（也只支持这个…)</p>
+</blockquote>
+<h2 id="工作环境"><a href="#工作环境" class="headerlink" title="工作环境"></a>工作环境</h2><ul>
 <li>操作系统：Windows10 Pro 1909</li>
 <li>Altium Designer：AD19.0.4</li>
 <li>一杯咖啡☕和好心情😝</li>
@@ -171,6 +174,42 @@
 <h2 id="查看本地工程变化"><a href="#查看本地工程变化" class="headerlink" title="查看本地工程变化"></a>查看本地工程变化</h2><p>在右下角的Panels中调出Storage Manager</p>
 <p><img src="https://s1.ax1x.com/2020/06/07/t2Chj0.png" alt="Storage Manager"></p>
 <p>就可以在Status一栏中看到工程的变动了</p>
+<h2 id="从远程拉取库"><a href="#从远程拉取库" class="headerlink" title="从远程拉取库"></a>从远程拉取库</h2><blockquote>
+<p>由于AD19目前不支持浏览远程SVN库的内容，所以需要手动检出（Checkout）库内容</p>
+<blockquote>
+<p>在这之前需要先安装好TortoiseSVN</p>
+</blockquote>
+</blockquote>
+<ul>
+<li><p>TortoiseSVN下载地址</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;tortoisesvn.net&#x2F;downloads.zh.html</span><br></pre></td></tr></table></figure>
+
+<p>  一路next安装就可以了</p>
+</li>
+<li><p>使用TortoiseSVN Repository Browser查看库内容</p>
+<p>  <img src="https://s1.ax1x.com/2020/06/07/t2JKCd.png" alt="TortoiseSVN Repository Browser"></p>
+<p>  按提示填写库地址：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svn:&#x2F;&#x2F;server.singularity-blog.top&#x2F;AD_PersonalLibrary</span><br></pre></td></tr></table></figure>
+
+<p>  就能看到目前的内容了：</p>
+<p>  <img src="https://s1.ax1x.com/2020/06/07/t2JQgI.png" alt="Detail"></p>
+</li>
+<li><p>拉取库内容</p>
+<ol>
+<li><p>右键，点击checkout<br> <img src="https://s1.ax1x.com/2020/06/07/t2JM8A.png" alt="选择Checkout"></p>
+</li>
+<li><p>填写想要存放的路径位置<br> <img src="https://s1.ax1x.com/2020/06/07/t2Jn4H.png" alt="路径填写"></p>
+<blockquote>
+<p>路径这边只是示例！大家务必自己安排位置噢</p>
+</blockquote>
+</li>
+<li><p>开始下载库的内容啦！<br> <img src="https://s1.ax1x.com/2020/06/07/t2JmUe.png" alt="downloading"></p>
+</li>
+</ol>
+</li>
+<li><p>下载好之后，直接用AD打开就可以了</p>
+</li>
+</ul>
 
       
       <!-- reward -->

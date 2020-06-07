@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-07T05:38:49.809Z</updated>
+  <updated>2020-06-07T07:47:09.695Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,11 +21,14 @@
     <link href="http://yoursite.com/2020/06/07/SVN%E7%AE%A1%E7%90%86AD%E5%B7%A5%E7%A8%8B/"/>
     <id>http://yoursite.com/2020/06/07/SVN%E7%AE%A1%E7%90%86AD%E5%B7%A5%E7%A8%8B/</id>
     <published>2020-06-07T03:38:00.000Z</published>
-    <updated>2020-06-07T05:38:49.809Z</updated>
+    <updated>2020-06-07T07:47:09.695Z</updated>
     
     <summary type="html">
     
-      &lt;h2 id=&quot;工作环境&quot;&gt;&lt;a href=&quot;#工作环境&quot; class=&quot;headerlink&quot; title=&quot;工作环境&quot;&gt;&lt;/a&gt;工作环境&lt;/h2&gt;&lt;ul&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;前言：上一篇博文中探索了搭建SVN服务器，那么接下来就是使用啦！在Altium Designer中对SVN的支持是非常棒的（也只支持这个…)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;工作环境&quot;&gt;&lt;a href=&quot;#工作环境&quot; class=&quot;headerlink&quot; title=&quot;工作环境&quot;&gt;&lt;/a&gt;工作环境&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;操作系统：Windows10 Pro 1909&lt;/li&gt;
 &lt;li&gt;Altium Designer：AD19.0.4&lt;/li&gt;
 &lt;li&gt;一杯咖啡☕和好心情😝&lt;/li&gt;
