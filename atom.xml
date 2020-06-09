@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-07T09:28:57.111Z</updated>
+  <updated>2020-06-09T14:49:32.341Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,86 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>ESP8266连接服务器</title>
+    <link href="http://yoursite.com/2020/06/09/ESP8266%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/"/>
+    <id>http://yoursite.com/2020/06/09/ESP8266%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/</id>
+    <published>2020-06-09T12:23:27.000Z</published>
+    <updated>2020-06-09T14:49:32.341Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;ESP8266连接WIFI&quot;&gt;&lt;a href=&quot;#ESP8266连接WIFI&quot; class=&quot;headerlink&quot; title=&quot;ESP8266连接WIFI&quot;&gt;&lt;/a&gt;ESP8266连接WIFI&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;通过UART和电源把ESP8266模块连接到PC机&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;打开串口调试助手&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;使用AT指令连接WIFI（下面是笔者的手机开的WIFI）&lt;/p&gt;
+ &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;AT+CWJAP_DEF&amp;#x3D;&amp;quot;singularity&amp;quot;,&amp;quot;S1234567890&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;AT指令是什么？这太简单了，自行百度吧&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;上电后，并且连接WIFI如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/09/tIkA7d.png&quot; alt=&quot;连接WIFI&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;在云端建立TCP服务器&quot;&gt;&lt;a href=&quot;#在云端建立TCP服务器&quot; class=&quot;headerlink&quot; title=&quot;在云端建立TCP服务器&quot;&gt;&lt;/a&gt;在云端建立TCP服务器&lt;/h2&gt;
+    
+    </summary>
+    
+    
+      <category term="IoT" scheme="http://yoursite.com/categories/IoT/"/>
+    
+    
+      <category term="IoT" scheme="http://yoursite.com/tags/IoT/"/>
+    
+      <category term="ESP8266" scheme="http://yoursite.com/tags/ESP8266/"/>
+    
+      <category term="WiFi" scheme="http://yoursite.com/tags/WiFi/"/>
+    
+      <category term="TCP" scheme="http://yoursite.com/tags/TCP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>卡尔曼滤波器</title>
+    <link href="http://yoursite.com/2020/06/09/KalmanFilter/"/>
+    <id>http://yoursite.com/2020/06/09/KalmanFilter/</id>
+    <published>2020-06-09T03:07:12.000Z</published>
+    <updated>2020-06-09T15:25:13.661Z</updated>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;什么是卡尔曼滤波器（Kalman-Filter）&quot;&gt;&lt;a href=&quot;#什么是卡尔曼滤波器（Kalman-Filter）&quot; class=&quot;headerlink&quot; title=&quot;什么是卡尔曼滤波器（Kalman Filter）&quot;&gt;&lt;/a&gt;什么是卡尔曼滤波器（Kalman Filter）&lt;/h2&gt;&lt;p&gt;虽然名字里带了“滤波”，但其实卡尔曼滤波器是一种状态优化估算算法（optimal estimation algorithm）。&lt;/p&gt;
+&lt;h2 id=&quot;为什么使用KF&quot;&gt;&lt;a href=&quot;#为什么使用KF&quot; class=&quot;headerlink&quot; title=&quot;为什么使用KF&quot;&gt;&lt;/a&gt;为什么使用KF&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;当我们有很多种数据来源时，使用KF进行多数据融合&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;比如汽车：陀螺仪积分得到位移、里程计、GPS，那么通过KF就可以结合这3个数据，得到最大概率位置&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;当需要测量无法测量物理量时，使用KF估计状态&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;比如火箭发动机内温：可以测量火箭发动机外壳温度，再利用导热定律求解内温；也可以通过燃料的使用量和燃料的燃烧热计算出内温。这都是间接计算内温，那么真正的内温是多少？还是使用KF得出最终温度（这好像还是多数据融合）&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;KF原理&quot;&gt;&lt;a href=&quot;#KF原理&quot; class=&quot;headerlink&quot; title=&quot;KF原理&quot;&gt;&lt;/a&gt;KF原理&lt;/h2&gt;
+    
+    </summary>
+    
+    
+      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="状态空间模型" scheme="http://yoursite.com/tags/%E7%8A%B6%E6%80%81%E7%A9%BA%E9%97%B4%E6%A8%A1%E5%9E%8B/"/>
+    
+      <category term="KalmanFilter" scheme="http://yoursite.com/tags/KalmanFilter/"/>
+    
+  </entry>
   
   <entry>
     <title>抗疫</title>
