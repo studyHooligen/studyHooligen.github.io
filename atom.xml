@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-09T14:49:32.341Z</updated>
+  <updated>2020-06-10T14:49:12.732Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>simulink生成电机控制代码</title>
+    <link href="http://yoursite.com/2020/06/10/simulinkGenerateCode/"/>
+    <id>http://yoursite.com/2020/06/10/simulinkGenerateCode/</id>
+    <published>2020-06-10T11:35:23.000Z</published>
+    <updated>2020-06-10T14:49:12.732Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="PID" scheme="http://yoursite.com/tags/PID/"/>
+    
+      <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
+    
+      <category term="Matlab@Simulink" scheme="http://yoursite.com/tags/Matlab-Simulink/"/>
+    
+  </entry>
   
   <entry>
     <title>ESP8266连接服务器</title>
@@ -667,35 +698,6 @@
       <category term="IOT" scheme="http://yoursite.com/tags/IOT/"/>
     
       <category term="笔记" scheme="http://yoursite.com/tags/%E7%AC%94%E8%AE%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>firstBlog</title>
-    <link href="http://yoursite.com/2020/05/20/firstBlog/"/>
-    <id>http://yoursite.com/2020/05/20/firstBlog/</id>
-    <published>2020-05-20T05:10:51.000Z</published>
-    <updated>2020-05-29T11:06:33.545Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Web" scheme="http://yoursite.com/tags/Web/"/>
-    
-      <category term="第一次" scheme="http://yoursite.com/tags/%E7%AC%AC%E4%B8%80%E6%AC%A1/"/>
     
   </entry>
   

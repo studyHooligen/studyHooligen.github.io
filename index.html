@@ -84,6 +84,134 @@
     
     
     
+    <article id="post-simulinkGenerateCode" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/06/10/simulinkGenerateCode/"
+    >simulink生成电机控制代码</a> 
+</h2>
+ 
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/06/10/simulinkGenerateCode/" class="article-date">
+  <time datetime="2020-06-10T11:35:23.000Z" itemprop="datePublished">2020-06-10</time>
+</a>
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/">控制技术</a>
+  </div>
+
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">510</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">1 min</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <blockquote>
+<p>前言：在之前的两篇文章中，分析了<a href="https://www.singularity-blog.top/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">直流电机模型</a>和<a href="https://www.singularity-blog.top/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/" target="_blank" rel="noopener">PID的理论原理</a>。那么就可以把两者结合，做一个PID闭环控制的电机驱动啦🚀</p>
+<blockquote>
+<p>并且本文中，将演示使用Matlab的C/C++ Code Generation直接生成控制器的代码！真是个懒人欢呼的事情呢🎊</p>
+</blockquote>
+</blockquote>
+<h2 id="建立闭环控制系统"><a href="#建立闭环控制系统" class="headerlink" title="建立闭环控制系统"></a>建立闭环控制系统</h2><p>先把图片安排上</p>
+<p><img src="https://s1.ax1x.com/2020/06/10/t7pEPx.png" alt="模型图"></p>
+<p>该模型可以拆开成3部分理解：输入信号发生器、PID控制器、电机模型。其中电机模型是之前博文中建好的；PID控制器的输入为预设速度值和反馈的实际速度值的差值；输入信号发生器的波形如下图所示，以及系统的响应</p>
+<p><img src="https://s1.ax1x.com/2020/06/10/t79i6S.png" alt="响应情况"></p>
+<p>PID的参数使用的是Matlab自动计算的（I love matlab），可以看出系统的响应是不错的呢，过充很小，阶跃响应也很快（就不放大看波形了，模型已经上传到了我的仓库<a href="https://github.com/studyHooligen/SimulinkModel" target="_blank" rel="noopener">simulinkModel</a>，欢迎白嫖实验）</p>
+<h2 id="生成PID控制器代码"><a href="#生成PID控制器代码" class="headerlink" title="生成PID控制器代码"></a>生成PID控制器代码</h2><ol>
+<li><p>打开“C code”面板中的“Settings”下的“Hardware Implementation”（也就是设置硬件实现目标）</p>
+<p> <img src="https://s1.ax1x.com/2020/06/10/t7kBo4.png" alt="硬件目标面板"></p>
+</li>
+<li><p>在该页面下，打开“hardware board”选项栏，选择“get hardware support Packages”。当然，如果你已经有了目标平台的包了就可以直接选择（本文目标为STM32平台）</p>
+<p> <img src="https://s1.ax1x.com/2020/06/10/t7k0wF.png" alt="平台选择"></p>
+</li>
+<li><p>找到STM32平台并且下载支持包。这边选择的是“nucleo”系列，这是ST公司官方的最小系统开发板</p>
+<p> <img src="https://s1.ax1x.com/2020/06/10/t7kweU.png" alt="下载包"></p>
+</li>
+<li><p>漫长的等待…⛷（笔者打了把游戏的功夫还没下好…那再来一把…）</p>
+</li>
+<li><p>把“Device vendor”选为：STMicroelectronics</p>
+</li>
+<li><p>进入“Code Generation”，勾选“generate code only”。否则会产生可执行文件</p>
+</li>
+<li><p>回到主界面，选择“Quick Start”，一路next下去<br> <img src="https://s1.ax1x.com/2020/06/10/t7tYE4.png" alt="QuickStart"></p>
+</li>
+<li><p>选择主界面的“Generate Code”<br><img src="https://s1.ax1x.com/2020/06/10/t7ttUJ.png" alt="GenerateCode"></p>
+</li>
+<li><p>可以看到生成了许多代码（当然这是整个系统的代码）<br> <img src="https://s1.ax1x.com/2020/06/10/t7taCR.png" alt="sysCode"></p>
+</li>
+<li><p>在PID模块上右键，选取“C/C++ code”下的“build this subsystem”<br><img src="https://s1.ax1x.com/2020/06/10/t7tN59.png" alt="buildSubsys"></p>
+</li>
+<li><p>在弹出的选项框里选择build</p>
+</li>
+<li><p>就可以看到只有PID的代码了！😝<br><img src="https://s1.ax1x.com/2020/06/10/t7tGbF.png" alt="PIDcode"></p>
+</li>
+</ol>
+
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PID/" rel="tag">PID</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/" rel="tag">控制原理</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+
+  
+  
+  
+
+</article>
+    
     <article id="post-ESP8266连接服务器" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
@@ -279,109 +407,6 @@
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/KalmanFilter/" rel="tag">KalmanFilter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/" rel="tag">控制原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E7%A9%BA%E9%97%B4%E6%A8%A1%E5%9E%8B/" rel="tag">状态空间模型</a></li></ul>
 
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-抗疫" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/07/%E6%8A%97%E7%96%AB/"
-    >抗疫</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/07/%E6%8A%97%E7%96%AB/" class="article-date">
-  <time datetime="2020-06-07T09:08:55.000Z" itemprop="datePublished">2020-06-07</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E9%9A%8F%E7%AC%94/">随笔</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">202</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
-        </span>
-    </span>
-</div>
-
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-      
-      <blockquote>
-<p>今日早晨，村委火急火燎打来了电话~</p>
-</blockquote>
-<p>说道最近有领导来视察抗疫宣传情况，如果有查到我们家希望积极“配合”。还非常热情的告诉了我抗疫宣传是什么样的、做了什么工作</p>
-<p>这引起了我深深的思考：</p>
-<blockquote>
-<p>该宣传的时候，村委选择了无作为，甚至连一张传单一条短信都没有；但是到了领导要检查工作的时候，却跑得很勤快</p>
-</blockquote>
-<p>真是太讽刺了！</p>
-<blockquote>
-<p>让我不禁想起“东哥”的故事：</p>
-<blockquote>
-<p>小时候村长家里有猪肉吃，那时候我便想着长大了要当村长</p>
-</blockquote>
-</blockquote>
-<p>时至今日，国家的发展已经使得大家都能吃得起猪肉了，但是“我还是想当村长”</p>
-<p><img src="https://s1.ax1x.com/2020/06/07/t2RHwF.jpg" alt="政绩"></p>
-
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
 
     </footer>
 
