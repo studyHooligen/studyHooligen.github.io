@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-14T08:06:27.131Z</updated>
+  <updated>2020-06-14T08:08:36.451Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://yoursite.com/2020/06/14/PID%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"/>
     <id>http://yoursite.com/2020/06/14/PID%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/</id>
     <published>2020-06-14T03:30:30.000Z</published>
-    <updated>2020-06-14T08:06:27.131Z</updated>
+    <updated>2020-06-14T08:08:36.451Z</updated>
     
     <summary type="html">
     
@@ -36,8 +36,6 @@
 &lt;/blockquote&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p&gt;增量式PID&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
     
     </summary>
     
