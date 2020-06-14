@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-10T14:54:02.037Z</updated>
+  <updated>2020-06-14T08:06:27.131Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,41 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PID代码实现</title>
+    <link href="http://yoursite.com/2020/06/14/PID%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"/>
+    <id>http://yoursite.com/2020/06/14/PID%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/</id>
+    <published>2020-06-14T03:30:30.000Z</published>
+    <updated>2020-06-14T08:06:27.131Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;在之前的一篇文章中讨论了&lt;a href=&quot;https://www.singularity-blog.top/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;PID控制器的数学原理&lt;/a&gt;和调试技巧，本文续接，讨论PID在微控制器上使用C++语言实现&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;分类&quot;&gt;&lt;a href=&quot;#分类&quot; class=&quot;headerlink&quot; title=&quot;分类&quot;&gt;&lt;/a&gt;分类&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;位置式PID&lt;/p&gt;
+&lt;p&gt;  $$&lt;br&gt;  V[n]=K_p \cdot e[n] + K_i \cdot \sum ^n_{\tau = 0} e[\tau] + K_d \cdot (e[n]-e[n-1])&lt;br&gt;  $$&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;从公式上，可以显式的看出位置式PID的公式中带有积分成分（累加），也就是过去的所有状态误差都对输出造成影响&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;增量式PID&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="PID" scheme="http://yoursite.com/tags/PID/"/>
+    
+      <category term="C/C++" scheme="http://yoursite.com/tags/C-C/"/>
+    
+  </entry>
   
   <entry>
     <title>simulink生成电机控制代码</title>
@@ -640,67 +675,6 @@
       <category term="大电流元件" scheme="http://yoursite.com/tags/%E5%A4%A7%E7%94%B5%E6%B5%81%E5%85%83%E4%BB%B6/"/>
     
       <category term="米勒电容" scheme="http://yoursite.com/tags/%E7%B1%B3%E5%8B%92%E7%94%B5%E5%AE%B9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>STM32H7</title>
-    <link href="http://yoursite.com/2020/05/23/STM32H7/"/>
-    <id>http://yoursite.com/2020/05/23/STM32H7/</id>
-    <published>2020-05-23T02:11:55.000Z</published>
-    <updated>2020-05-29T13:57:11.398Z</updated>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;STM32H7概览&quot;&gt;&lt;a href=&quot;#STM32H7概览&quot; class=&quot;headerlink&quot; title=&quot;STM32H7概览&quot;&gt;&lt;/a&gt;STM32H7概览&lt;/h1&gt;&lt;ul&gt;
-&lt;li&gt;Cube工程结构&lt;/li&gt;
-&lt;li&gt;HAL库及编程tips&lt;/li&gt;
-&lt;li&gt;H7内存及总线&lt;/li&gt;
-&lt;li&gt;外设使用&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;Cube工程结构&quot;&gt;&lt;a href=&quot;#Cube工程结构&quot; class=&quot;headerlink&quot; title=&quot;Cube工程结构&quot;&gt;&lt;/a&gt;Cube工程结构&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;Keil中打开&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;driver&lt;ul&gt;
-&lt;li&gt;Application/MDK-ARM&lt;ul&gt;
-&lt;li&gt;启动文件：startup_stm32xxxx.s&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Application/User&lt;ul&gt;
-&lt;li&gt;主程序文件：main.c&lt;/li&gt;
-&lt;li&gt;中断服务定义文件：stm32xxxx_it.c&lt;/li&gt;
-&lt;li&gt;进行芯片级别硬件初始化设置：stm32xxxx_hal_msp.c&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Drivers/STM32xxxx_HAL_Driver&lt;br&gt;  标准HAL库驱动 &lt;/li&gt;
-&lt;li&gt;Drivers/CMSIS&lt;ul&gt;
-&lt;li&gt;定义系统初始化函数及时钟更新函数：system_stm32xxxx.c&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;blockquote&gt;
-&lt;p&gt;文件夹中打开&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;--+ Project             &amp;#x2F;&amp;#x2F;工程根目录&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Drivers         &amp;#x2F;&amp;#x2F;驱动源文件（CubeMX生成）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --+ CMSIS                   &amp;#x2F;&amp;#x2F;ARM的MCU软件接口标准&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --+ STM32H7xx_HAL_Driver    &amp;#x2F;&amp;#x2F;H7芯片的HAL库&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ inc             &amp;#x2F;&amp;#x2F;外设初始化头文件（CubeMX生成）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ MDK-ARM         &amp;#x2F;&amp;#x2F;Keil工程目录&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Middlewares     &amp;#x2F;&amp;#x2F;第三方软件包&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Src             &amp;#x2F;&amp;#x2F;外设初始化源文件（CubeMX生成）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Task            &amp;#x2F;&amp;#x2F;如果有OS的话，该文件夹为任务or线程文件&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ BSP             &amp;#x2F;&amp;#x2F;BSP文件&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ REFERENCE       &amp;#x2F;&amp;#x2F;使用到的参考资料（笔者自己添加的）&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --+ link.md&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        --- ...&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ Project.ioc     &amp;#x2F;&amp;#x2F;CubeMX工程文件&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    --+ README.md       &amp;#x2F;&amp;#x2F;README文件（笔者自己加的）&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-
-&lt;h2 id=&quot;HAL库及编程tips&quot;&gt;&lt;a href=&quot;#HAL库及编程tips&quot; class=&quot;headerlink&quot; title=&quot;HAL库及编程tips&quot;&gt;&lt;/a&gt;HAL库及编程tips&lt;/h2&gt;
-    
-    </summary>
-    
-    
-      <category term="嵌入式驱动" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
-    
-    
-      <category term="嵌入式" scheme="http://yoursite.com/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/"/>
-    
-      <category term="STM32" scheme="http://yoursite.com/tags/STM32/"/>
-    
-      <category term="IOT" scheme="http://yoursite.com/tags/IOT/"/>
-    
-      <category term="笔记" scheme="http://yoursite.com/tags/%E7%AC%94%E8%AE%B0/"/>
     
   </entry>
   
