@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-06-20T12:38:07.521Z</updated>
+  <updated>2020-06-26T06:14:12.625Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,43 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Simulink设计同步Buck电路</title>
+    <link href="http://yoursite.com/2020/06/26/buckConverterModule/"/>
+    <id>http://yoursite.com/2020/06/26/buckConverterModule/</id>
+    <published>2020-06-26T00:23:00.000Z</published>
+    <updated>2020-06-26T06:14:12.625Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：笔者最近在做的项目中，要自制大功率数字Buck电源，但是笔者并不是专业做电源，所以！笔者今天就要试试用Simulink来建模、仿真、设计一个同步数字Buck&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;建立模型&quot;&gt;&lt;a href=&quot;#建立模型&quot; class=&quot;headerlink&quot; title=&quot;建立模型&quot;&gt;&lt;/a&gt;建立模型&lt;/h2&gt;&lt;p&gt;先展示一下建好的模型&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/26/NrJMYF.png&quot; alt=&quot;wholeModule&quot;&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Buck的一些经验公式、关系公式可见上一篇文章&lt;a href=&quot;https://www.singularity-blog.top/2020/06/05/DCDC/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;DC-DC&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;以及模型建立好之后的工作效果&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="建模仿真" scheme="http://yoursite.com/categories/%E5%BB%BA%E6%A8%A1%E4%BB%BF%E7%9C%9F/"/>
+    
+    
+      <category term="PID" scheme="http://yoursite.com/tags/PID/"/>
+    
+      <category term="Matlab@Simulink" scheme="http://yoursite.com/tags/Matlab-Simulink/"/>
+    
+      <category term="电源变换" scheme="http://yoursite.com/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/"/>
+    
+      <category term="DC-DC" scheme="http://yoursite.com/tags/DC-DC/"/>
+    
+      <category term="Buck" scheme="http://yoursite.com/tags/Buck/"/>
+    
+  </entry>
   
   <entry>
     <title>控制系统类型</title>
@@ -624,35 +661,6 @@
     
     
       <category term="情感" scheme="http://yoursite.com/tags/%E6%83%85%E6%84%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>爱与被爱</title>
-    <link href="http://yoursite.com/2020/05/26/%E9%9A%8F%E7%AC%942020526/"/>
-    <id>http://yoursite.com/2020/05/26/%E9%9A%8F%E7%AC%942020526/</id>
-    <published>2020-05-25T16:14:22.000Z</published>
-    <updated>2020-05-29T14:35:11.679Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="爱情" scheme="http://yoursite.com/tags/%E7%88%B1%E6%83%85/"/>
-    
-      <category term="人生哲理" scheme="http://yoursite.com/tags/%E4%BA%BA%E7%94%9F%E5%93%B2%E7%90%86/"/>
     
   </entry>
   

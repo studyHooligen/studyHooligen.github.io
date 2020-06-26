@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-     Singularity-blog
+    Simulink设计同步Buck电路 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -44,57 +44,17 @@
   
   <div id="app">
     <main class="content on">
-      
-<section class="cover">
-    
-      
-      <a class="forkMe" href="https://github.com/studyHooligen"
-        target="_blank"><img width="149" height="149" src="/images/forkme.png"
-          class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
-    
-  <div class="cover-frame">
-    <div class="bg-box">
-      <img src="https://s1.ax1x.com/2020/05/26/tP6Zsf.jpg" alt="image frame" />
-    </div>
-    <div class="cover-inner text-center text-white">
-      <h1><a href="/">Singularity-blog</a></h1>
-      <div id="subtitle-box">
-        
-        <span id="subtitle"></span>
-        
-      </div>
-      <div>
-        
-      </div>
-    </div>
-  </div>
-  <div class="cover-learn-more">
-    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
-  </div>
-</section>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js"></script>
-
-<div id="main">
-  <section class="outer">
-  <article class="articles">
-    
-    
-    
-    
-    <article id="post-STM32H7" class="article article-type-post" itemscope
+      <section class="outer">
+  <article id="post-buckConverterModule" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
     
     <header class="article-header">
        
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/23/STM32H7/"
-    >STM32H7</a> 
-</h2>
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Simulink设计同步Buck电路
+</h1>
  
 
     </header>
@@ -102,12 +62,12 @@
 
     
     <div class="article-meta">
-      <a href="/2020/05/23/STM32H7/" class="article-date">
-  <time datetime="2020-05-23T02:11:55.000Z" itemprop="datePublished">2020-05-23</time>
+      <a href="/2020/06/26/buckConverterModule/" class="article-date">
+  <time datetime="2020-06-26T00:23:00.000Z" itemprop="datePublished">2020-06-26</time>
 </a>
       
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+    <a class="article-category-link" href="/categories/%E5%BB%BA%E6%A8%A1%E4%BB%BF%E7%9C%9F/">建模仿真</a>
   </div>
 
       
@@ -117,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.7k</span>
+            <span class="post-count">1.5k</span>
         </span>
     </span>
 
@@ -126,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">10 min</span>
+            <span class="post-count">5 min</span>
         </span>
     </span>
 </div>
@@ -136,6 +96,14 @@
     
 
     
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
 
     
     <div class="article-entry" itemprop="articleBody">
@@ -143,148 +111,192 @@
       
 
       
-      <h1 id="STM32H7概览"><a href="#STM32H7概览" class="headerlink" title="STM32H7概览"></a>STM32H7概览</h1><ul>
-<li>Cube工程结构</li>
-<li>HAL库及编程tips</li>
-<li>H7内存及总线</li>
-<li>外设使用</li>
-</ul>
-<h2 id="Cube工程结构"><a href="#Cube工程结构" class="headerlink" title="Cube工程结构"></a>Cube工程结构</h2><blockquote>
-<p>Keil中打开</p>
+      <blockquote>
+<p>前言：笔者最近在做的项目中，要自制大功率数字Buck电源，但是笔者并不是专业做电源，所以！笔者今天就要试试用Simulink来建模、仿真、设计一个同步数字Buck</p>
 </blockquote>
-<ul>
-<li>driver<ul>
-<li>Application/MDK-ARM<ul>
-<li>启动文件：startup_stm32xxxx.s</li>
-</ul>
-</li>
-<li>Application/User<ul>
-<li>主程序文件：main.c</li>
-<li>中断服务定义文件：stm32xxxx_it.c</li>
-<li>进行芯片级别硬件初始化设置：stm32xxxx_hal_msp.c</li>
-</ul>
-</li>
-<li>Drivers/STM32xxxx_HAL_Driver<br>  标准HAL库驱动 </li>
-<li>Drivers/CMSIS<ul>
-<li>定义系统初始化函数及时钟更新函数：system_stm32xxxx.c</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<h2 id="建立模型"><a href="#建立模型" class="headerlink" title="建立模型"></a>建立模型</h2><p>先展示一下建好的模型</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NrJMYF.png" alt="wholeModule"></p>
 <blockquote>
-<p>文件夹中打开</p>
+<p>Buck的一些经验公式、关系公式可见上一篇文章<a href="https://www.singularity-blog.top/2020/06/05/DCDC/" target="_blank" rel="noopener">DC-DC</a></p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">--+ Project             &#x2F;&#x2F;工程根目录</span><br><span class="line">    --+ Drivers         &#x2F;&#x2F;驱动源文件（CubeMX生成）</span><br><span class="line">        --+ CMSIS                   &#x2F;&#x2F;ARM的MCU软件接口标准</span><br><span class="line">        --+ STM32H7xx_HAL_Driver    &#x2F;&#x2F;H7芯片的HAL库</span><br><span class="line">    --+ inc             &#x2F;&#x2F;外设初始化头文件（CubeMX生成）</span><br><span class="line">    --+ MDK-ARM         &#x2F;&#x2F;Keil工程目录</span><br><span class="line">    --+ Middlewares     &#x2F;&#x2F;第三方软件包</span><br><span class="line">    --+ Src             &#x2F;&#x2F;外设初始化源文件（CubeMX生成）</span><br><span class="line">    --+ Task            &#x2F;&#x2F;如果有OS的话，该文件夹为任务or线程文件</span><br><span class="line">    --+ BSP             &#x2F;&#x2F;BSP文件</span><br><span class="line">    --+ REFERENCE       &#x2F;&#x2F;使用到的参考资料（笔者自己添加的）</span><br><span class="line">        --+ link.md</span><br><span class="line">        --- ...</span><br><span class="line">    --+ Project.ioc     &#x2F;&#x2F;CubeMX工程文件</span><br><span class="line">    --+ README.md       &#x2F;&#x2F;README文件（笔者自己加的）</span><br></pre></td></tr></table></figure>
+<p>以及模型建立好之后的工作效果</p>
+<a id="more"></a>
 
-<h2 id="HAL库及编程tips"><a href="#HAL库及编程tips" class="headerlink" title="HAL库及编程tips"></a>HAL库及编程tips</h2>
-      
-      <a class="article-more-link" href="/2020/05/23/STM32H7/">阅读更多...</a>
-      
+<p><img src="https://s1.ax1x.com/2020/06/26/NrJKFU.png" alt="output"></p>
+<p>显然在什么工作都不做的情况下，这个电路的工作效果是很差的。纹波大、还震荡、阶跃响应慢…</p>
+<blockquote>
+<p>该模型已经上传至笔者的Github仓库：<a href="https://github.com/studyHooligen/SimulinkModel" target="_blank" rel="noopener">simulinkModel</a></p>
+</blockquote>
+<h2 id="参数设定"><a href="#参数设定" class="headerlink" title="参数设定"></a>参数设定</h2><blockquote>
+<p>首先，将实际物理元件的参数写入模型，这才是使仿真有意义的一步！🎈当然在此之前你得有一定的基础知识，知道各个参数分别起什么作用</p>
+</blockquote>
+<h3 id="MOSfet参数"><a href="#MOSfet参数" class="headerlink" title="MOSfet参数"></a>MOSfet参数</h3><p><img src="https://s1.ax1x.com/2020/06/26/NDjg3t.png" alt="MOS"></p>
+<p>对于大功率MOS开关管子，重要的决定性参数：</p>
+<ol>
+<li>导通电阻（Drain-Source on resistance）</li>
+<li>工作电流（Drain current）</li>
+<li>开启电压（Gate-source voltage）</li>
+<li>阈值电压（Gate-source threshold voltage）</li>
+<li>结电容（Junction Capacitance）<ol>
+<li>输入电容（input capacitance）</li>
+<li>反向转移电容（reverse transfer capacitance）</li>
+<li>输出电容（output capacitance）</li>
+</ol>
+</li>
+</ol>
+<p><img src="https://s1.ax1x.com/2020/06/26/NDjc9I.png" alt="JunctionCap"></p>
+<blockquote>
+<p>各个参数的大小按照挑选购买的MOS数据手册上的抄就行</p>
+</blockquote>
+<h3 id="LC滤波"><a href="#LC滤波" class="headerlink" title="LC滤波"></a>LC滤波</h3><p>电感参数调整</p>
+<ol>
+<li>电感量（inductance）</li>
+<li>等效串联电阻（ESR，series resistance）</li>
+</ol>
+<p><img src="https://s1.ax1x.com/2020/06/26/NDjy4A.png" alt="Inductor"></p>
+<p>电容参数调整</p>
+<ol>
+<li>电容量（Capacitance）</li>
+<li>等效串联电阻（ESR，series resistance）</li>
+</ol>
+<p><img src="https://s1.ax1x.com/2020/06/26/NDjsNd.png" alt="Capacity"></p>
+<blockquote>
+<p>友情提示：对于滤波电容电感，理论上来说越大越好，但是要注意考虑无源元件是有储能的噢！而且ESR参数是很致命的，一般来说电容一般都采用阵列并联形式来减小ESR！</p>
+</blockquote>
+<h3 id="半桥驱动器"><a href="#半桥驱动器" class="headerlink" title="半桥驱动器"></a>半桥驱动器</h3><p>半桥驱动器需要调整的参数注意要和MOS相互匹配👁‍🗨当然在实际设计中，选择半桥驱动芯片也确实是要和MOS相匹配的</p>
+<ol>
+<li><p>输出驱动电压</p>
+<p> <img src="https://s1.ax1x.com/2020/06/26/NDjrAH.png" alt="Output"></p>
+<p> 该参数和MOS的开启电压有关，也可以理解为实际驱动器芯片的供电电压</p>
+</li>
+<li><p>死区定时</p>
+<p> <img src="https://s1.ax1x.com/2020/06/26/NDj2gP.png" alt="timing"></p>
+<p> 该参数对驱动器来说是非常重要的！🚀所有的半桥开关都必然存在死区时间，也就是开关管的开关边沿，设想上管关闭还没完成，下管就开始开启，那么两个MOS直接等效成阻性负载接在电源上！☢⚡PANG！建议死区时间将电路搭建出来实际测量</p>
+</li>
+</ol>
+<h3 id="PWM发生器"><a href="#PWM发生器" class="headerlink" title="PWM发生器"></a>PWM发生器</h3><p>笔者自制的数字电源必须要强势啊！🌋这边使用了1M的驱动频率</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NrJnoT.png" alt="PWM"></p>
+<p>注意，采样时间（sample time）这个参数将会影响仿真的时间粒度，笔者在此设计为周期的100倍，这样相当于PWM只有100个可调等级。读者若电脑性能Nice建议调整1000~10000个周期的时间粒度以达到更好的效果</p>
+<blockquote>
+<p>实际中设计数字控制器时，比如采用STM32作为主控芯片，PWM发生器可以直接按照实际配置的发生器参数调整</p>
+</blockquote>
+<h2 id="PID参数整定"><a href="#PID参数整定" class="headerlink" title="PID参数整定"></a>PID参数整定</h2><blockquote>
+<p>由于该系统是一个复杂条件系统（非线性系统），所有PID自动整定无法使用。主要是因为没办法做线性模型建模（当然，你打开PID TUNER系统也会告诉你这个错误），毕竟PID控制器是基于线性模型分析诞生的</p>
+</blockquote>
+<p>首先，打开PID TUNER（双击”PID”模块，往下拉，在”Automated tuning”区点击”Tune…”按钮）</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NriCjA.png" alt="PIDtuner"></p>
+<p>显然这个系统不能自动整定😱好在官方提供了几个在线性化模型失效时使用的解决方案。在此，使用“Identify New Plant”</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/Nrip1H.png" alt="identifyNewPlant"></p>
+<p>在“Plant Identification”面板下，选择“Get I/O Data”下的“Simulate Data”</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/Nri9cd.png" alt="simulateData"></p>
+<blockquote>
+<p>工作原理：将PID控制器取下，将指定信号作为原PID控制器的输出注入到相应信号端口，再测量原PID输入端的信号；再由得到的输入、输出信号，拟合出（近似）线性系统，然后再做PID参数整定</p>
+</blockquote>
+<p>所以，要对输入的测试信号进行参数设定（假设使用的是阶跃信号）</p>
+<ul>
+<li>采样时间（仿真时间粒度）Sample Time</li>
+<li>偏置Offset</li>
+<li>阶跃延迟Onset Lag</li>
+<li>仿真结束时间Stop Time</li>
+<li>阶跃幅度Amplitude（这个要双击边上的设置键弹出）</li>
+</ul>
+<p><img src="https://s1.ax1x.com/2020/06/26/NrJWtS.png" alt="pulseSet"></p>
+<p>接着把“VIEW”栏中的“show input response”、”show offset response”和“show identification data”都选上，然后点击“Run simulation”开启仿真和数据采集（电脑的风扇开始哗啦啦转~🌀建议出去看看远景吹吹风relax myself，笔者的i5-Laptop跑了8分钟)</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NrtmPU.png" alt="run"></p>
+<blockquote>
+<p>tips:开启matlab的“Parral pool”可以大幅度提高电脑资源利用率，当然，matlab会吞下电脑能用的所有资源，所以这时候会超级卡！但是计算会（并行）加速</p>
+<blockquote>
+<p>这个功能就在Matlab主面板的左下角，读者有兴趣可以自己玩玩</p>
+</blockquote>
+</blockquote>
+<p>接着点击“Apply”然后点击“Close”，回到“Plant Identification”页面，此时，图像上已经有了可视化的阶跃响应数据</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NrtZ5T.png" alt="plant"></p>
+<p>由响应曲线的形式，需要更改拟合函数为：二阶复数对极点系统</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NrNNT0.png" alt="2pole"></p>
+<p>再使用自动参数拟合计算</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NrNtwq.png" alt="autoEstimate"></p>
+<p>显然，二阶复数极点系统的拟合效果和matlab仿真得到的曲线可以完美贴合。点击“Apply”，将拟合出来的系统传递给PID Tuner。调整鲁棒性和响应时间参数，就能调整PID控制效果了</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/NraIeA.png" alt="Tuner"></p>
+<p>再回到模型中，对系统仿真</p>
+<p><img src="https://s1.ax1x.com/2020/06/26/Nra4Ld.png" alt="resault"></p>
+<p>上电瞬间，输出电压超调峰值达到了16.4V；静态电压纹波小于0.1V；相对来说还是不错吧👌等实际制作的时候再调整具体参数，开局过充可以考虑用钳位管解决</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://www.mathworks.com/help/slcontrol/ug/design-a-pid-controller-using-simulated-i-o-data.html" target="_blank" rel="noopener">Matlab官方文档：PID控制器非线性整定</a></p>
+
       
       <!-- reward -->
+      
+      <div id="reward-btn">
+        Donate
+      </div>
       
     </div>
     
     
       <!-- copyright -->
       
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>Copyright： </strong>
+              Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+            </li>
+          </ul>
+        </div>
+        
     <footer class="article-footer">
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IOT/" rel="tag">IOT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32/" rel="tag">STM32</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag">嵌入式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-firstBlog" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/20/firstBlog/"
-    >firstBlog</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/05/20/firstBlog/" class="article-date">
-  <time datetime="2020-05-20T05:10:51.000Z" itemprop="datePublished">2020-05-20</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E9%9A%8F%E7%AC%94/">随笔</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">304</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
-        </span>
-    </span>
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
 </div>
 
-      
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/06/26/buckConverterModule/" alt="微信分享二维码">
     </div>
-    
+</div>
 
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
+<div id="share-mask"></div>
       
       
-
-      
-      <h5 id="新的起点"><a href="#新的起点" class="headerlink" title="新的起点"></a>新的起点</h5><p>很多人说，写作是让自己沉淀的一种方式。</p>
-<p>曾经的我，对一切都是那么的好奇。对科学、对生活、对爱情…</p>
-<p>虽身为一名硬件工程师，但我也热爱网站的建设。开设属于自己的博客，是我一直尝试去做，但是从来没有静下心来做完的一件事情。时至今日，在2020年5月20号，我终于开始坐下来，决定把自己曾经想做，但一直没有完成甚至没有付诸行动的事情做完。</p>
-<h5 id="文末加上一段随笔"><a href="#文末加上一段随笔" class="headerlink" title="文末加上一段随笔"></a>文末加上一段随笔</h5><p>每一颗恒星都曾努力辐射出炽热的光，直到有一天，它累了…开始失去温度，渐渐地发现原来世界是如此的冰冷，之前只有自己在傻傻的发热…他开始害怕，开始坍塌，开始把自己藏起来，藏到自己内心的最深处去…最终曾经的恒星变成了黑洞，把所有的孤独和黑暗留给自己，没有人看得见他，甚至连光，都无法照亮他…也许，永远都没有人知道，在奇点————黑洞的中心，到底是什么样的</p>
-
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AC%AC%E4%B8%80%E6%AC%A1/" rel="tag">第一次</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Buck/" rel="tag">Buck</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC-DC/" rel="tag">DC-DC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PID/" rel="tag">PID</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/" rel="tag">电源变换</a></li></ul>
 
 
     </footer>
@@ -292,27 +304,56 @@
   </div>
 
   
-
   
-
-  
-  
-  
-
-</article>
+  <nav class="article-nav">
     
-  </article>
-  
-
-  
-  <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/8/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span>
+      <a href="/2020/06/20/%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">控制系统类型</div>
+      </a>
+    
   </nav>
-  
-</section>
-</div>
 
+
+  
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'cd4d750c727d92fb7436',
+    clientSecret: '4a001cb21bdedc1c0a70af3321e24005223e0ea2',
+    repo: 'studyhooligen.github.io',
+    owner: 'studyhooligen',
+    admin: ['studyhooligen'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+  
+  
+
+</article>
+</section>
       <footer class="footer">
   <div class="outer">
     <ul>
@@ -475,6 +516,23 @@
 </script>
 
 <!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
