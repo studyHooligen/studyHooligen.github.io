@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-     Singularity-blog
+    数字控制 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -44,127 +44,237 @@
   
   <div id="app">
     <main class="content on">
-      
-<section class="cover">
+      <section class="outer">
+  <article id="post-数字控制" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
     
-      
-      <a class="forkMe" href="https://github.com/studyHooligen"
-        target="_blank"><img width="149" height="149" src="/images/forkme.png"
-          class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  数字控制
+</h1>
+ 
+
+    </header>
     
-  <div class="cover-frame">
-    <div class="bg-box">
-      <img src="https://s1.ax1x.com/2020/05/26/tP6Zsf.jpg" alt="image frame" />
+
+    
+    <div class="article-meta">
+      <a href="/2020/07/01/%E6%95%B0%E5%AD%97%E6%8E%A7%E5%88%B6/" class="article-date">
+  <time datetime="2020-07-01T03:01:11.000Z" itemprop="datePublished">2020-07-01</time>
+</a>
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/">控制技术</a>
+  </div>
+
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">6 min</span>
+        </span>
+    </span>
+</div>
+
+      
     </div>
-    <div class="cover-inner text-center text-white">
-      <h1><a href="/">Singularity-blog</a></h1>
-      <div id="subtitle-box">
-        
-        <span id="subtitle"></span>
-        
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <blockquote>
+<p>前言：一般的控制系统分析常是基于拉普拉斯变换分析，也就是连续时间系统。对控制器相应的实现方法，即为使用连续时间器件去搭建，比如：使用运放和电阻电容搭一个模拟PI控制器。在现代控制中，由于微控制器的价格低廉易于开发且大幅度减小系统体积等原因，模拟控制器已经基本被数字控制器取代，所以分析数字控制器是很有必要的</p>
+<blockquote>
+<p>本文中，笔者将内容分为两大部分：将求得的模拟控制器转化/等效为数字控制器，以及直接分析数字系统得出数字控制器。</p>
+</blockquote>
+</blockquote>
+<h2 id="数字控制系统"><a href="#数字控制系统" class="headerlink" title="数字控制系统"></a>数字控制系统</h2><p>传统连续反馈控制系统：</p>
+<p><img src="https://s1.ax1x.com/2020/07/01/NTuIyV.png" alt="连续系统"></p>
+<p>离散反馈控制系统：</p>
+<p><img src="https://s1.ax1x.com/2020/07/01/NTu5Q0.png" alt="离散系统"></p>
+<blockquote>
+<p>这两个基础反馈模型已经上传至笔者的Github仓库：<br><a href="https://github.com/studyHooligen/SimulinkModel" target="_blank" rel="noopener">simulinkModel</a></p>
+</blockquote>
+<a id="more"></a>
+
+<p>离散控制系统相对于连续系统来说，在硬件上不只将模拟控制器换成了微控制器，还加入了两种关键器件：ADC和DAC。下面将会讨论到设计数字控制器时，对ADC和DAC的参数要求（主要为采样率）</p>
+<h2 id="连续系统和离散系统的关系"><a href="#连续系统和离散系统的关系" class="headerlink" title="连续系统和离散系统的关系"></a>连续系统和离散系统的关系</h2><p>对于连续系统，微分式有Laplace变换为：</p>
+<p>$$<br>\because \mathcal{L}{f(t)}=F(s)<br>\\ \therefore<br>\mathcal{L}{\dot{f}(t)} = sF(s)<br>$$</p>
+<p>而离散系统，延迟和差分的Z变换为：</p>
+<p>$$<br>\because \mathcal{Z}{f[k]}=F(z)<br>\\ \therefore<br>\mathcal{Z}{f[k-1]}=z^{-1}F(z) \\<br>\mathcal{Z}{f[k]-f[k-1]}=(1-z^{-1})F(z)<br>$$</p>
+<blockquote>
+<p>NOTE：🧐连续系统的微分对应着离散系统的差分，积分对应累加</p>
+</blockquote>
+<p>现在考虑一个连续信号为：</p>
+<p>$$<br>f(t)=e^{-at},t&gt;0 \\<br>\mathcal{L}(f)=F(s)=\frac{1}{s+a}<br>$$</p>
+<p>若对其做离散采样，得到信号为：</p>
+<p>$$<br>f[k]=f(kT) \\<br>F(z)=\mathcal{Z}(e^{-akT})=\frac{z}{z-e^{-aT}}<br>$$</p>
+<p>相当于原本s域的极点做指数映射到z域，可推广到一般情况：</p>
+<p>$$<br>z=e^{sT}<br>$$</p>
+<blockquote>
+<p>很容易想到s域的虚轴经过该映射，变成了z域的单位圆</p>
+</blockquote>
+<p>对于离散系统同样有终值定理</p>
+<p>$$<br>\lim_{k\to\infty}x[k]=\lim_{z\to 1}(1-z^{-1})X(z)<br>$$</p>
+<h2 id="离散等效控制系统"><a href="#离散等效控制系统" class="headerlink" title="离散等效控制系统"></a>离散等效控制系统</h2><p>本质上来说，等效法都是在已知连续控制器情况下，让离散控制器去逼近连续控制器而已</p>
+<blockquote>
+<p>WARNING：🔥离散采样率最好为25倍的模拟控制器带宽</p>
+</blockquote>
+<h3 id="Tustin"><a href="#Tustin" class="headerlink" title="Tustin"></a>Tustin</h3><p>首先给出结论，对连续情况下的Laplace式每一处s可直接做代数替换：</p>
+<p>$$<br>s=\frac{2}{T}(\frac{1-z^{-1}}{1+z^{-1}})<br>$$</p>
+<p>举一个例子不严谨证明一下：</p>
+<p>$$<br>\frac{Y(s)}{E(s)}=\frac{1}{s} \\<br>y(t)=\int e(t)dt<br>$$</p>
+<p>做离散采样</p>
+<p>$$<br>y(kT)=\int_0^{kT-T}e(t)dt+\int_{kT-T}^{kT} e(t)dt<br>$$</p>
+<p>对右边的第二个积分式做梯形近似</p>
+<p>$$<br>\int_{kT-T}^{kT} e(t)dt \simeq \frac{1}{2}[e(kT)+e(kT-T)]\cdot T<br>$$</p>
+<p>那么离散信号也就很简单近似为</p>
+<p>$$<br>y[k]=y[k-1]+\frac{T}{2}(e[k-1]+e[k])<br>$$</p>
+<p>做z变换</p>
+<p>$$<br>\frac{Y(z)}{E(z)}=\frac{T}{2}\frac{1+z^{-1}}{1-z^{-1}}<br>$$</p>
+<h3 id="零极点匹配法（Matched-Pole-Zero）"><a href="#零极点匹配法（Matched-Pole-Zero）" class="headerlink" title="零极点匹配法（Matched Pole-Zero）"></a>零极点匹配法（Matched Pole-Zero）</h3><p>转换步骤：</p>
+<ol>
+<li><p>零极点映射</p>
+<p> $$<br> z=e^{sT}<br> $$</p>
+</li>
+<li><p>若分子阶数小于分母阶数，直接在分子中加入(z+1)的幂项，使得分子分母等阶</p>
+</li>
+<li><p>调节比例系数，使得变换后的离散控制器和原本的控制器直流增益相同</p>
+</li>
+</ol>
+<h4 id="举个粒子"><a href="#举个粒子" class="headerlink" title="举个粒子"></a>举个粒子</h4><p>有一个连续控制器</p>
+<p>$$<br>D(s)=K_c\frac{s+a}{s(s+b)} \\<br>$$</p>
+<p>等效后的形式为</p>
+<p>$$<br>D(z)=K_d\frac{(z-e^{-aT})\cdot(z+1)}{(z-1)(z-e^{-bT})}<br>$$</p>
+<p>为了直流增益相同</p>
+<p>$$<br>\lim_{s\to 0}K_c\frac{s+a}{s+b}=\lim_{z\to 1}K_d\frac{(z-e^{-aT})\cdot(z+1)}{z(z-e^{-bT})}<br>\\ \Rightarrow<br>K_c\frac{a}{b}=2K_d\frac{1-e^{-aT}}{1-e^{-bT}}<br>$$</p>
+<p>在求得系数后，就可以推导出时域的表达式了</p>
+<p>$$<br>D(z)=K_d\frac{(1-\frac{z_1}{z})\cdot(1+\frac{1}{z})}{(1-\frac{1}{z})\cdot(1-\frac{p_1}{z})}=K_d\frac{1+a\frac{1}{z}+b\frac{1}{z^2}}{1+c\frac{1}{z}+d\frac{1}{z^2}} \\ \Rightarrow<br>y[k]=K_d(e[k]+a\cdot e[k-1]+b\cdot e[k-2])-c\cdot y[k-1]-d\cdot y[k-2]<br>$$</p>
+<h3 id="改进的MPZ（Modified-MPZ）"><a href="#改进的MPZ（Modified-MPZ）" class="headerlink" title="改进的MPZ（Modified MPZ）"></a>改进的MPZ（Modified MPZ）</h3><p>本质上，就是MPZ法中的第二步，改为使得调整阶次后的控制器分式，分子比分母少一阶</p>
+<blockquote>
+<p>好处：⚙在MMP中，由于是分子分母等阶的，所以逆变换到时域里总有e[k]存在，也就是说离散计算需要当前时刻（输出时刻）的误差，而这有时候是做不到的（ADC和DAC也是需要转换时间的对吧😜）。所以，通过降低分子阶次，就把e[k]消掉了（口算就能证明）</p>
+</blockquote>
+<h2 id="直接数字控制设计"><a href="#直接数字控制设计" class="headerlink" title="直接数字控制设计"></a>直接数字控制设计</h2><blockquote>
+<p>在等效法介绍之首，就强调了采样率的问题，若可用的硬件采样条件甚至不能达到10倍的模拟控制器带宽时，则用数字分析设计法更为恰当（因为等效法基本作废）</p>
+</blockquote>
+<p>在离散情况下，如文初的第二张图，受控对象的输入为DAC的输出信号，也就是离散的阶梯信号。不加证明的给出，受控对象做离散化之后的传递函数为：</p>
+<p>$$<br>G(z)=(1-z^{-1})\mathcal{Z}(\frac{G(s)}{s})<br>$$</p>
+<p>则可把离散系统等效为下图：</p>
+<p><img src="https://s1.ax1x.com/2020/07/01/NHFqJ0.png" alt="离散等效"></p>
+<p>接着可用和连续系统类似的方法设计控制器，但注意根轨迹是以单位元为稳定边界！</p>
+<h3 id="离散设计元素"><a href="#离散设计元素" class="headerlink" title="离散设计元素"></a>离散设计元素</h3><p>比例控制</p>
+<p>$$<br>u[k]=K\cdot e[k] \Rightarrow D(z)=K<br>$$</p>
+<p>微分控制</p>
+<p>$$<br>u[k]=KT_D(e[k]-e[k-1]) \Rightarrow D(z)=KT_D\frac{z-1}{z}<br>$$</p>
+<p>积分控制</p>
+<p>$$<br>u[k]=u[k-1]+\frac{K_p}{T_I}e[k] \Rightarrow D(z)=\frac{K_p}{T_I}(\frac{z}{z-1})<br>$$</p>
+<p>超前补偿</p>
+<p>$$<br>u[k+1]=\beta\cdot u[k] +K(e[k+1]-\alpha\cdot e[k]) \Rightarrow D(z)=K\frac{1-\alpha z^{-1}}{1-\beta z^{-1}}<br>$$</p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        Donate
       </div>
-      <div>
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>Copyright： </strong>
+              Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+            </li>
+          </ul>
+        </div>
         
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="cover-learn-more">
-    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
-  </div>
-</section>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js"></script>
-
-<div id="main">
-  <section class="outer">
-  <article class="articles">
-    
-    
-    
-    
-    <article id="post-DCDC" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/05/DCDC/"
-    >DCDC</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/05/DCDC/" class="article-date">
-  <time datetime="2020-06-05T11:20:53.000Z" itemprop="datePublished">2020-06-05</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">349</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
-        </span>
-    </span>
 </div>
 
-      
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/07/01/%E6%95%B0%E5%AD%97%E6%8E%A7%E5%88%B6/" alt="微信分享二维码">
     </div>
-    
+</div>
 
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
+<div id="share-mask"></div>
       
       
-
-      
-      <blockquote>
-<p>前言：笔者最近突发奇想，要做一个超级电容UPS，所以基础的DCDC知识必然要好好复习一下</p>
-<blockquote>
-<p>网络上教程很多，该文章只作为总结归纳使用</p>
-</blockquote>
-</blockquote>
-<h2 id="Buck电路（降压DCDC）"><a href="#Buck电路（降压DCDC）" class="headerlink" title="Buck电路（降压DCDC）"></a>Buck电路（降压DCDC）</h2>
-      
-      <a class="article-more-link" href="/2020/06/05/DCDC/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Boost/" rel="tag">Boost</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Buck/" rel="tag">Buck</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC-DC/" rel="tag">DC-DC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/" rel="tag">电源变换</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E5%AD%97%E6%8E%A7%E5%88%B6/" rel="tag">数字控制</a></li></ul>
 
 
     </footer>
@@ -172,221 +282,56 @@
   </div>
 
   
-
   
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-MCU移植控制台" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/03/MCU%E7%A7%BB%E6%A4%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/"
-    >MCU移植控制台</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/03/MCU%E7%A7%BB%E6%A4%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/" class="article-date">
-  <time datetime="2020-06-03T08:44:09.000Z" itemprop="datePublished">2020-06-03</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.4k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">5 min</span>
-        </span>
-    </span>
-</div>
-
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-      
-      <blockquote>
-<p>前言：本移植首先得益于RTT系统（国产开源！力推！）<br>笔者偏爱该操作系统的主要原因就是因为其Finsh组件，在该组件中，可以很好地移植MSH控制台，使得在MCU上进行开发调参更加地容易，实验数据也更容易可视化</p>
-<blockquote>
-<p>在该篇博客中，相比官网的移植来说，使用了更加高效的中断接收的形式</p>
-</blockquote>
-</blockquote>
-<h2 id="RTT-Nano移植工作"><a href="#RTT-Nano移植工作" class="headerlink" title="RTT-Nano移植工作"></a>RTT-Nano移植工作</h2><p>首先，就要把这个RT-Thread移植到MCU上，本例直接在上个<a href="https://www.singularity-blog.top/2020/05/25/UART-DMA/" target="_blank" rel="noopener">UART-DMA</a>实验配置基础上进行移植，移植操作如下：</p>
-      
-      <a class="article-more-link" href="/2020/06/03/MCU%E7%A7%BB%E6%A4%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
+  <nav class="article-nav">
     
     
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FinSH/" rel="tag">FinSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSH/" rel="tag">MSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RT-Thread/" rel="tag">RT-Thread</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32CubeMX/" rel="tag">STM32CubeMX</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32H7/" rel="tag">STM32H7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">实时操作系统</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
+      <a href="/2020/06/26/buckConverterModule/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Simulink设计同步Buck电路</div>
+      </a>
     
-    <article id="post-直流电机模型分析" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/"
-    >直流电机模型分析</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/" class="article-date">
-  <time datetime="2020-06-02T07:28:19.000Z" itemprop="datePublished">2020-06-02</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">528</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
-        </span>
-    </span>
-</div>
-
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-      
-      <blockquote>
-<p>前言：直流电机（DC Motor）是最常见的电机，所以对该模型的分析是后续工作的重要前提。本文将从基础物理原理分析开始，到传递函数及使用Matlab对电机进行建模</p>
-<blockquote>
-<p>本文中公式较多，请耐心等待渲染</p>
-</blockquote>
-</blockquote>
-<h2 id="直流电机结构简图"><a href="#直流电机结构简图" class="headerlink" title="直流电机结构简图"></a>直流电机结构简图</h2><p><img src="https://s1.ax1x.com/2020/06/02/tt2n8P.png" alt="结构简图"></p>
-      
-      <a class="article-more-link" href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC%E7%94%B5%E6%9C%BA/" rel="tag">DC电机</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B/" rel="tag">电机模型</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
-    
-  </article>
-  
-
-  
-  <nav class="page-nav">
-    
-    <a class="extend prev" rel="prev" href="/page/4/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/6/">下一页</a>
   </nav>
-  
-</section>
-</div>
 
+
+  
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'cd4d750c727d92fb7436',
+    clientSecret: '4a001cb21bdedc1c0a70af3321e24005223e0ea2',
+    repo: 'studyhooligen.github.io',
+    owner: 'studyhooligen',
+    admin: ['studyhooligen'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+  
+  
+
+</article>
+</section>
       <footer class="footer">
   <div class="outer">
     <ul>
@@ -550,6 +495,23 @@
 
 <!-- Tocbot -->
 
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
 <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
@@ -694,6 +656,14 @@
 <!-- Katex -->
 
 
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css">
+        
     
 
 
