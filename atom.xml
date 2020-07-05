@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-07-01T14:12:35.670Z</updated>
+  <updated>2020-07-05T02:20:54.648Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>XTK无线充电</title>
+    <link href="http://yoursite.com/2020/07/04/%E6%97%A0%E7%BA%BF%E5%85%85%E7%94%B5(XKT)/"/>
+    <id>http://yoursite.com/2020/07/04/%E6%97%A0%E7%BA%BF%E5%85%85%E7%94%B5(XKT)/</id>
+    <published>2020-07-04T03:44:14.000Z</published>
+    <updated>2020-07-05T02:20:54.648Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：最近有使用无线充电的需求，在某宝上买了一套据称能达到80%效率的⚡100W模块套装（带线圈）。今天笔者刚对模块做完测试，就把这篇测试实验记录顺带个原理剖析写了&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;套件概要&quot;&gt;&lt;a href=&quot;#套件概要&quot; class=&quot;headerlink&quot; title=&quot;套件概要&quot;&gt;&lt;/a&gt;套件概要&lt;/h2&gt;&lt;p&gt;该套件包括收发模块及一对线圈，如图&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/07/04/NvxQmD.jpg&quot; alt=&quot;套件&quot;&gt;&lt;/p&gt;
+&lt;p&gt;收发线圈是一对外径10.270cm、内径3.010cm的22闸线圈&lt;/p&gt;
+&lt;p&gt;从丝印上来看，该模块所有有源元件都是出自同一家公司——XKT。首先是发射模块，采用了XKT-810作为驱动，XKT-1511作为发射管；再看接收模块，则是采用了XKT-3170作为输出降压稳压&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="电源设计" scheme="http://yoursite.com/categories/%E7%94%B5%E6%BA%90%E8%AE%BE%E8%AE%A1/"/>
+    
+    
+      <category term="实验记录" scheme="http://yoursite.com/tags/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/"/>
+    
+      <category term="无线充电" scheme="http://yoursite.com/tags/%E6%97%A0%E7%BA%BF%E5%85%85%E7%94%B5/"/>
+    
+      <category term="XTK产品" scheme="http://yoursite.com/tags/XTK%E4%BA%A7%E5%93%81/"/>
+    
+  </entry>
   
   <entry>
     <title>数字控制</title>
@@ -634,39 +665,6 @@
       <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
     
       <category term="状态空间模型" scheme="http://yoursite.com/tags/%E7%8A%B6%E6%80%81%E7%A9%BA%E9%97%B4%E6%A8%A1%E5%9E%8B/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>PID控制器</title>
-    <link href="http://yoursite.com/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/"/>
-    <id>http://yoursite.com/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/</id>
-    <published>2020-05-27T13:41:34.000Z</published>
-    <updated>2020-06-20T12:39:36.046Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：PID是一种很常用的控制器了，笔者在校期间也曾调过该控制器，但是没有研究过这神奇的控制器的理论原理。恰巧这次疫情，让笔者有机会闭关在家深入研究。PID控制器诞生已有80年左右，优质的论文非常多，笔者将仅使用《信号与系统》课程中的基础知识进行分析&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h1 id=&quot;PID控制器目录&quot;&gt;&lt;a href=&quot;#PID控制器目录&quot; class=&quot;headerlink&quot; title=&quot;PID控制器目录&quot;&gt;&lt;/a&gt;PID控制器目录&lt;/h1&gt;&lt;ul&gt;
-&lt;li&gt;控制器形式及主要参数&lt;/li&gt;
-&lt;li&gt;控制器调试原则&lt;/li&gt;
-&lt;li&gt;控制器的传递函数&lt;/li&gt;
-&lt;li&gt;控制器加受控对象的总体传递函数&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="PID" scheme="http://yoursite.com/tags/PID/"/>
-    
-      <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
-    
-      <category term="反馈系统" scheme="http://yoursite.com/tags/%E5%8F%8D%E9%A6%88%E7%B3%BB%E7%BB%9F/"/>
     
   </entry>
   
