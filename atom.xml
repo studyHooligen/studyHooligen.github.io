@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-07-06T08:58:05.443Z</updated>
+  <updated>2020-07-06T09:04:07.528Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,14 +21,14 @@
     <link href="http://yoursite.com/2020/07/06/nonLinearSysAnalys1/"/>
     <id>http://yoursite.com/2020/07/06/nonLinearSysAnalys1/</id>
     <published>2020-07-06T07:42:22.000Z</published>
-    <updated>2020-07-06T08:58:05.443Z</updated>
+    <updated>2020-07-06T09:04:07.528Z</updated>
     
     <summary type="html">
     
       &lt;blockquote&gt;
-&lt;p&gt;前言：在现实世界中，存在许多非线性元件。比如最常见的半导体元件，二极管VI曲线、三极管特性曲线都是非线性特性；机械元件中，电磁阀就是二值型元件；而在电机驱动、开关电源等使用MOS管的功率场合，为了减小MOS管的损耗，一般采样PWM驱动&lt;/p&gt;
+&lt;p&gt;前言：在现实世界中，存在许多非线性元件。比如最常见的半导体元件，二极管VI曲线、三极管特性曲线都是非线性特性；机械元件中，电磁阀就是二值型元件；而在电机驱动、开关电源等使用MOS管的功率场合，为了减小MOS管的损耗，一般采用PWM驱动&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;非线性系统的研究方法非常多样复杂，笔者将不断学习，并分为几篇文章讨论。本文中讨论最为基础的&lt;strong&gt;小信号分析法&lt;/strong&gt;，该方法对于doubleE来说是非常熟悉的了，一般模电书讲解三极管放大电路都是采用的该模型&lt;/p&gt;
+&lt;p&gt;非线性系统的研究方法非常多样复杂，笔者将不断学习，并分为数篇文章讨论。本文中讨论最为基础的&lt;strong&gt;小信号分析法&lt;/strong&gt;，该方法对于doubleE来说是非常熟悉的了，一般模电书讲解三极管放大电路都是采用的该模型&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&quot;原理推导与理解&quot;&gt;&lt;a href=&quot;#原理推导与理解&quot; class=&quot;headerlink&quot; title=&quot;原理推导与理解&quot;&gt;&lt;/a&gt;原理推导与理解&lt;/h2&gt;&lt;p&gt;对于一个非线性系统，有如下非线性状态方程&lt;/p&gt;
