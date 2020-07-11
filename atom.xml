@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-07-10T09:42:00.194Z</updated>
+  <updated>2020-07-11T08:53:32.046Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,41 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>HRTIMofSTM32</title>
+    <link href="http://yoursite.com/2020/07/11/HRTIMofSTM32/"/>
+    <id>http://yoursite.com/2020/07/11/HRTIMofSTM32/</id>
+    <published>2020-07-11T06:51:32.000Z</published>
+    <updated>2020-07-11T08:53:32.046Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：就在去年（2019年），ST公司推出了一个全新的控制器系列——G4。该系列主打方向为电源和驱动类电路控制，笔者好奇的发现STM32G474这个产品线，相对其他的控制器一大亮点为——超高精度定时器（High-resolution Timer）。具有184ps的定时精度！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;HRTIM框图&quot;&gt;&lt;a href=&quot;#HRTIM框图&quot; class=&quot;headerlink&quot; title=&quot;HRTIM框图&quot;&gt;&lt;/a&gt;HRTIM框图&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/07/11/UlAA5d.jpg&quot; alt=&quot;HRTIM&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;亮点特性&quot;&gt;&lt;a href=&quot;#亮点特性&quot; class=&quot;headerlink&quot; title=&quot;亮点特性&quot;&gt;&lt;/a&gt;亮点特性&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;184ps定时精度&lt;/li&gt;
+&lt;li&gt;12路输出（6个定时器单位，每单位两路）&lt;/li&gt;
+&lt;li&gt;可触发内部模拟外设（ADC、DAC、比较器）&lt;/li&gt;
+&lt;li&gt;对偶信号可插入死区时间（735ps精度）&lt;/li&gt;
+&lt;li&gt;支持突发模式（DCDC转换器轻载模式）&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="嵌入式驱动" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
+    
+    
+      <category term="STM32" scheme="http://yoursite.com/tags/STM32/"/>
+    
+      <category term="HRTIM" scheme="http://yoursite.com/tags/HRTIM/"/>
+    
+      <category term="STM32G4" scheme="http://yoursite.com/tags/STM32G4/"/>
+    
+  </entry>
   
   <entry>
     <title>积分器饱和补偿</title>
@@ -631,32 +666,6 @@
       <category term="电机模型" scheme="http://yoursite.com/tags/%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B/"/>
     
       <category term="Matlab@Simulink" scheme="http://yoursite.com/tags/Matlab-Simulink/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>倒立摆力学分析</title>
-    <link href="http://yoursite.com/2020/06/01/%E5%80%92%E7%AB%8B%E6%91%86%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/"/>
-    <id>http://yoursite.com/2020/06/01/%E5%80%92%E7%AB%8B%E6%91%86%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/</id>
-    <published>2020-06-01T06:52:34.000Z</published>
-    <updated>2020-06-01T13:12:56.492Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：平衡倒立摆系统是非常经典的自动控制系统，目前国际上最先进的控制技术能做到四阶（我国大连理工大学首个实现）。本文讨论的为一阶倒立摆系统的系统建模，该模型是对平衡倒立摆进行控制的基础工作，也是现在市面上流行的平衡车的工作原理之一。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;倒立摆系统简图&quot;&gt;&lt;a href=&quot;#倒立摆系统简图&quot; class=&quot;headerlink&quot; title=&quot;倒立摆系统简图&quot;&gt;&lt;/a&gt;倒立摆系统简图&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/01/tGZdvq.jpg&quot; alt=&quot;受力分析&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="动力学系统" scheme="http://yoursite.com/categories/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E7%B3%BB%E7%BB%9F/"/>
-    
-    
-      <category term="平衡倒立摆" scheme="http://yoursite.com/tags/%E5%B9%B3%E8%A1%A1%E5%80%92%E7%AB%8B%E6%91%86/"/>
-    
-      <category term="动力学分析" scheme="http://yoursite.com/tags/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/"/>
     
   </entry>
   
