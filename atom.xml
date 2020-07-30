@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-07-11T08:53:32.046Z</updated>
+  <updated>2020-07-30T15:29:06.051Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>D类功放——原理与建模</title>
+    <link href="http://yoursite.com/2020/07/30/powerAmplifier-D/"/>
+    <id>http://yoursite.com/2020/07/30/powerAmplifier-D/</id>
+    <published>2020-07-30T13:26:06.000Z</published>
+    <updated>2020-07-30T15:29:06.051Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：对于当前这个数字电路称霸的世界，不会D类功放真是太Low了。该文章讨论的是采用Δ-Σ方案进行闭环控制的D类功放电路，且采用了单电源供电的方案&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;原理图&quot;&gt;&lt;a href=&quot;#原理图&quot; class=&quot;headerlink&quot; title=&quot;原理图&quot;&gt;&lt;/a&gt;原理图&lt;/h2&gt;&lt;p&gt;首先给出simulink中建立的模型：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/07/30/aKvhDO.png&quot; alt=&quot;simulinkModule&quot;&gt;&lt;/p&gt;
+&lt;p&gt;对于经典简易D类功放，并不采用上示闭环结构，而是采用原信号与高频三角波做比较调制出PWM信号驱动半桥，但是这种情况下，电源抑制比和稳定性参数都很差，所以为了达到更好的效果，常使用Δ-Σ方案。上框图可使用模拟电路实现积分和比较，也可使用数字方案（显然笔者在建模时，除了半桥驱动，剩下都变换到了通用信号模型）&lt;/p&gt;
+&lt;h2 id=&quot;原理推导计算&quot;&gt;&lt;a href=&quot;#原理推导计算&quot; class=&quot;headerlink&quot; title=&quot;原理推导计算&quot;&gt;&lt;/a&gt;原理推导计算&lt;/h2&gt;
+    
+    </summary>
+    
+    
+    
+      <category term="Matlab@Simulink" scheme="http://yoursite.com/tags/Matlab-Simulink/"/>
+    
+      <category term="功率放大器" scheme="http://yoursite.com/tags/%E5%8A%9F%E7%8E%87%E6%94%BE%E5%A4%A7%E5%99%A8/"/>
+    
+      <category term="D类功放" scheme="http://yoursite.com/tags/D%E7%B1%BB%E5%8A%9F%E6%94%BE/"/>
+    
+  </entry>
   
   <entry>
     <title>HRTIMofSTM32</title>
@@ -635,37 +664,6 @@
       <category term="FinSH" scheme="http://yoursite.com/tags/FinSH/"/>
     
       <category term="MSH" scheme="http://yoursite.com/tags/MSH/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>直流电机模型分析</title>
-    <link href="http://yoursite.com/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/"/>
-    <id>http://yoursite.com/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/</id>
-    <published>2020-06-02T07:28:19.000Z</published>
-    <updated>2020-06-03T12:26:18.008Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：直流电机（DC Motor）是最常见的电机，所以对该模型的分析是后续工作的重要前提。本文将从基础物理原理分析开始，到传递函数及使用Matlab对电机进行建模&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;本文中公式较多，请耐心等待渲染&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;直流电机结构简图&quot;&gt;&lt;a href=&quot;#直流电机结构简图&quot; class=&quot;headerlink&quot; title=&quot;直流电机结构简图&quot;&gt;&lt;/a&gt;直流电机结构简图&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/02/tt2n8P.png&quot; alt=&quot;结构简图&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="硬件基础" scheme="http://yoursite.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
-    
-    
-      <category term="DC电机" scheme="http://yoursite.com/tags/DC%E7%94%B5%E6%9C%BA/"/>
-    
-      <category term="电机模型" scheme="http://yoursite.com/tags/%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B/"/>
-    
-      <category term="Matlab@Simulink" scheme="http://yoursite.com/tags/Matlab-Simulink/"/>
     
   </entry>
   
