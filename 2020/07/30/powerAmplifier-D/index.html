@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
+            <span class="post-count">5 min</span>
         </span>
     </span>
 </div>
@@ -162,7 +162,7 @@
 <blockquote>
 <p>仅有LC滤波器，要注意出现一直极端情况，也就是当负载开路时，LC滤波器变为LC谐振器，在谐振点输出会产生大电压，谐振电路电流非常大，这常常会烧坏半桥MOS管。所以要注意添加一个假负载，起到压低谐振点Q值的作用</p>
 </blockquote>
-<h2 id="仿真测试结果"><a href="#仿真测试结果" class="headerlink" title="仿真测试结果"></a>仿真测试结果</h2><ul>
+<h2 id="仿真测试结果（15W输出）"><a href="#仿真测试结果（15W输出）" class="headerlink" title="仿真测试结果（15W输出）"></a>仿真测试结果（15W输出）</h2><h3 id="输出波形预览"><a href="#输出波形预览" class="headerlink" title="输出波形预览"></a>输出波形预览</h3><ul>
 <li>使用频率20kHz、幅度0.8V的输入信号</li>
 </ul>
 <p><img src="https://s1.ax1x.com/2020/07/30/aKvfKK.png" alt="test1"></p>
@@ -174,7 +174,10 @@
 <blockquote>
 <p>若低频效果不好，则加大输出级的隔直耦合电容，因为该电容和负载构成了一个低通电路噢</p>
 </blockquote>
-<h2 id="友情链接"><a href="#友情链接" class="headerlink" title="友情链接"></a>友情链接</h2><p>该模型已经上传至笔者的Github仓库：<br><a href="https://github.com/studyHooligen/SimulinkModel" target="_blank" rel="noopener">simulinkModel</a><br>欢迎白嫖</p>
+<h3 id="输出FFT分析"><a href="#输出FFT分析" class="headerlink" title="输出FFT分析"></a>输出FFT分析</h3><ul>
+<li>20kHz频率</li>
+</ul>
+<h3 id="带内THD"><a href="#带内THD" class="headerlink" title="带内THD"></a>带内THD</h3><h3 id="整机效率"><a href="#整机效率" class="headerlink" title="整机效率"></a>整机效率</h3><h3 id="增益-电源抑制比"><a href="#增益-电源抑制比" class="headerlink" title="增益-电源抑制比"></a>增益-电源抑制比</h3><h2 id="友情链接"><a href="#友情链接" class="headerlink" title="友情链接"></a>友情链接</h2><p>该模型已经上传至笔者的Github仓库：<br><a href="https://github.com/studyHooligen/SimulinkModel" target="_blank" rel="noopener">simulinkModel</a><br>欢迎白嫖</p>
 
       
       <!-- reward -->
@@ -260,6 +263,15 @@
   
   
   <nav class="article-nav">
+    
+      <a href="/2020/08/01/mshCommandWithArguments/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            MSH控制台添加带参命令
+          
+        </div>
+      </a>
     
     
       <a href="/2020/07/11/HRTIMofSTM32/" class="article-nav-link">
