@@ -77,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">711</span>
+            <span class="post-count">783</span>
         </span>
     </span>
 
@@ -145,10 +145,20 @@
 <p>所以要注意，当一个函数名长度超过 FINSH_NAME_MAX 时，使用 FINSH_FUNCTION_EXPORT 导出这个函数到命令表中后，在 FinSH 符号表中看到完整的函数名，但是完整输入执行会出现 null node 错误。这是因为虽然显示了完整的函数名，但是实际上 FinSH 中却保存了前 16 字节作为命令，过多的输入会导致无法正确找到命令，这时就可以使用 FINSH_FUNCTION_EXPORT_ALIAS 来对导出的命令进行重命名</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">thisFunctionHasVeryLongName</span><span class="params">()</span></span>; <span class="comment">//函数声明</span></span><br><span class="line"></span><br><span class="line">FINSH_FUNCTION_EXPORT_ALIAS(thisFunctionHasVeryLongName, funcName, <span class="keyword">this</span> function’s description);    <span class="comment">//命令以别名的形式导出</span></span><br></pre></td></tr></table></figure>
 
+<h2 id="终端效果"><a href="#终端效果" class="headerlink" title="终端效果"></a>终端效果</h2><p><img src="https://s1.ax1x.com/2020/08/02/aJU8oQ.png" alt="resault"></p>
+<p>在本次测试中，导出的命令有：</p>
+<ul>
+<li>PWM使能、失能</li>
+<li>PWM占空比设置</li>
+<li>PID参数设置</li>
+<li>PID参数显示</li>
+</ul>
+<p>其中最有用的莫过于PID参数设置的功能命令了，不用重复的烧录代码就可以调参了😁</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li>RT-Thread官方<a href="https://www.rt-thread.org/document/site/" target="_blank" rel="noopener">文档中心</a></li>
 <li>RT-Thread官方<a href="https://club.rt-thread.org/" target="_blank" rel="noopener">论坛</a></li>
 </ul>
+<p>##</p>
 
       
       <!-- reward -->
