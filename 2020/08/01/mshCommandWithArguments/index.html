@@ -77,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">783</span>
+            <span class="post-count">987</span>
         </span>
     </span>
 
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
+            <span class="post-count">3 min</span>
         </span>
     </span>
 </div>
@@ -153,12 +153,23 @@
 <li>PID参数设置</li>
 <li>PID参数显示</li>
 </ul>
+<blockquote>
 <p>其中最有用的莫过于PID参数设置的功能命令了，不用重复的烧录代码就可以调参了😁</p>
+</blockquote>
+<h2 id="PID调参代码"><a href="#PID调参代码" class="headerlink" title="PID调参代码"></a>PID调参代码</h2><p>由于RT-Thread系统提供的打印接口只能打印出简单的字符串，所以和接收参数一样，我们需要做相应的数据形式转换</p>
+<ul>
+<li><p>设置PID参数</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setPID_P</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">float</span> P;</span><br><span class="line">    <span class="built_in">sscanf</span>(argv[<span class="number">1</span>],<span class="string">"%f"</span>,&amp;P);</span><br><span class="line">    buckPIDcontroller.K_p = P;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MSH_CMD_EXPORT(setPID_P,<span class="built_in">set</span> P parameter of buck PID controller);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setPID_I</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">float</span> I;</span><br><span class="line">    <span class="built_in">sscanf</span>(argv[<span class="number">1</span>],<span class="string">"%f"</span>,&amp;I);</span><br><span class="line">    buckPIDcontroller.K_i = I;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MSH_CMD_EXPORT(setPID_I,<span class="built_in">set</span> I parameter of buck PID controller);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">setPID_D</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span>** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">float</span> D;</span><br><span class="line">    <span class="built_in">sscanf</span>(argv[<span class="number">1</span>],<span class="string">"%f"</span>,&amp;D);</span><br><span class="line">    buckPIDcontroller.K_d = D;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MSH_CMD_EXPORT(setPID_D,<span class="built_in">set</span> D parameter of buck PID controller);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>显示PID参数</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">showPID</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> printCache [<span class="number">30</span>];   <span class="comment">//开辟缓存</span></span><br><span class="line">    <span class="built_in">sprintf</span>(printCache,<span class="string">"P:%8.6f,I:%6.4f,D:%6.4f\n"</span>,buckPIDcontroller.K_p,buckPIDcontroller.K_i,buckPIDcontroller.K_p);  <span class="comment">//转换为字符串</span></span><br><span class="line">    rt_kprintf(<span class="string">"%s"</span>,printCache);    <span class="comment">//打印字符串</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MSH_CMD_EXPORT(showPID,<span class="built_in">print</span> the parameter of buck PID controller);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li>RT-Thread官方<a href="https://www.rt-thread.org/document/site/" target="_blank" rel="noopener">文档中心</a></li>
 <li>RT-Thread官方<a href="https://club.rt-thread.org/" target="_blank" rel="noopener">论坛</a></li>
 </ul>
-<p>##</p>
 
       
       <!-- reward -->
@@ -244,6 +255,15 @@
   
   
   <nav class="article-nav">
+    
+      <a href="/2020/09/01/BasicInformationTheory/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            基础信息论知识汇总
+          
+        </div>
+      </a>
     
     
       <a href="/2020/07/30/powerAmplifier-D/" class="article-nav-link">
@@ -364,10 +384,6 @@
     
     <li class="nav-item">
       <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/categories/%E9%9A%8F%E7%AC%94">随笔</a>
     </li>
     
     <li class="nav-item">

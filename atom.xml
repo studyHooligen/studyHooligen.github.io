@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-08-02T03:16:11.478Z</updated>
+  <updated>2020-09-02T02:33:27.595Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,56 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>基础信息论知识汇总</title>
+    <link href="http://yoursite.com/2020/09/01/BasicInformationTheory/"/>
+    <id>http://yoursite.com/2020/09/01/BasicInformationTheory/</id>
+    <published>2020-09-01T15:50:03.000Z</published>
+    <updated>2020-09-02T02:33:27.595Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;这是一篇笔者的《信息论与编码》课内学习笔记，最近刚考完信息论，分享下自己的笔记吧😀希望能出个好成绩&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;个人感觉这门课最有用的就是香农三大定理了，尤其是香农公式给出了信噪比和带宽的需求关系&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;离散单符号信源&quot;&gt;&lt;a href=&quot;#离散单符号信源&quot; class=&quot;headerlink&quot; title=&quot;离散单符号信源&quot;&gt;&lt;/a&gt;离散单符号信源&lt;/h2&gt;&lt;h3 id=&quot;基础概率表示&quot;&gt;&lt;a href=&quot;#基础概率表示&quot; class=&quot;headerlink&quot; title=&quot;基础概率表示&quot;&gt;&lt;/a&gt;基础概率表示&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;无条件概率（先验概率）&lt;br&gt;  $$&lt;br&gt;  p(a_i)&lt;br&gt;  $$&lt;/li&gt;
+&lt;li&gt;条件概率(后验概率)&lt;br&gt;  $$&lt;br&gt;  p(a_i/b_j)&lt;br&gt;  $$&lt;/li&gt;
+&lt;li&gt;联合概率&lt;br&gt;  $$&lt;br&gt;  p(a_ib_j)=p(b_j)p(a_i/b_j)=p(a_i)p(b_j/a_i)&lt;br&gt;  $$&lt;h3 id=&quot;信息量&quot;&gt;&lt;a href=&quot;#信息量&quot; class=&quot;headerlink&quot; title=&quot;信息量&quot;&gt;&lt;/a&gt;信息量&lt;/h3&gt;&lt;/li&gt;
+&lt;li&gt;概率的降函数&lt;/li&gt;
+&lt;li&gt;度量&lt;br&gt;  $$&lt;br&gt;  自信息量I(x_i)=\log \frac 1{p(x_i)} = -\log p(x_i) \\&lt;br&gt;  联合自信息量 I(a_ib_j)=-\log_2p(a_ib_j) \\&lt;br&gt;  条件自信息量 I(a_i/b_j)=-\log_2p(a_i/b_j) \\&lt;br&gt;  互信息量I(x_i;y_i) = \log_2 \frac {p(x_i|y_i)} {p(x_i)}= I(x_i)-I(x_i/y_i) \\&lt;br&gt;  条件互信息量 I(a_i;b_j/c_k)=\log _2\frac {p(a_i/b_jc_k)}{p(a_i/c_k)}&lt;br&gt;  $$&lt;ul&gt;
+&lt;li&gt;bit：2底&lt;/li&gt;
+&lt;li&gt;nat：e底&lt;/li&gt;
+&lt;li&gt;hart：10底&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;互信息量性质&lt;ul&gt;
+&lt;li&gt;互易性&lt;br&gt;  $$&lt;br&gt;  I(a_i;b_j) = I(b_j;a_i)&lt;br&gt;  $$&lt;/li&gt;
+&lt;li&gt;统计独立时，互信息量为0&lt;/li&gt;
+&lt;li&gt;只有互信息量可为负,此时表示信道受到干扰或者错误&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;联合互信息量&lt;br&gt;  $$&lt;br&gt;  I(a_i;b_jc_k)=I(a_i;c_k)+I(a_i;b_j|c_k)&lt;br&gt;  $$&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="My大学" scheme="http://yoursite.com/categories/My%E5%A4%A7%E5%AD%A6/"/>
+    
+    
+      <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
     <title>MSH控制台添加带参命令</title>
     <link href="http://yoursite.com/2020/08/01/mshCommandWithArguments/"/>
     <id>http://yoursite.com/2020/08/01/mshCommandWithArguments/</id>
     <published>2020-08-01T13:59:12.000Z</published>
-    <updated>2020-08-02T03:16:11.478Z</updated>
+    <updated>2020-09-02T02:15:28.491Z</updated>
     
     <summary type="html">
     
@@ -633,39 +678,6 @@
       <category term="SVN" scheme="http://yoursite.com/tags/SVN/"/>
     
       <category term="CentOS" scheme="http://yoursite.com/tags/CentOS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>DCDC</title>
-    <link href="http://yoursite.com/2020/06/05/DCDC/"/>
-    <id>http://yoursite.com/2020/06/05/DCDC/</id>
-    <published>2020-06-05T11:20:53.000Z</published>
-    <updated>2020-06-05T15:29:29.746Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：笔者最近突发奇想，要做一个超级电容UPS，所以基础的DCDC知识必然要好好复习一下&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;网络上教程很多，该文章只作为总结归纳使用&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;Buck电路（降压DCDC）&quot;&gt;&lt;a href=&quot;#Buck电路（降压DCDC）&quot; class=&quot;headerlink&quot; title=&quot;Buck电路（降压DCDC）&quot;&gt;&lt;/a&gt;Buck电路（降压DCDC）&lt;/h2&gt;
-    
-    </summary>
-    
-    
-      <category term="硬件基础" scheme="http://yoursite.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
-    
-    
-      <category term="电源变换" scheme="http://yoursite.com/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/"/>
-    
-      <category term="DC-DC" scheme="http://yoursite.com/tags/DC-DC/"/>
-    
-      <category term="Boost" scheme="http://yoursite.com/tags/Boost/"/>
-    
-      <category term="Buck" scheme="http://yoursite.com/tags/Buck/"/>
     
   </entry>
   
