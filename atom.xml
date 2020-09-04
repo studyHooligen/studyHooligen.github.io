@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-09-04T07:09:15.548Z</updated>
+  <updated>2020-09-04T07:36:58.165Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>VScode中使用代码模板</title>
+    <link href="http://yoursite.com/2020/09/04/codeTemplateForVScode/"/>
+    <id>http://yoursite.com/2020/09/04/codeTemplateForVScode/</id>
+    <published>2020-09-04T07:14:02.000Z</published>
+    <updated>2020-09-04T07:36:58.165Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：平时在做项目时常常需要写大量的注释，来帮助其他人理解自己的代码结构，笔者就常常出现写注释时间和码代码时间对半开的情况，这里分享一下VScode里的模板功能&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;首先感受一下使用模板有多方便：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/09/04/wkPzSx.png&quot; alt=&quot;效果&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这么多的注释格式都是模板一键生成的🌌不要太爽！&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="编程技术" scheme="http://yoursite.com/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="VScode" scheme="http://yoursite.com/tags/VScode/"/>
+    
+  </entry>
   
   <entry>
     <title>为Python扩展C/C++接口</title>
@@ -652,39 +678,6 @@
     
       <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>SVN管理AD工程</title>
-    <link href="http://yoursite.com/2020/06/07/SVN%E7%AE%A1%E7%90%86AD%E5%B7%A5%E7%A8%8B/"/>
-    <id>http://yoursite.com/2020/06/07/SVN%E7%AE%A1%E7%90%86AD%E5%B7%A5%E7%A8%8B/</id>
-    <published>2020-06-07T03:38:00.000Z</published>
-    <updated>2020-06-07T07:49:07.319Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：上一篇博文中探索了搭建SVN服务器，那么接下来就是使用啦！在Altium Designer中对SVN的支持是非常棒的（也只支持这个…)&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;工作环境&quot;&gt;&lt;a href=&quot;#工作环境&quot; class=&quot;headerlink&quot; title=&quot;工作环境&quot;&gt;&lt;/a&gt;工作环境&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;操作系统：Windows10 Pro 1909&lt;/li&gt;
-&lt;li&gt;Altium Designer：AD19.0.4&lt;/li&gt;
-&lt;li&gt;一杯咖啡☕和好心情😝&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;在AD中配置SVN&quot;&gt;&lt;a href=&quot;#在AD中配置SVN&quot; class=&quot;headerlink&quot; title=&quot;在AD中配置SVN&quot;&gt;&lt;/a&gt;在AD中配置SVN&lt;/h2&gt;
-    
-    </summary>
-    
-    
-      <category term="网站技术" scheme="http://yoursite.com/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="Web" scheme="http://yoursite.com/tags/Web/"/>
-    
-      <category term="SVN" scheme="http://yoursite.com/tags/SVN/"/>
-    
-      <category term="Altium Designer" scheme="http://yoursite.com/tags/Altium-Designer/"/>
     
   </entry>
   
