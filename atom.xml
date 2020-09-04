@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-09-04T07:06:04.804Z</updated>
+  <updated>2020-09-04T07:09:15.548Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,17 +21,28 @@
     <link href="http://yoursite.com/2020/09/04/developPythonWithCppModule/"/>
     <id>http://yoursite.com/2020/09/04/developPythonWithCppModule/</id>
     <published>2020-09-04T03:28:32.000Z</published>
-    <updated>2020-09-04T07:06:04.804Z</updated>
+    <updated>2020-09-04T07:09:15.548Z</updated>
     
     <summary type="html">
     
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
-        
-      
+      &lt;blockquote&gt;
+&lt;p&gt;前言：身为脚本语言的Python受到万千AI开发者的青睐，而C和C++以优秀的执行效率收到嵌入式工程师和游戏开发者的热爱，将两者结合就将更加无敌了呢🚀&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本文主要分享将C++函数导出为Python扩展模块，供python调用，以同时具有py的便利性和C艹的高效性&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;DEMO&quot;&gt;&lt;a href=&quot;#DEMO&quot; class=&quot;headerlink&quot; title=&quot;DEMO&quot;&gt;&lt;/a&gt;DEMO&lt;/h2&gt;&lt;p&gt;首先，可以想到最基础的文件至少有3个：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C++目标函数源文件&lt;/li&gt;
+&lt;li&gt;Python主程序脚本文件&lt;/li&gt;
+&lt;li&gt;编译链接文件&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;首先来看看高效的C-源文件吧&quot;&gt;&lt;a href=&quot;#首先来看看高效的C-源文件吧&quot; class=&quot;headerlink&quot; title=&quot;首先来看看高效的C++源文件吧&quot;&gt;&lt;/a&gt;首先来看看高效的C++源文件吧&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;childModule.cpp&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;先直接贴上代码😜别跑！说明就跟在后面&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
     
     </summary>
     
