@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-09-04T07:42:12.883Z</updated>
+  <updated>2020-09-04T15:33:56.424Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,42 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SVN数据迁移</title>
+    <link href="http://yoursite.com/2020/09/04/SVNdataTransfer/"/>
+    <id>http://yoursite.com/2020/09/04/SVNdataTransfer/</id>
+    <published>2020-09-04T15:19:01.000Z</published>
+    <updated>2020-09-04T15:33:56.424Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：今天不巧服务器到期了，就得把原本的数据库进行迁移了。（OMG今天写3篇博客了🌋）&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;总体来说只需简单的5步&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;导出数据至dump包文件&lt;/li&gt;
+&lt;li&gt;包文件传输&lt;/li&gt;
+&lt;li&gt;创建新库&lt;/li&gt;
+&lt;li&gt;导入数据&lt;/li&gt;
+&lt;li&gt;启动服务&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;详细命令&quot;&gt;&lt;a href=&quot;#详细命令&quot; class=&quot;headerlink&quot; title=&quot;详细命令&quot;&gt;&lt;/a&gt;详细命令&lt;/h2&gt;
+    
+    </summary>
+    
+    
+      <category term="网站技术" scheme="http://yoursite.com/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/"/>
+    
+    
+      <category term="Web" scheme="http://yoursite.com/tags/Web/"/>
+    
+      <category term="SVN" scheme="http://yoursite.com/tags/SVN/"/>
+    
+      <category term="CentOS" scheme="http://yoursite.com/tags/CentOS/"/>
+    
+  </entry>
   
   <entry>
     <title>VScode中使用代码模板</title>
@@ -653,31 +689,6 @@
       <category term="状态空间模型" scheme="http://yoursite.com/tags/%E7%8A%B6%E6%80%81%E7%A9%BA%E9%97%B4%E6%A8%A1%E5%9E%8B/"/>
     
       <category term="KalmanFilter" scheme="http://yoursite.com/tags/KalmanFilter/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>抗疫</title>
-    <link href="http://yoursite.com/2020/06/07/%E6%8A%97%E7%96%AB/"/>
-    <id>http://yoursite.com/2020/06/07/%E6%8A%97%E7%96%AB/</id>
-    <published>2020-06-07T09:08:55.000Z</published>
-    <updated>2020-06-07T09:28:57.111Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
-        
-      
-    
-    </summary>
-    
-    
-      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
-    
     
   </entry>
   
