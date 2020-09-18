@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-09-04T15:33:56.424Z</updated>
+  <updated>2020-09-18T15:31:41.129Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,41 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>githubOnLinux</title>
+    <link href="http://yoursite.com/2020/09/18/githubOnLinux/"/>
+    <id>http://yoursite.com/2020/09/18/githubOnLinux/</id>
+    <published>2020-09-18T15:02:15.000Z</published>
+    <updated>2020-09-18T15:31:41.129Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：今天给新买的云服务器和虚拟机配环境，分别安装的CentOS和Ubuntu。发现对Git的配置十分模糊，那么就写一篇博客来防止疑问吧（所以会略的很厉害）&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;主要步骤&quot;&gt;&lt;a href=&quot;#主要步骤&quot; class=&quot;headerlink&quot; title=&quot;主要步骤&quot;&gt;&lt;/a&gt;主要步骤&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;本地安装git&lt;/li&gt;
+&lt;li&gt;配置账号&lt;/li&gt;
+&lt;li&gt;生成ssh密钥&lt;/li&gt;
+&lt;li&gt;公钥导入到GitHub上&lt;/li&gt;
+&lt;li&gt;密钥加入本地ssh环境&lt;/li&gt;
+&lt;li&gt;测试ssh是否正常&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+    
+      <category term="编程技能" scheme="http://yoursite.com/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/"/>
+    
+    
+      <category term="Web" scheme="http://yoursite.com/tags/Web/"/>
+    
+      <category term="Linux" scheme="http://yoursite.com/tags/Linux/"/>
+    
+      <category term="Git" scheme="http://yoursite.com/tags/Git/"/>
+    
+  </entry>
   
   <entry>
     <title>SVN数据迁移</title>
@@ -651,44 +686,6 @@
       <category term="WiFi" scheme="http://yoursite.com/tags/WiFi/"/>
     
       <category term="TCP" scheme="http://yoursite.com/tags/TCP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>卡尔曼滤波器</title>
-    <link href="http://yoursite.com/2020/06/09/KalmanFilter/"/>
-    <id>http://yoursite.com/2020/06/09/KalmanFilter/</id>
-    <published>2020-06-09T03:07:12.000Z</published>
-    <updated>2020-06-09T15:25:13.661Z</updated>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;什么是卡尔曼滤波器（Kalman-Filter）&quot;&gt;&lt;a href=&quot;#什么是卡尔曼滤波器（Kalman-Filter）&quot; class=&quot;headerlink&quot; title=&quot;什么是卡尔曼滤波器（Kalman Filter）&quot;&gt;&lt;/a&gt;什么是卡尔曼滤波器（Kalman Filter）&lt;/h2&gt;&lt;p&gt;虽然名字里带了“滤波”，但其实卡尔曼滤波器是一种状态优化估算算法（optimal estimation algorithm）。&lt;/p&gt;
-&lt;h2 id=&quot;为什么使用KF&quot;&gt;&lt;a href=&quot;#为什么使用KF&quot; class=&quot;headerlink&quot; title=&quot;为什么使用KF&quot;&gt;&lt;/a&gt;为什么使用KF&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;当我们有很多种数据来源时，使用KF进行多数据融合&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;比如汽车：陀螺仪积分得到位移、里程计、GPS，那么通过KF就可以结合这3个数据，得到最大概率位置&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;当需要测量无法测量物理量时，使用KF估计状态&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;比如火箭发动机内温：可以测量火箭发动机外壳温度，再利用导热定律求解内温；也可以通过燃料的使用量和燃料的燃烧热计算出内温。这都是间接计算内温，那么真正的内温是多少？还是使用KF得出最终温度（这好像还是多数据融合）&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;KF原理&quot;&gt;&lt;a href=&quot;#KF原理&quot; class=&quot;headerlink&quot; title=&quot;KF原理&quot;&gt;&lt;/a&gt;KF原理&lt;/h2&gt;
-    
-    </summary>
-    
-    
-      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
-    
-      <category term="状态空间模型" scheme="http://yoursite.com/tags/%E7%8A%B6%E6%80%81%E7%A9%BA%E9%97%B4%E6%A8%A1%E5%9E%8B/"/>
-    
-      <category term="KalmanFilter" scheme="http://yoursite.com/tags/KalmanFilter/"/>
     
   </entry>
   
