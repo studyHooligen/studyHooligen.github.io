@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-09-18T15:31:41.129Z</updated>
+  <updated>2020-10-16T06:49:46.905Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,16 +17,48 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>githubOnLinux</title>
-    <link href="http://yoursite.com/2020/09/18/githubOnLinux/"/>
-    <id>http://yoursite.com/2020/09/18/githubOnLinux/</id>
-    <published>2020-09-18T15:02:15.000Z</published>
-    <updated>2020-09-18T15:31:41.129Z</updated>
+    <title>INTEL杯赛后感</title>
+    <link href="http://yoursite.com/2020/10/11/INTEL%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F/"/>
+    <id>http://yoursite.com/2020/10/11/INTEL%E6%9D%AF%E8%B5%9B%E5%90%8E%E6%84%9F/</id>
+    <published>2020-10-11T12:56:01.000Z</published>
+    <updated>2020-10-16T06:49:46.905Z</updated>
     
     <summary type="html">
     
       &lt;blockquote&gt;
-&lt;p&gt;前言：今天给新买的云服务器和虚拟机配环境，分别安装的CentOS和Ubuntu。发现对Git的配置十分模糊，那么就写一篇博客来防止疑问吧（所以会略的很厉害）&lt;/p&gt;
+&lt;p&gt;笔者参加过的所有比赛中，只有这次INTEL杯（附：比赛介绍）使我产生了强烈的赛后感写作欲。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;如果要我给这次参赛体验做一次概述——“人体是没有极限的”&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;作品效果&quot;&gt;&lt;a href=&quot;#作品效果&quot; class=&quot;headerlink&quot; title=&quot;作品效果&quot;&gt;&lt;/a&gt;作品效果&lt;/h2&gt;&lt;p&gt;作品名称：智能疫情识别飞行器&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://gitee.com/studyHooligen/blogImage/raw/master/20201011/20201011-intel-2.jpg&quot; alt=&quot;作品效果&quot;&gt;&lt;/p&gt;
+&lt;p&gt;亮点功能：无人操守自主飞行、自动回航无线充电、高速图像采集、人脸口罩识别、人物特征提取、语义语音合成喊话&lt;/p&gt;
+&lt;h2 id=&quot;正文&quot;&gt;&lt;a href=&quot;#正文&quot; class=&quot;headerlink&quot; title=&quot;正文&quot;&gt;&lt;/a&gt;正文&lt;/h2&gt;
+    
+    </summary>
+    
+    
+      <category term="My大学" scheme="http://yoursite.com/categories/My%E5%A4%A7%E5%AD%A6/"/>
+    
+    
+      <category term="嵌入式" scheme="http://yoursite.com/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/"/>
+    
+      <category term="全国大学生电子设计竞赛" scheme="http://yoursite.com/tags/%E5%85%A8%E5%9B%BD%E5%A4%A7%E5%AD%A6%E7%94%9F%E7%94%B5%E5%AD%90%E8%AE%BE%E8%AE%A1%E7%AB%9E%E8%B5%9B/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>github（Linux）</title>
+    <link href="http://yoursite.com/2020/09/18/githubOnLinux/"/>
+    <id>http://yoursite.com/2020/09/18/githubOnLinux/</id>
+    <published>2020-09-18T15:02:15.000Z</published>
+    <updated>2020-10-11T12:18:00.855Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：今天给新买的云服务器和虚拟机配环境，分别安装的CentOS和Ubuntu。发现对Git的配置十分模糊，那么就写一篇博客来防止遗忘吧（所以会略的很厉害）&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&quot;主要步骤&quot;&gt;&lt;a href=&quot;#主要步骤&quot; class=&quot;headerlink&quot; title=&quot;主要步骤&quot;&gt;&lt;/a&gt;主要步骤&lt;/h2&gt;&lt;ol&gt;
 &lt;li&gt;本地安装git&lt;/li&gt;
@@ -644,48 +676,6 @@
       <category term="Matlab@Simulink" scheme="http://yoursite.com/tags/Matlab-Simulink/"/>
     
       <category term="C/C++ Code Generation" scheme="http://yoursite.com/tags/C-C-Code-Generation/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ESP8266连接服务器</title>
-    <link href="http://yoursite.com/2020/06/09/ESP8266%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/"/>
-    <id>http://yoursite.com/2020/06/09/ESP8266%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/</id>
-    <published>2020-06-09T12:23:27.000Z</published>
-    <updated>2020-06-09T14:49:32.341Z</updated>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;ESP8266连接WIFI&quot;&gt;&lt;a href=&quot;#ESP8266连接WIFI&quot; class=&quot;headerlink&quot; title=&quot;ESP8266连接WIFI&quot;&gt;&lt;/a&gt;ESP8266连接WIFI&lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;通过UART和电源把ESP8266模块连接到PC机&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;打开串口调试助手&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;使用AT指令连接WIFI（下面是笔者的手机开的WIFI）&lt;/p&gt;
- &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;AT+CWJAP_DEF&amp;#x3D;&amp;quot;singularity&amp;quot;,&amp;quot;S1234567890&amp;quot;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;AT指令是什么？这太简单了，自行百度吧&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;上电后，并且连接WIFI如下图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/09/tIkA7d.png&quot; alt=&quot;连接WIFI&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;在云端建立TCP服务器&quot;&gt;&lt;a href=&quot;#在云端建立TCP服务器&quot; class=&quot;headerlink&quot; title=&quot;在云端建立TCP服务器&quot;&gt;&lt;/a&gt;在云端建立TCP服务器&lt;/h2&gt;
-    
-    </summary>
-    
-    
-      <category term="IoT" scheme="http://yoursite.com/categories/IoT/"/>
-    
-    
-      <category term="IoT" scheme="http://yoursite.com/tags/IoT/"/>
-    
-      <category term="ESP8266" scheme="http://yoursite.com/tags/ESP8266/"/>
-    
-      <category term="WiFi" scheme="http://yoursite.com/tags/WiFi/"/>
-    
-      <category term="TCP" scheme="http://yoursite.com/tags/TCP/"/>
     
   </entry>
   
