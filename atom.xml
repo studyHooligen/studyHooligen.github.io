@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-10-23T05:18:52.332Z</updated>
+  <updated>2020-10-24T17:06:16.966Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>海康威视摄像头驱动封装</title>
+    <link href="http://yoursite.com/2020/10/25/HikCameraDriver/"/>
+    <id>http://yoursite.com/2020/10/25/HikCameraDriver/</id>
+    <published>2020-10-24T16:48:17.000Z</published>
+    <updated>2020-10-24T17:06:16.966Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="嵌入式驱动" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
+    
+    
+      <category term="Linux" scheme="http://yoursite.com/tags/Linux/"/>
+    
+      <category term="驱动程序" scheme="http://yoursite.com/tags/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/"/>
+    
+      <category term="海康威视摄像头" scheme="http://yoursite.com/tags/%E6%B5%B7%E5%BA%B7%E5%A8%81%E8%A7%86%E6%91%84%E5%83%8F%E5%A4%B4/"/>
+    
+  </entry>
   
   <entry>
     <title>INTEL杯赛后感</title>
@@ -642,40 +673,6 @@
       <category term="PID" scheme="http://yoursite.com/tags/PID/"/>
     
       <category term="C/C++" scheme="http://yoursite.com/tags/C-C/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>simulink生成电机控制代码</title>
-    <link href="http://yoursite.com/2020/06/10/simulinkGenerateCode/"/>
-    <id>http://yoursite.com/2020/06/10/simulinkGenerateCode/</id>
-    <published>2020-06-10T11:35:23.000Z</published>
-    <updated>2020-06-10T14:54:02.037Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：在之前的两篇文章中，分析了&lt;a href=&quot;https://www.singularity-blog.top/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;直流电机模型&lt;/a&gt;和&lt;a href=&quot;https://www.singularity-blog.top/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;PID的理论原理&lt;/a&gt;。那么就可以把两者结合，做一个PID闭环控制的电机驱动啦🚀&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;并且本文中，将演示使用Matlab的C/C++ Code Generation直接生成控制器的代码！真是个懒人欢呼的事情呢🎊&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;建立闭环控制系统&quot;&gt;&lt;a href=&quot;#建立闭环控制系统&quot; class=&quot;headerlink&quot; title=&quot;建立闭环控制系统&quot;&gt;&lt;/a&gt;建立闭环控制系统&lt;/h2&gt;&lt;p&gt;先把图片安排上&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/06/10/t7pEPx.png&quot; alt=&quot;模型图&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="PID" scheme="http://yoursite.com/tags/PID/"/>
-    
-      <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
-    
-      <category term="Matlab@Simulink" scheme="http://yoursite.com/tags/Matlab-Simulink/"/>
-    
-      <category term="C/C++ Code Generation" scheme="http://yoursite.com/tags/C-C-Code-Generation/"/>
     
   </entry>
   
