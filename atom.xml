@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-10-24T17:06:16.966Z</updated>
+  <updated>2020-11-04T14:05:51.221Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,46 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>高频小信号放大器</title>
+    <link href="http://yoursite.com/2020/11/04/%E9%AB%98%E9%A2%91%E5%B0%8F%E4%BF%A1%E5%8F%B7%E6%94%BE%E5%A4%A7%E5%99%A8/"/>
+    <id>http://yoursite.com/2020/11/04/%E9%AB%98%E9%A2%91%E5%B0%8F%E4%BF%A1%E5%8F%B7%E6%94%BE%E5%A4%A7%E5%99%A8/</id>
+    <published>2020-11-04T08:07:19.000Z</published>
+    <updated>2020-11-04T14:05:51.221Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;在高频情况下，晶体管放大器必须要考虑极间电容和引脚电感带来的高频影响。相对于现代通信科技，也许这里的高频用的不是很恰当，严谨来说，本文中论述的放大器模型适用的为MHz级别放大器&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;指标声明&quot;&gt;&lt;a href=&quot;#指标声明&quot; class=&quot;headerlink&quot; title=&quot;指标声明&quot;&gt;&lt;/a&gt;指标声明&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;电压增益&lt;br&gt;  $$&lt;br&gt;  A_v = 20 \log \frac{V_o}{V_i}&lt;br&gt;  $$&lt;/li&gt;
+&lt;li&gt;功率增益&lt;br&gt;  $$&lt;br&gt;  A_P = 10 \log \frac{P_o}{P_i}&lt;br&gt;  $$&lt;/li&gt;
+&lt;li&gt;通频带&lt;blockquote&gt;
+&lt;p&gt;3dB处为截止点&lt;br&gt;  $$&lt;br&gt;  B = 2 \Delta f_{0.7}&lt;br&gt;  $$&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;矩形系数&lt;blockquote&gt;
+&lt;p&gt;可以按照需求选取参考点&lt;br&gt;  $$&lt;br&gt;  K_{r0.1} = \frac{2\Delta f_{0.1}}{2\Delta f_{0.7}}&lt;br&gt;  $$&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;抑制比&lt;br&gt;  $$&lt;br&gt;  d_n = 20 \log \frac{谐振增益A_0}{干扰增益A_n}&lt;br&gt;  $$&lt;/li&gt;
+&lt;li&gt;噪声系数&lt;br&gt;  $$&lt;br&gt;  N = \frac{ 输入信噪比 \frac{P_{si}}{P_{ni}} }{输出信噪比 \frac{P_{so}}{P_{no}} }&lt;br&gt;  $$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;三极管物理模型等效电路&quot;&gt;&lt;a href=&quot;#三极管物理模型等效电路&quot; class=&quot;headerlink&quot; title=&quot;三极管物理模型等效电路&quot;&gt;&lt;/a&gt;三极管物理模型等效电路&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://gitee.com/studyHooligen/blogImage/raw/master/20201104/20201104-HFAMP-1.png&quot; alt=&quot;等效模型&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="硬件基础" scheme="http://yoursite.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="高频电路" scheme="http://yoursite.com/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/"/>
+    
+      <category term="三极管" scheme="http://yoursite.com/tags/%E4%B8%89%E6%9E%81%E7%AE%A1/"/>
+    
+  </entry>
   
   <entry>
     <title>海康威视摄像头驱动封装</title>
@@ -640,39 +680,6 @@
       <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
     
       <category term="零极点" scheme="http://yoursite.com/tags/%E9%9B%B6%E6%9E%81%E7%82%B9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>PID代码实现</title>
-    <link href="http://yoursite.com/2020/06/14/PID%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"/>
-    <id>http://yoursite.com/2020/06/14/PID%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/</id>
-    <published>2020-06-14T03:30:30.000Z</published>
-    <updated>2020-06-14T08:08:36.451Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;在之前的一篇文章中讨论了&lt;a href=&quot;https://www.singularity-blog.top/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;PID控制器的数学原理&lt;/a&gt;和调试技巧，本文续接，讨论PID在微控制器上使用C++语言实现&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;分类&quot;&gt;&lt;a href=&quot;#分类&quot; class=&quot;headerlink&quot; title=&quot;分类&quot;&gt;&lt;/a&gt;分类&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;位置式PID&lt;/p&gt;
-&lt;p&gt;  $$&lt;br&gt;  V[n]=K_p \cdot e[n] + K_i \cdot \sum ^n_{\tau = 0} e[\tau] + K_d \cdot (e[n]-e[n-1])&lt;br&gt;  $$&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;从公式上，可以显式的看出位置式PID的公式中带有积分成分（累加），也就是过去的所有状态误差都对输出造成影响&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;增量式PID&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="PID" scheme="http://yoursite.com/tags/PID/"/>
-    
-      <category term="C/C++" scheme="http://yoursite.com/tags/C-C/"/>
     
   </entry>
   
