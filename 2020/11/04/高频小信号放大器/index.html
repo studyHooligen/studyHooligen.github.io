@@ -77,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">878</span>
+            <span class="post-count">874</span>
         </span>
     </span>
 
@@ -146,17 +146,17 @@
 <p>图中对三极管进行了Y参数模型等效</p>
 </blockquote>
 <p>从集电极C向右侧看去，有等效导纳：</p>
-<p>$$<br>Y_L = \frac{1}{P_1^2} (g_p + j\omega C + \frac{1}{j\omega L}+P^2_2 y_{ie2})<br>$$</p>
+<p>$$<br>Y_L’ = \frac{1}{P_1^2} (g_p + j\omega C + \frac{1}{j\omega L}+P^2_2 y_{ie2})<br>$$</p>
 <p>由图中关系可知集电极关系：</p>
-<p>$$<br>\dot I_c = y_{fe}\dot V_i + y_{oe} \\<br>\dot I_c = -\dot V_c Y’<em>L<br>\\ \Rightarrow<br>\dot V_c = -\frac{y</em>{fe}}{y_{oe}+Y’_L} \dot V_i<br>$$</p>
+<p>$$<br>\dot I_c = y_{fe}\dot V_i + y_{oe} \\<br>\dot I_c = -\dot V_c Y_L’<br>\\ \Rightarrow<br>\dot V_c = -\frac{y_{fe}}{y_{oe}+Y_L’} \dot V_i<br>$$</p>
 <p>基极关系：</p>
-<p>$$<br>\dot{I_b} = y_{ie} \dot{V_i} + y_{re}\dot{V_c}<br>\\ \Rightarrow<br>\dot{I_b} = ( y_{ie} - \frac{y_{fe}y_{re}}{y_{oe}+Y’_L} )\dot{V_i} = Y_i\cdot \dot{V_i}<br>$$</p>
+<p>$$<br>\dot{I_b} = y_{ie} \dot{V_i} + y_{re}\dot{V_c}<br>\\ \Rightarrow<br>\dot{I_b} = ( y_{ie} - \frac{y_{fe}y_{re}}{y_{oe}+Y_L’} )\dot{V_i} = Y_i\cdot \dot{V_i}<br>$$</p>
 <blockquote>
 <p>注意上式中的反馈导纳（分式）</p>
 </blockquote>
 <ul>
 <li><p>电压增益</p>
-<p>  显然耦合电路部分有：<br>  $$<br>  \dot{V_o} = \frac{P_2}{P_1} \dot{V_c}<br>  $$<br>  从上对集电极的分析可知：<br>  $$<br>  \dot{A_v}=\frac{\dot{V_o}}{\dot{V_i}} = -\frac{P_2\cdot y_{fe}}{P_1\cdot (y_{oe}+Y’<em>L)}<br>  $$<br>  对输入输出导纳进行虚实形式分解<br>  $$<br>  y</em>{oe} = g_{oe} + j\omega C_{oe} \\<br>  y_{ie2} = g_{ie2} + j\omega C_{ie2}<br>  $$<br>  则有<br>  $$<br>  \dot{A_v} = -\frac{P_1P_2y_{fe}}{g_{\sum} + j\omega C_{\sum} +\frac{1}{j\omega L}}<br>  = \frac{-P_1P_2y_{fe}}{g_{\sum}[1+j\frac{2Q_L\cdot \Delta f}{f_0}]}<br>  \\<br>  Q_L = \frac{\omega_0C_{\sum}}{g_{\sum}},<br>  f_0 = \frac{1}{2\pi \sqrt{LC_{\sum}}},<br>  \Delta f = f-f_0<br>  \\<br>  g_{\sum} = g_p + P_1^2 g_{oe} + P_2^2 g_{ie2},<br>  C_{\sum} = C+ P_1^2C_{oe} + P^2_2 C_{ie2}<br>  $$</p>
+<p>  显然耦合电路部分有：<br>  $$<br>  \dot{V_o} = \frac{P_2}{P_1} \dot{V_c}<br>  $$<br>  从上对集电极的分析可知：<br>  $$<br>  \dot{A_v}=\frac{\dot{V_o}}{\dot{V_i}} = -\frac{P_2\cdot y_{fe}}{P_1\cdot (y_{oe}+Y_L’)}<br>  $$<br>  对输入输出导纳进行虚实形式分解<br>  $$<br>  y_{oe} = g_{oe} + j\omega C_{oe} \\<br>  y_{ie2} = g_{ie2} + j\omega C_{ie2}<br>  $$<br>  则有<br>  $$<br>  \dot{A_v} = -\frac{P_1P_2y_{fe}}{g_{\sum} + j\omega C_{\sum} +\frac{1}{j\omega L}}<br>  = \frac{-P_1P_2y_{fe}}{g_{\sum}[1+j\frac{2Q_L\cdot \Delta f}{f_0}]}<br>  \\<br>  Q_L = \frac{\omega_0C_{\sum}}{g_{\sum}},<br>  f_0 = \frac{1}{2\pi \sqrt{LC_{\sum}}},<br>  \Delta f = f-f_0<br>  \\<br>  g_{\sum} = g_p + P_1^2 g_{oe} + P_2^2 g_{ie2},<br>  C_{\sum} = C+ P_1^2C_{oe} + P^2_2 C_{ie2}<br>  $$</p>
 <blockquote>
 <p>注意观察：增益A和品质因数Q是互相矛盾的一对参数<br>  谐振时<br>  $$<br>  A_{v0} = -\frac{P_1P_2y_{fe}}{g_{\sum}}<br>  $$</p>
 </blockquote>
