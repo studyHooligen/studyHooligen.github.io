@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Tag: 三极管 |  Singularity-blog
+    C类功放 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,79 +45,232 @@
   <div id="app">
     <main class="content on">
       <section class="outer">
-  <article class="articles">
+  <article id="post-powerAmplifier-C" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
     
-    
-    <h1 class="page-type-title">#&nbsp三极管</h1>
-    
-    
-  
-  
-  
-  
-  
-  
-  <div class="archives-wrap">
-    <div class="archive-year-wrap">
-      <a href="/archives/2020" class="archive-year">2020</a>
-    </div>
-    <div class="archives">
-      
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2020/11/06/powerAmplifier-C/" class="archive-article-date">
-  <time datetime="2020-11-06T07:53:45.000Z" itemprop="datePublished">11/06</time>
-</a>
+    <header class="article-header">
        
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2020/11/06/powerAmplifier-C/"
-    >C类功放</a> 
-</h2>
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  C类功放
+</h1>
  
 
     </header>
     
+
     
+    <div class="article-meta">
+      <a href="/2020/11/06/powerAmplifier-C/" class="article-date">
+  <time datetime="2020-11-06T07:53:45.000Z" itemprop="datePublished">2020-11-06</time>
+</a>
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
+  </div>
+
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">695</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">2 min</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <blockquote>
+<p>前言：不同于常见的A、B、AB、D类功放的应用（不只能驱音响，笔者还试过驱电机😜），C类功放只适用于高频的射频类电路功率输出级。笔者之前一直很迷惑在网络上找到很少的C类功放文章，直到最近课内的“通信电子线路”这门课程很好地解释了C类功放的用途和设计，该电路在设计之初就是用于放大指定载波信号（也叫做谐振功率放大器），所以失谐非常严重，但是效率很高</p>
+</blockquote>
+<h2 id="C类功放电路"><a href="#C类功放电路" class="headerlink" title="C类功放电路"></a>C类功放电路</h2><p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201106/20201106-ampC-1.png" alt="C功放电路"></p>
+<p>该电路效率高的秘籍就在于将输入信号（假设正弦）的中心电平拉低，使得导通角减少，如下图：</p>
+<a id="more"></a>
+
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201106/20201106-ampC-2.png" alt="C功放导通曲线"></p>
+<p>从图中可见，该电路的三极管放大结果失谐非常严重！正弦信号变成了个半角脉冲？</p>
+<p>虽然波形上来看，放大后的信号和原本的完全不同，但是！由于集电极负载是一个谐振电路，所以经过滤波衰减，最后如图还是可以得到一个不错的正弦（<strong>电压</strong>）输出。</p>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201106/20201106-ampC-3.png" alt="工作曲线"></p>
+<h2 id="折线近似分析"><a href="#折线近似分析" class="headerlink" title="折线近似分析"></a>折线近似分析</h2><blockquote>
+<p>因为实际上理论结果和最后做出来的电路参数波形就存在偏差，所以都是要调参的，不如直接选取一个好计算的方法，再去调参😁</p>
+</blockquote>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201106/20201106-ampC-4.png" alt="折线分析"></p>
+<blockquote>
+<p>从图中可见，一般使晶体管工作在欠压区，使得基极电压可以控制集电极电流</p>
+</blockquote>
+<p>可将临界线近似为过原点的一条线：<br>$$<br>i_c = g_{cr} v_{ce}<br>$$</p>
+<p>静态转移特性曲线可近似为：<br>$$<br>i_c = g_c (v_{BE} - V_{BZ})<br>$$</p>
+<h2 id="重要指标"><a href="#重要指标" class="headerlink" title="重要指标"></a>重要指标</h2><p>从傅里叶分解的角度来看，集电极电流：</p>
+<p>$$<br>i_c = I_{c0} + I_{c1}\cos{\omega t} + I_{c2}\cos{2\omega t} + \cdots<br>$$</p>
+<ul>
+<li>直流电源消耗功率<br>  $$<br>  P_= = V_{cc}\cdot I_{c0}<br>  $$</li>
+<li>输出负载功率<br>  $$<br>  P_o = \frac{1}{2} I_{c1}^2 R_p<br>  $$</li>
+<li>集电极利用效率<br>  $$<br>  \eta_c = \frac{P_o}{P_=} = \frac{\frac{1}{2}V_cm\cdot I_{c1}}{V_{cc}I_{c0}} = \frac{1}{2} \xi g(\theta_c)<br>  $$</li>
+<li>通角（半流通角、截止角）关系：<br>  $$<br>  i_c = g_c (v_{BE}-v_{BZ}) \\<br>  V_{bm} \cos \theta_c = |V_{BB}| + V_{BZ} \\<br>  \Rightarrow \cos\theta_c = \frac{|V_{BB}| + V_{BZ}}{V_{bm}}<br>  $$</li>
+<li>集电极电流关系<br>  $$<br>  i_c = g_c V_{bm}(\cos\omega t - \cos \theta_c)<br>  \\<br>  \because i_c = 0 | \omega t = \theta_c<br>  \\ \therefore<br>  i_{c-max} = g_cV_{bm}(1-\cos\theta_c)<br>  \\ \Rightarrow<br>  \frac{i_c}{i_{c-max}} = \frac{\cos\omega t - \cos \theta_c}{1-\cos\theta_c}<br>  \\<br>  i_c = i_{c-max}  \frac{\cos\omega t - \cos \theta_c}{1-\cos\theta_c}<br>  $$<br>  那么由傅里叶分解，可知上各系数：<br>  $$<br>  I_{c0} = \frac{1}{2\pi}\int^\theta_{-\theta} i_c d(\omega t) = i_{c-max}a_0(\theta_c)<br>  \\ \vdots \\<br>  I_{cn} = i_{c-max} a_n(\theta_c)<br>  \\<br>  a_n(\theta_c) = \frac{2}{\pi}\cdot \frac{\sin n\theta_c \cos\theta_c - n\cos n\theta_c\sin \theta_c}{n(n^2-1)(1-\cos\theta_c)}<br>  $$<br>  <img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201106/20201106-ampC-5.png" alt="系数曲线"><blockquote>
+<p>工程上综合考虑效率因素，通角取70°左右</p>
+</blockquote>
+</li>
+</ul>
+
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>Copyright： </strong>
+              Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/11/06/powerAmplifier-C/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%89%E6%9E%81%E7%AE%A1/" rel="tag">三极管</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%9F%E7%8E%87%E6%94%BE%E5%A4%A7%E5%99%A8/" rel="tag">功率放大器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
 
-    
+
+    </footer>
+
   </div>
+
+  
+  
+  <nav class="article-nav">
+    
+    
+      <a href="/2020/11/04/%E9%AB%98%E9%A2%91%E5%B0%8F%E4%BF%A1%E5%8F%B7%E6%94%BE%E5%A4%A7%E5%99%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">高频小信号放大器</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'cd4d750c727d92fb7436',
+    clientSecret: '4a001cb21bdedc1c0a70af3321e24005223e0ea2',
+    repo: 'studyhooligen.github.io',
+    owner: 'studyhooligen',
+    admin: ['studyhooligen'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+  
+  
+
 </article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2020/11/04/%E9%AB%98%E9%A2%91%E5%B0%8F%E4%BF%A1%E5%8F%B7%E6%94%BE%E5%A4%A7%E5%99%A8/" class="archive-article-date">
-  <time datetime="2020-11-04T08:07:19.000Z" itemprop="datePublished">11/04</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2020/11/04/%E9%AB%98%E9%A2%91%E5%B0%8F%E4%BF%A1%E5%8F%B7%E6%94%BE%E5%A4%A7%E5%99%A8/"
-    >高频小信号放大器</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%89%E6%9E%81%E7%AE%A1/" rel="tag">三极管</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
-
-    
-  </div>
-</article>
-      
-      
-    </div>
-  </div>
-  
-  
-
-  
 </section>
       <footer class="footer">
   <div class="outer">
@@ -278,6 +431,23 @@
 
 <!-- Tocbot -->
 
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
 <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
@@ -422,6 +592,14 @@
 <!-- Katex -->
 
 
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css">
+        
     
 
 

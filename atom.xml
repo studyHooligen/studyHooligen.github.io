@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-11-04T14:12:22.281Z</updated>
+  <updated>2020-11-06T13:40:48.863Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,40 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>C类功放</title>
+    <link href="http://yoursite.com/2020/11/06/powerAmplifier-C/"/>
+    <id>http://yoursite.com/2020/11/06/powerAmplifier-C/</id>
+    <published>2020-11-06T07:53:45.000Z</published>
+    <updated>2020-11-06T13:40:48.863Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：不同于常见的A、B、AB、D类功放的应用（不只能驱音响，笔者还试过驱电机😜），C类功放只适用于高频的射频类电路功率输出级。笔者之前一直很迷惑在网络上找到很少的C类功放文章，直到最近课内的“通信电子线路”这门课程很好地解释了C类功放的用途和设计，该电路在设计之初就是用于放大指定载波信号（也叫做谐振功率放大器），所以失谐非常严重，但是效率很高&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;C类功放电路&quot;&gt;&lt;a href=&quot;#C类功放电路&quot; class=&quot;headerlink&quot; title=&quot;C类功放电路&quot;&gt;&lt;/a&gt;C类功放电路&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://gitee.com/studyHooligen/blogImage/raw/master/20201106/20201106-ampC-1.png&quot; alt=&quot;C功放电路&quot;&gt;&lt;/p&gt;
+&lt;p&gt;该电路效率高的秘籍就在于将输入信号（假设正弦）的中心电平拉低，使得导通角减少，如下图：&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="硬件基础" scheme="http://yoursite.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="功率放大器" scheme="http://yoursite.com/tags/%E5%8A%9F%E7%8E%87%E6%94%BE%E5%A4%A7%E5%99%A8/"/>
+    
+      <category term="高频电路" scheme="http://yoursite.com/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/"/>
+    
+      <category term="三极管" scheme="http://yoursite.com/tags/%E4%B8%89%E6%9E%81%E7%AE%A1/"/>
+    
+  </entry>
+  
+  <entry>
     <title>高频小信号放大器</title>
     <link href="http://yoursite.com/2020/11/04/%E9%AB%98%E9%A2%91%E5%B0%8F%E4%BF%A1%E5%8F%B7%E6%94%BE%E5%A4%A7%E5%99%A8/"/>
     <id>http://yoursite.com/2020/11/04/%E9%AB%98%E9%A2%91%E5%B0%8F%E4%BF%A1%E5%8F%B7%E6%94%BE%E5%A4%A7%E5%99%A8/</id>
     <published>2020-11-04T08:07:19.000Z</published>
-    <updated>2020-11-04T14:12:22.281Z</updated>
+    <updated>2020-11-04T14:13:49.058Z</updated>
     
     <summary type="html">
     
@@ -651,35 +680,6 @@
       <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
     
       <category term="反馈系统" scheme="http://yoursite.com/tags/%E5%8F%8D%E9%A6%88%E7%B3%BB%E7%BB%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>控制系统稳定性</title>
-    <link href="http://yoursite.com/2020/06/18/%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E7%A8%B3%E5%AE%9A%E6%80%A7/"/>
-    <id>http://yoursite.com/2020/06/18/%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E7%A8%B3%E5%AE%9A%E6%80%A7/</id>
-    <published>2020-06-18T09:29:03.000Z</published>
-    <updated>2020-06-18T16:32:08.258Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：对所有的控制系统设计来说，系统的稳定是最基础也最有必要的指标，一个不稳定的系统是毫无用处的。本文将从理论层面，从最基础的极点稳定性，讨论到各种稳定系统分析判据&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;系统极点的影响&quot;&gt;&lt;a href=&quot;#系统极点的影响&quot; class=&quot;headerlink&quot; title=&quot;系统极点的影响&quot;&gt;&lt;/a&gt;系统极点的影响&lt;/h2&gt;&lt;p&gt;首先考虑一个最简单的一阶系统&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;H(s)=\frac{1}{s+\sigma}&lt;br&gt;$$&lt;/p&gt;
-&lt;p&gt;在实际世界中，这必是一个右边信号，所以时域表达为（这是一个非常充要的变换对）&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;h(t)=e^{-\sigma t}\cdot u(t)&lt;br&gt;$$&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="控制技术" scheme="http://yoursite.com/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/"/>
-    
-    
-      <category term="控制原理" scheme="http://yoursite.com/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/"/>
-    
-      <category term="零极点" scheme="http://yoursite.com/tags/%E9%9B%B6%E6%9E%81%E7%82%B9/"/>
     
   </entry>
   
