@@ -77,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">746</span>
+            <span class="post-count">982</span>
         </span>
     </span>
 
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">3 min</span>
+            <span class="post-count">4 min</span>
         </span>
     </span>
 </div>
@@ -183,7 +183,25 @@
 <blockquote>
 <p>所以VSB的精髓之处就在于<br>$$ H(\omega+\omega_c) + H(\omega - \omega_c) = C$$<br>如图<img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201110/20201110-VSB-3.png" alt="VSB-demodule"></p>
 </blockquote>
-<h2 id="调频FM"><a href="#调频FM" class="headerlink" title="调频FM"></a>调频FM</h2><h3 id="窄带调频NBFM"><a href="#窄带调频NBFM" class="headerlink" title="窄带调频NBFM"></a>窄带调频NBFM</h3><h3 id="宽带调频WBFM"><a href="#宽带调频WBFM" class="headerlink" title="宽带调频WBFM"></a>宽带调频WBFM</h3><h2 id="调相PM"><a href="#调相PM" class="headerlink" title="调相PM"></a>调相PM</h2>
+<h2 id="调频FM"><a href="#调频FM" class="headerlink" title="调频FM"></a>调频FM</h2><p>$$<br>s_{FM}(t) = A\cos [\omega_c t + K_f \int m(\tau) d\tau]<br>$$</p>
+<ul>
+<li>调频指数<br>  $$<br>  \because m(t) = A_m\cos \omega_m t<br>  \\ \therefore<br>  s_{FM} (t) = A\cos[\omega_c t + K_fA_m\int \cos \omega_m \tau d\tau]<br>  \\ \Rightarrow<br>  m_f = \frac{K_f A_m}{\omega_m} = \frac{\Delta \omega}{\omega_m} = \frac{\Delta f}{f_m}<br>  $$</li>
+<li>有效带宽（卡森公式）<br>  $$<br>  B_{FM} = 2(m_f+1)f_m<br>  $$</li>
+<li>输入信噪比<br>  $$<br>  \frac{s_i}{n_i} = \frac{A^2}{2n_0B_{FM}}<br>  $$</li>
+<li>输出信噪比<br>  $$<br>  \frac{s_o}{n_o} = \frac{3A^2K_f^2 \overline{m^2(t)}}{8\pi^2n_0f^3_m}<br>  \\<br>  G_{FM} = 3m_f^3<br>  $$</li>
+</ul>
+<h3 id="窄带调频NBFM"><a href="#窄带调频NBFM" class="headerlink" title="窄带调频NBFM"></a>窄带调频NBFM</h3><p>$$<br>K_f \int m(\tau) d\tau \ll \frac{\pi}{6}<br>$$</p>
+<p>此时显然频谱宽度较小</p>
+<p>$$<br>s_{NBFM}(t) \simeq A\cos \omega_c t - [AK_f \int m(\tau) d\tau]\sin \omega_c t<br>\\<br>S_{NBFM}(\omega) = \pi A[\delta(\omega + \omega_c) + \delta(\omega - \omega_c)] + \frac{AK_f}{2} [\frac{M(\omega -\omega_c)}{\omega - \omega_c} - \frac{M(\omega +\omega_c)}{\omega + \omega_c}]<br>$$</p>
+<h3 id="宽带调频WBFM"><a href="#宽带调频WBFM" class="headerlink" title="宽带调频WBFM"></a>宽带调频WBFM</h3><blockquote>
+<p>非窄带</p>
+</blockquote>
+<p>$$<br>S_{FM}(t) = \pi A \sum^\infty_{-\infty} J_n(m_f) [\delta(\omega -\omega_c -n\omega_m)+ \delta(\omega +\omega_c +n\omega_m)]<br>$$</p>
+<h2 id="调相PM"><a href="#调相PM" class="headerlink" title="调相PM"></a>调相PM</h2><p>$$<br>s_{PM}(t) = A\cos [ \omega_c t + K_p m(t)]<br>$$</p>
+<blockquote>
+<p>Attention：FM和PM之间有微积分关系，而FM的实现相对简单（使用VCO就行），所以一般FM用的多</p>
+</blockquote>
+
       
       <!-- reward -->
       
