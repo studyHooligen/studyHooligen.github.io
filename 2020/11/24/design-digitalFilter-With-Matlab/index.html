@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、情感、金融" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    数字滤波器设计 |  Singularity-blog
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/S-favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="Singularity-blog" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  
+  <div id="app">
+    <main class="content on">
+      <section class="outer">
+  <article id="post-design-digitalFilter-With-Matlab" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  数字滤波器设计
+</h1>
+ 
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/11/24/design-digitalFilter-With-Matlab/" class="article-date">
+  <time datetime="2020-11-24T00:32:45.000Z" itemprop="datePublished">2020-11-24</time>
+</a>
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%B0%83%E8%B0%90-%E6%BB%A4%E6%B3%A2/">调谐&滤波</a>
+  </div>
+
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">4 min</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+      
+
+      
+      <blockquote>
+<p>这又是一篇懒人福利博客嘿嘿嘿😝</p>
+</blockquote>
+<h2 id="设计步骤概览"><a href="#设计步骤概览" class="headerlink" title="设计步骤概览"></a>设计步骤概览</h2><ul>
+<li><p>使用designfilt函数设计/修改一个滤波器</p>
+  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df = designfilt(resp,Name,Value);   <span class="comment">%设计滤波器</span></span><br><span class="line">designfilt(df); <span class="comment">%修改已存在滤波器</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用filter函数对指定信号序列进行滤波测试</p>
+</li>
+<li><p>使用fvtool工具箱可视化设计的滤波器</p>
+</li>
+</ul>
+<h2 id="designfilt函数使用方法"><a href="#designfilt函数使用方法" class="headerlink" title="designfilt函数使用方法"></a>designfilt函数使用方法</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df = designfilt(resp,Name,Value);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>第一个参数为滤波器类型，然后是Name+Value的属性配置键值对（可以有很多组）</p>
+<blockquote>
+<p>主要配置的重要属性有：滤波器类型、频率约束、幅度约束、滤波器阶数、设计算法、采样率</p>
+</blockquote>
+</blockquote>
+<a id="more"></a>
+
+<ul>
+<li><p>滤波器类型resp</p>
+<ul>
+<li>lowpassfir</li>
+<li>lowpassiir</li>
+<li>highpassfir</li>
+<li>highpassiir</li>
+<li>bandpassfir</li>
+<li>bandpassiir</li>
+<li>bandstopfir</li>
+<li>bandstopiir</li>
+<li>differentiatorfir</li>
+<li>hilbertfir</li>
+<li>arbmagfir</li>
+</ul>
+</li>
+<li><p>属性配置键值对Name+Value</p>
+<blockquote>
+<p>在编写代码的时候键值对都是用逗号隔开噢</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">属性</th>
+<th>Name键</th>
+<th align="center">Value值类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">滤波器阶数</td>
+<td>FilterOrder</td>
+<td align="center">正整数</td>
+</tr>
+<tr>
+<td align="center">分子阶数</td>
+<td>NumeratorOrder</td>
+<td align="center">正整数</td>
+</tr>
+<tr>
+<td align="center">分母阶数</td>
+<td>DenominatorOrder</td>
+<td align="center">正整数</td>
+</tr>
+<tr>
+<td align="center">通带频率</td>
+<td>PassbandFrequency</td>
+<td align="center">正数</td>
+</tr>
+<tr>
+<td align="center">阻带频率</td>
+<td>StopbandFrequency</td>
+<td align="center">正数</td>
+</tr>
+<tr>
+<td align="center">6dB截止频率</td>
+<td>CutoffFrequency</td>
+<td align="center">正数</td>
+</tr>
+<tr>
+<td align="center">3dB截止频率</td>
+<td>HalfPowerFrequency</td>
+<td align="center">正数</td>
+</tr>
+<tr>
+<td align="center">通带纹波</td>
+<td>PassbandRipple</td>
+<td align="center">正数</td>
+</tr>
+<tr>
+<td align="center">阻带衰减</td>
+<td>StopbandAttenuation</td>
+<td align="center">正数</td>
+</tr>
+<tr>
+<td align="center">采样率</td>
+<td>SampleRate</td>
+<td align="center">正数</td>
+</tr>
+</tbody></table>
+<ul>
+<li>设计方式DesignMethod<ul>
+<li>butter：具有通带内最平稳特性的Butterworth滤波器，但是衰减速度慢</li>
+<li>cheby1：通带等纹波、阻带最平缓的切比雪夫Ⅰ型滤波器</li>
+<li>cheby2：通带最平缓、阻带等纹波的切比雪夫Ⅱ型滤波器</li>
+<li>cls：最小二乘约束滤波器设计FIR滤波器</li>
+<li>ellip：通带阻带都等纹波的IIR椭圆滤波器</li>
+<li>equiripple：使用Parks-McClellan算法设计FIR滤波器，可最小化各个带上的最大纹波</li>
+<li>freqsamp：通过均匀采样频率响应并进行傅里叶反变换设计任意幅度响应的FIR滤波器</li>
+<li>kaiserwin：使用Kaiser窗函数法</li>
+<li>ls：最小二乘法设计FIR滤波器</li>
+<li>maxflat：通带最平坦</li>
+<li>window：先使用最小二乘法计算滤波器需要的参数然后使用你指定的窗函数平滑冲击响应曲线</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="设计实例"><a href="#设计实例" class="headerlink" title="设计实例"></a>设计实例</h2><p>设计一个带阻滤波器滤掉指定几个频点</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line">clear</span><br><span class="line"><span class="comment">%查看音频数据信息</span></span><br><span class="line">sourceWaveInf = audioinfo(<span class="string">'SunshineSquare.wav'</span>);</span><br><span class="line"><span class="comment">%读取原声音数据</span></span><br><span class="line">[audio_data,fs] = audioread(<span class="string">'SunshineSquare.wav'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">%绘制音频波形</span></span><br><span class="line"><span class="built_in">figure</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>)</span><br><span class="line">t = <span class="number">0</span>:seconds(<span class="number">1</span>/fs):seconds(sourceWaveInf.Duration);    <span class="comment">%时间轴数组</span></span><br><span class="line">t = t(<span class="number">1</span>:<span class="keyword">end</span><span class="number">-1</span>);</span><br><span class="line"><span class="built_in">plot</span>(t,audio_data)  <span class="comment">%画图</span></span><br><span class="line">grid on</span><br><span class="line">xlabel(<span class="string">'Time'</span>)  <span class="comment">%横轴时间</span></span><br><span class="line">ylabel(<span class="string">'Audio Signal'</span>)  <span class="comment">%纵轴幅度</span></span><br><span class="line">title(<span class="string">'原音频信号时域波形'</span>)  <span class="comment">%图表名</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%频谱分析</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">mod</span>( sourceWaveInf.TotalSamples ,<span class="number">2</span> ) == <span class="number">1</span></span><br><span class="line">    <span class="comment">%频谱需要对称的长度，所以要偶数</span></span><br><span class="line">    sourceWavaLength = sourceWaveInf.TotalSamples - <span class="number">1</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    sourceWavaLength = sourceWaveInf.TotalSamples;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">audioSpectrum = fft(audio_data);    <span class="comment">%快速傅里叶变换计算</span></span><br><span class="line">P2 = <span class="built_in">abs</span>(audioSpectrum/sourceWavaLength);   <span class="comment">%计算双侧频谱</span></span><br><span class="line">P1 = P2(<span class="number">1</span>:sourceWavaLength/<span class="number">2</span>+<span class="number">1</span>);    <span class="comment">%取出单边频谱</span></span><br><span class="line">P1(<span class="number">2</span> : <span class="keyword">end</span><span class="number">-1</span>) = <span class="number">2</span>*P1(<span class="number">2</span> : <span class="keyword">end</span><span class="number">-1</span>);    <span class="comment">%双边合成单边，就是翻倍了</span></span><br><span class="line">f = fs*(<span class="number">0</span>:(sourceWavaLength/<span class="number">2</span>))/sourceWavaLength;   <span class="comment">%频率轴数组</span></span><br><span class="line"><span class="built_in">plot</span>(f,P1)  <span class="comment">%画图</span></span><br><span class="line">grid on</span><br><span class="line">title(<span class="string">'滤波前频谱'</span>)</span><br><span class="line">xlabel(<span class="string">'频率/Hz'</span>)</span><br><span class="line">ylabel(<span class="string">'FFT'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">%设计滤波器</span></span><br><span class="line">bsFilt_1 = designfilt(<span class="string">'bandstopiir'</span>,<span class="string">'FilterOrder'</span>,<span class="number">10</span>,...</span><br><span class="line"><span class="string">'HalfPowerFrequency1'</span>,<span class="number">1500</span>,<span class="string">'HalfPowerFrequency2'</span>,<span class="number">1650</span>,...</span><br><span class="line"><span class="string">'SampleRate'</span>,fs);   <span class="comment">%IIR滤波器，滤除1575Hz频率噪点</span></span><br><span class="line">audioClear_1 = filter(bsFilt_1,audio_data); <span class="comment">%滤波</span></span><br><span class="line"></span><br><span class="line">bsFilt_2 = designfilt(<span class="string">'bandstopiir'</span>,<span class="string">'FilterOrder'</span>,<span class="number">10</span>,...</span><br><span class="line"><span class="string">'HalfPowerFrequency1'</span>,<span class="number">3100</span>,<span class="string">'HalfPowerFrequency2'</span>,<span class="number">3200</span>,...</span><br><span class="line"><span class="string">'SampleRate'</span>,fs);   <span class="comment">%IIR滤波器，滤除3150Hz频率噪点</span></span><br><span class="line">audioClear_2 = filter(bsFilt_2,audioClear_1); <span class="comment">%滤波</span></span><br><span class="line"></span><br><span class="line"><span class="comment">% bsFilt_3 = designfilt('bandstopiir','FilterOrder',10,...</span></span><br><span class="line"><span class="comment">% 'HalfPowerFrequency1',4700,'HalfPowerFrequency2',4750,...</span></span><br><span class="line"><span class="comment">% 'SampleRate',fs);   %IIR滤波器，滤除4725频率噪点</span></span><br><span class="line">bsFilt_3 = designfilt(<span class="string">'lowpassiir'</span>,<span class="string">'FilterOrder'</span>,<span class="number">8</span>, ...</span><br><span class="line">        <span class="string">'PassbandFrequency'</span>,<span class="number">4000</span>,<span class="string">'PassbandRipple'</span>,<span class="number">0.2</span>, ...</span><br><span class="line">        <span class="string">'SampleRate'</span>,<span class="number">11025</span>);</span><br><span class="line">audioClear = filter(bsFilt_3,audioClear_2); <span class="comment">%滤波</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">%绘制滤波之后的音频信号</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>)</span><br><span class="line"><span class="built_in">plot</span>(t,audioClear)</span><br><span class="line">grid on</span><br><span class="line">xlabel(<span class="string">'Time'</span>)</span><br><span class="line">ylabel(<span class="string">'Audio Signal'</span>)</span><br><span class="line">title(<span class="string">'滤波后的信号'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">%绘制滤波后的频谱</span></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>)</span><br><span class="line">audioSpectrum = fft(audioClear);    <span class="comment">%快速傅里叶变换计算</span></span><br><span class="line">P2 = <span class="built_in">abs</span>(audioSpectrum/sourceWavaLength);   <span class="comment">%计算双侧频谱</span></span><br><span class="line">P1 = P2(<span class="number">1</span>:sourceWavaLength/<span class="number">2</span>+<span class="number">1</span>);    <span class="comment">%取出单边频谱</span></span><br><span class="line">P1(<span class="number">2</span> : <span class="keyword">end</span><span class="number">-1</span>) = <span class="number">2</span>*P1(<span class="number">2</span> : <span class="keyword">end</span><span class="number">-1</span>);    <span class="comment">%双边合成单边，就是翻倍了</span></span><br><span class="line">f = fs*(<span class="number">0</span>:(sourceWavaLength/<span class="number">2</span>))/sourceWavaLength;   <span class="comment">%频率轴数组</span></span><br><span class="line"><span class="built_in">plot</span>(f,P1)  <span class="comment">%画图</span></span><br><span class="line">title(<span class="string">'滤波后频谱'</span>)</span><br><span class="line">xlabel(<span class="string">'频率/Hz'</span>)</span><br><span class="line">ylabel(<span class="string">'FFT'</span>)</span><br><span class="line">grid on</span><br><span class="line"></span><br><span class="line"><span class="comment">%存储滤波后的音频数据</span></span><br><span class="line">audiowrite(<span class="string">'sunshineSquare_Clear.wav'</span>,audioClear,fs);</span><br><span class="line"><span class="comment">%播放滤波后的声音</span></span><br><span class="line">sound(audioClear,fs);</span><br><span class="line"><span class="comment">%可视化设计的滤波器</span></span><br><span class="line"><span class="comment">% fvtool(bsFilt_1);</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里就不放图啦🎈笔者把这个小DEMO上传到GitHub仓库<a href="https://github.com/studyHooligen/MatlabScript/tree/main/digitalFilter" target="_blank" rel="noopener">Matlab脚本库</a>里面了欢迎大家白嫖</p>
+</blockquote>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://ww2.mathworks.cn/help/signal/ref/digitalfilter.html" target="_blank" rel="noopener">matlab官网-数字滤波器</a></li>
+<li><a href="https://ww2.mathworks.cn/help/signal/ref/designfilt.html" target="_blank" rel="noopener">matlab官网-designfilt函数说明</a></li>
+</ul>
+<blockquote>
+<p>如果觉得官网的全英文难以接受，欢迎联系笔者噢😘</p>
+</blockquote>
+
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>Copyright： </strong>
+              Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/11/24/design-digitalFilter-With-Matlab/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BB%A4%E6%B3%A2%E5%99%A8/" rel="tag">滤波器</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+    
+      <a href="/2020/11/10/Analog-Modulation-and-Demodulation/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">模拟调制解调技术</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'cd4d750c727d92fb7436',
+    clientSecret: '4a001cb21bdedc1c0a70af3321e24005223e0ea2',
+    repo: 'studyhooligen.github.io',
+    owner: 'studyhooligen',
+    admin: ['studyhooligen'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+  
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020
+        <i class="ri-heart-fill heart_icon"></i> StudyHooligen
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/%E6%83%85%E9%9B%A8%E6%91%98">情雨摘</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://s1.ax1x.com/2020/05/26/tP6UwF.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://s1.ax1x.com/2020/05/26/tP6VQP.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Subtitle -->
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+      strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+      startDelay: 0,
+      typeSpeed: 200,
+      loop: true,
+      backSpeed: 100,
+      showCursor: true
+    });
+  } catch (err) {
+    console.log(err)
+  }
+</script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+
+    
+
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+
+<script src="/js/clickLove.js"></script>
+
+
+<!-- ClickBoom -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>
