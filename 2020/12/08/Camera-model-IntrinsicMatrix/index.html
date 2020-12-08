@@ -131,9 +131,9 @@
 <p>则把上面的针孔模型方程带进来有：</p>
 <p>$$<br>x = \alpha \cdot f \frac{X}{Z} + Cx = f_x \frac{X}{Z} + Cx<br>\<br>y = \beta \cdot f \frac{Y}{Z} + Cy = f_y \frac{Y}{Z} + Cy<br>$$</p>
 <p>让我们用矩阵表示来美化上面的方程：</p>
-<p>$$<br>\begin{bmatrix}<br>    u \\ v \\ 1<br>\end{bmatrix}<br>=<br>\frac{1}{Z}<br>\begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
+<p>$$<br>\begin{bmatrix}<br>    x \\ y \\ 1<br>\end{bmatrix}<br>=<br>\frac{1}{Z}<br>\begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
 <p>上面各个矩阵的物理意义：</p>
-<p>$$<br>齐次像素坐标<br>\begin{bmatrix}<br>    u \\ v \\ 1<br>\end{bmatrix}<br>\\<br>物距Z<br>\\<br>相机内参数矩阵<br>\mathbf{K} = \begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\\<br>相机坐标<br>\mathbf{P} =<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
+<p>$$<br>齐次像素坐标<br>\begin{bmatrix}<br>    x \\ y \\ 1<br>\end{bmatrix}<br>\\<br>物距Z<br>\\<br>相机内参数矩阵<br>\mathbf{K} = \begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\\<br>相机坐标<br>\mathbf{P} =<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
 <h2 id="Matlab标定相机"><a href="#Matlab标定相机" class="headerlink" title="Matlab标定相机"></a>Matlab标定相机</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
 <li>《视觉SLAM十四讲——从理论到实践》——高翔</li>
 </ul>
