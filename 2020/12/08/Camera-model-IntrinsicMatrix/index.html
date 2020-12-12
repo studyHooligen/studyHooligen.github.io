@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    相机针孔模型&amp;内参矩阵 |  Singularity-blog
+    相机针孔模型&amp;内参矩阵&amp;标定 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -53,7 +53,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  相机针孔模型&amp;内参矩阵
+  相机针孔模型&amp;内参矩阵&amp;标定
 </h1>
  
 
@@ -77,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">490</span>
+            <span class="post-count">808</span>
         </span>
     </span>
 
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
+            <span class="post-count">3 min</span>
         </span>
     </span>
 </div>
@@ -134,7 +134,45 @@
 <p>$$<br>\begin{bmatrix}<br>    x \\ y \\ 1<br>\end{bmatrix}<br>=<br>\frac{1}{Z}<br>\begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
 <p>上面各个矩阵的物理意义：</p>
 <p>$$<br>齐次像素坐标<br>\begin{bmatrix}<br>    x \\ y \\ 1<br>\end{bmatrix}<br>\\<br>物距Z<br>\\<br>相机内参数矩阵<br>\mathbf{K} = \begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\\<br>相机坐标<br>\mathbf{P} =<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
-<h2 id="Matlab标定相机"><a href="#Matlab标定相机" class="headerlink" title="Matlab标定相机"></a>Matlab标定相机</h2><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<h2 id="Matlab标定相机"><a href="#Matlab标定相机" class="headerlink" title="Matlab标定相机"></a>Matlab标定相机</h2><p>相机的标定，除了上述的<strong>内参矩阵</strong>外，还有<strong>外参矩阵</strong>和<strong>畸变系数</strong>（这两套参数后面讨论）</p>
+<p>Matlab支持“张正友棋盘标定法”，对！🎈这是我国学者发明的算法，只需要打印一张黑白格子交错的纸（如下图，是笔者对mi10手机标定拍的照片）</p>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201208/20201208-camera-4.jpg" alt="棋盘格"></p>
+<blockquote>
+<p>附：棋盘格图像生成matlab算法<br>    <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 参数设置</span></span><br><span class="line">GridSize = <span class="number">100</span>;  <span class="comment">%格子的宽度，单位:像素</span></span><br><span class="line">row =<span class="number">10</span>;           <span class="comment">%行</span></span><br><span class="line">col = <span class="number">6</span>;          <span class="comment">%列</span></span><br><span class="line">margin = <span class="number">10</span>;    <span class="comment">%四边留白</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%% 预分配内存</span></span><br><span class="line">I = <span class="built_in">ones</span>(row*GridSize+<span class="number">2</span>*margin, col*GridSize+<span class="number">2</span>*margin)*<span class="number">255</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">%% 图像赋值</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:row</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">i</span>,<span class="number">2</span>)==<span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">1</span>:col</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">j</span>,<span class="number">2</span>)==<span class="number">1</span></span><br><span class="line">                I(<span class="number">1</span>+(<span class="built_in">i</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">i</span>*GridSize+margin, ...</span><br><span class="line">                <span class="number">1</span>+(<span class="built_in">j</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">j</span>*GridSize+margin) = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">1</span>:col</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">j</span>,<span class="number">2</span>)==<span class="number">0</span></span><br><span class="line">            I(<span class="number">1</span>+(<span class="built_in">i</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">i</span>*GridSize+margin,...</span><br><span class="line">                <span class="number">1</span>+(<span class="built_in">j</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">j</span>*GridSize+margin) = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%% 显示、保存</span></span><br><span class="line">imshow(I);</span><br><span class="line">imwrite(I,<span class="string">'chessboard.bmp'</span>);</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<ol>
+<li><p>打开matlab中的“Camera Calibrator”工具箱</p>
+<p> <img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201208/20201208-camera-5.png" alt="Calibrator"></p>
+</li>
+<li><p>导入相机拍摄图像</p>
+<p> <img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201208/20201208-camera-6.png" alt="import"></p>
+</li>
+<li><p>按照提示输入实际测量的格子宽度</p>
+<p> <img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201208/20201208-camera-7.png" alt="size"></p>
+</li>
+<li><p>让matlab自动标定</p>
+<p> <img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201208/20201208-camera-8.png" alt="Calibrate"></p>
+</li>
+<li><p>导出数据</p>
+<p> <img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201208/20201208-camera-9.png" alt="export"></p>
+</li>
+<li><p>在matlab工作区中可查看标定数据，有：</p>
+<ul>
+<li><p>camera Intrinsic：内参矩阵</p>
+</li>
+<li><p>camera Extrinsic：外参矩阵</p>
+</li>
+<li><p>Accuracy of Estimation：估计准确度</p>
+</li>
+<li><p>NumRadialDistortionCoefficients：径向畸变系数</p>
+</li>
+<li><p>EstimateTangentialDistortion：切向畸变估计</p>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201208/20201208-camera-10.png" alt="check"></p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
 <li>《视觉SLAM十四讲——从理论到实践》——高翔</li>
 </ul>
 

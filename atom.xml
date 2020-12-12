@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-12-08T04:34:33.383Z</updated>
+  <updated>2020-12-12T06:38:26.815Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>相机针孔模型&amp;内参矩阵</title>
+    <title>相机针孔模型&amp;内参矩阵&amp;标定</title>
     <link href="http://yoursite.com/2020/12/08/Camera-model-IntrinsicMatrix/"/>
     <id>http://yoursite.com/2020/12/08/Camera-model-IntrinsicMatrix/</id>
     <published>2020-12-08T03:46:12.000Z</published>
-    <updated>2020-12-08T04:34:33.383Z</updated>
+    <updated>2020-12-12T06:38:26.815Z</updated>
     
     <summary type="html">
     
