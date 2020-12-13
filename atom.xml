@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-12-12T06:38:26.815Z</updated>
+  <updated>2020-12-13T08:08:33.156Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,47 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>LC振荡器</title>
+    <link href="http://yoursite.com/2020/12/13/LC-oscillator/"/>
+    <id>http://yoursite.com/2020/12/13/LC-oscillator/</id>
+    <published>2020-12-13T05:23:57.000Z</published>
+    <updated>2020-12-13T08:08:33.156Z</updated>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;前言：虽然这是一篇课内的（老师说非常过时技术的）学习笔记，但是笔者认为把振荡器电路学好了，顺带把反馈、三极管、LC谐振器等概念都复习起来了&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;LC振荡器类型&quot;&gt;&lt;a href=&quot;#LC振荡器类型&quot; class=&quot;headerlink&quot; title=&quot;LC振荡器类型&quot;&gt;&lt;/a&gt;LC振荡器类型&lt;/h2&gt;&lt;p&gt;振荡器的组成基本都是3个部分：信号放大电路、选频（滤波）网络、反馈电路。使用LC选频的就是本文的LC振荡器，使用晶振选频的就是晶体振荡器。&lt;/p&gt;
+&lt;p&gt;对于LC振荡器，采用不同的反馈策略，就有了不同的电路结构以及带来的性能优缺，本文讨论的有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;变压器（互感）耦合振荡器&lt;/li&gt;
+&lt;li&gt;电感反馈三端式振荡器&lt;/li&gt;
+&lt;li&gt;电容反馈三端式振荡器&lt;/li&gt;
+&lt;li&gt;串联型改进电容三端式&lt;/li&gt;
+&lt;li&gt;并联型改进电容三端式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;由于采用的都是LC谐振选频，所以振荡器的频率都是谐振频率（注意进行相应的串并联等效）&lt;/p&gt;
+&lt;p&gt;$$&lt;br&gt;f_o = \frac 1 {2\pi} \sqrt{\frac{1}{LC}}&lt;br&gt;$$&lt;/p&gt;
+&lt;h2 id=&quot;变压器（互感）耦合振荡器&quot;&gt;&lt;a href=&quot;#变压器（互感）耦合振荡器&quot; class=&quot;headerlink&quot; title=&quot;变压器（互感）耦合振荡器&quot;&gt;&lt;/a&gt;变压器（互感）耦合振荡器&lt;/h2&gt;&lt;p&gt;由选频网络工作的位置不同，如下图可分为&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;调基电路&lt;/li&gt;
+&lt;li&gt;调发电路&lt;/li&gt;
+&lt;li&gt;调射电路&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-1.png&quot; alt=&quot;互感耦合&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="硬件基础" scheme="http://yoursite.com/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="振荡器" scheme="http://yoursite.com/tags/%E6%8C%AF%E8%8D%A1%E5%99%A8/"/>
+    
+  </entry>
   
   <entry>
     <title>相机针孔模型&amp;内参矩阵&amp;标定</title>
@@ -662,37 +703,6 @@
       <category term="非线性系统" scheme="http://yoursite.com/tags/%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%B3%BB%E7%BB%9F/"/>
     
       <category term="小信号分析" scheme="http://yoursite.com/tags/%E5%B0%8F%E4%BF%A1%E5%8F%B7%E5%88%86%E6%9E%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>XTK无线充电</title>
-    <link href="http://yoursite.com/2020/07/04/%E6%97%A0%E7%BA%BF%E5%85%85%E7%94%B5(XKT)/"/>
-    <id>http://yoursite.com/2020/07/04/%E6%97%A0%E7%BA%BF%E5%85%85%E7%94%B5(XKT)/</id>
-    <published>2020-07-04T03:44:14.000Z</published>
-    <updated>2020-07-05T02:20:54.648Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：最近有使用无线充电的需求，在某宝上买了一套据称能达到80%效率的⚡100W模块套装（带线圈）。今天笔者刚对模块做完测试，就把这篇测试实验记录顺带个原理剖析写了&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;套件概要&quot;&gt;&lt;a href=&quot;#套件概要&quot; class=&quot;headerlink&quot; title=&quot;套件概要&quot;&gt;&lt;/a&gt;套件概要&lt;/h2&gt;&lt;p&gt;该套件包括收发模块及一对线圈，如图&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://s1.ax1x.com/2020/07/04/NvxQmD.jpg&quot; alt=&quot;套件&quot;&gt;&lt;/p&gt;
-&lt;p&gt;收发线圈是一对外径10.270cm、内径3.010cm的22闸线圈&lt;/p&gt;
-&lt;p&gt;从丝印上来看，该模块所有有源元件都是出自同一家公司——XKT。首先是发射模块，采用了XKT-810作为驱动，XKT-1511作为发射管；再看接收模块，则是采用了XKT-3170作为输出降压稳压&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="电源设计" scheme="http://yoursite.com/categories/%E7%94%B5%E6%BA%90%E8%AE%BE%E8%AE%A1/"/>
-    
-    
-      <category term="实验记录" scheme="http://yoursite.com/tags/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/"/>
-    
-      <category term="无线充电" scheme="http://yoursite.com/tags/%E6%97%A0%E7%BA%BF%E5%85%85%E7%94%B5/"/>
-    
-      <category term="XTK产品" scheme="http://yoursite.com/tags/XTK%E4%BA%A7%E5%93%81/"/>
     
   </entry>
   

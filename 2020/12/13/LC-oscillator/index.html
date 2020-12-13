@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-     Singularity-blog
+    LC振荡器 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -44,57 +44,17 @@
   
   <div id="app">
     <main class="content on">
-      
-<section class="cover">
-    
-      
-      <a class="forkMe" href="https://github.com/studyHooligen"
-        target="_blank"><img width="149" height="149" src="/images/forkme.png"
-          class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
-    
-  <div class="cover-frame">
-    <div class="bg-box">
-      <img src="https://s1.ax1x.com/2020/05/26/tP6Zsf.jpg" alt="image frame" />
-    </div>
-    <div class="cover-inner text-center text-white">
-      <h1><a href="/">Singularity-blog</a></h1>
-      <div id="subtitle-box">
-        
-        <span id="subtitle"></span>
-        
-      </div>
-      <div>
-        
-      </div>
-    </div>
-  </div>
-  <div class="cover-learn-more">
-    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
-  </div>
-</section>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js"></script>
-
-<div id="main">
-  <section class="outer">
-  <article class="articles">
-    
-    
-    
-    
-    <article id="post-DCDC" class="article article-type-post" itemscope
+      <section class="outer">
+  <article id="post-LC-oscillator" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
     
     <header class="article-header">
        
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/05/DCDC/"
-    >DCDC</a> 
-</h2>
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  LC振荡器
+</h1>
  
 
     </header>
@@ -102,8 +62,8 @@
 
     
     <div class="article-meta">
-      <a href="/2020/06/05/DCDC/" class="article-date">
-  <time datetime="2020-06-05T11:20:53.000Z" itemprop="datePublished">2020-06-05</time>
+      <a href="/2020/12/13/LC-oscillator/" class="article-date">
+  <time datetime="2020-12-13T05:23:57.000Z" itemprop="datePublished">2020-12-13</time>
 </a>
       
   <div class="article-category">
@@ -117,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">349</span>
+            <span class="post-count">1.1k</span>
         </span>
     </span>
 
@@ -126,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
+            <span class="post-count">3 min</span>
         </span>
     </span>
 </div>
@@ -134,6 +94,14 @@
       
     </div>
     
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
 
     
 
@@ -144,221 +112,162 @@
 
       
       <blockquote>
-<p>前言：笔者最近突发奇想，要做一个超级电容UPS，所以基础的DCDC知识必然要好好复习一下</p>
+<p>前言：虽然这是一篇课内的（老师说非常过时技术的）学习笔记，但是笔者认为把振荡器电路学好了，顺带把反馈、三极管、LC谐振器等概念都复习起来了</p>
+</blockquote>
+<h2 id="LC振荡器类型"><a href="#LC振荡器类型" class="headerlink" title="LC振荡器类型"></a>LC振荡器类型</h2><p>振荡器的组成基本都是3个部分：信号放大电路、选频（滤波）网络、反馈电路。使用LC选频的就是本文的LC振荡器，使用晶振选频的就是晶体振荡器。</p>
+<p>对于LC振荡器，采用不同的反馈策略，就有了不同的电路结构以及带来的性能优缺，本文讨论的有：</p>
+<ul>
+<li>变压器（互感）耦合振荡器</li>
+<li>电感反馈三端式振荡器</li>
+<li>电容反馈三端式振荡器</li>
+<li>串联型改进电容三端式</li>
+<li>并联型改进电容三端式</li>
+</ul>
+<p>由于采用的都是LC谐振选频，所以振荡器的频率都是谐振频率（注意进行相应的串并联等效）</p>
+<p>$$<br>f_o = \frac 1 {2\pi} \sqrt{\frac{1}{LC}}<br>$$</p>
+<h2 id="变压器（互感）耦合振荡器"><a href="#变压器（互感）耦合振荡器" class="headerlink" title="变压器（互感）耦合振荡器"></a>变压器（互感）耦合振荡器</h2><p>由选频网络工作的位置不同，如下图可分为</p>
+<ul>
+<li>调基电路</li>
+<li>调发电路</li>
+<li>调射电路</li>
+</ul>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-1.png" alt="互感耦合"></p>
+<a id="more"></a>
+
+<p>耦合时的同名端决定了正反馈（相位）是否成立，而互感量M决定了反馈量的大小。由选频网络易得</p>
+<p>$$<br>f_o = \frac 1{2\pi} \sqrt{\frac{1}{LC}}<br>$$</p>
+<p>起振条件为</p>
+<p>$$<br>h_f \gt \frac{h_i R_L C + L\Delta h_b}{M}<br>$$</p>
 <blockquote>
-<p>网络上教程很多，该文章只作为总结归纳使用</p>
+<p>由于变压器在绕制的时候，线圈匝间存在分布电容，且不好控制量值，所以不适用于高频场合</p>
+</blockquote>
+<h2 id="三端式反馈振荡器"><a href="#三端式反馈振荡器" class="headerlink" title="三端式反馈振荡器"></a>三端式反馈振荡器</h2><p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-5.png" alt="三端式原理"></p>
+<p>忽略三极管的IO阻抗，依据谐振理论可知电路要振荡需要满足条件</p>
+<p>$$<br>x_{be}+ x_{ce}+ x_{cb} =0<br>$$</p>
+<p>并且由上图可知</p>
+<p>$$<br>如果x_{be}和x_{ce}都是阻性元件<br>\<br>那么v_i = v_f = - v_o<br>$$</p>
+<p>也就是说相角恰好差了180度，那么为了形成正反馈和稳定的振荡，就需要这两个元件具有同样的电抗特性。两个电抗元件各带来方向相同的90度相移，也就是总共180度相移</p>
+<blockquote>
+<p>总结：ce和be同抗，cb反抗</p>
+</blockquote>
+<h3 id="电感反馈三端式振荡器"><a href="#电感反馈三端式振荡器" class="headerlink" title="电感反馈三端式振荡器"></a>电感反馈三端式振荡器</h3><blockquote>
+<p>Hartley</p>
+</blockquote>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-2.png" alt="电感反馈"></p>
+<p>上图中左图为完整振荡电路，右图进行了交流等效，可见满足上面讨论的三端谐振条件。重要元件说明：</p>
+<p>$$<br>反馈电容兼隔直电容C_b<br>\\<br>高频旁路电容C_e<br>\\<br>放大器工作点偏置电阻R_{b1}和R_{b2}<br>$$</p>
+<p>电路的起振条件为</p>
+<p>$$<br>h_{fe} \gt \frac{h_{ie}}{FR_P’} = \frac{h_{ie}}{R_P’} \cdot \frac{L_1 + M}{L_2 + M} \gt \frac{h_{ie}}{h_{fe}R_p’}<br>\\<br>负载回路谐振电阻R_p’<br>\\<br>反馈系数F<br>$$</p>
+<p>作如下所示的等效谐振回路图可知，若F大，则接入系数增大，晶体管输入阻抗折合到谐振等效回路中的阻抗减少，使得Q值减少，也就是谐振电阻减少。那么从起振条件可知，要求的电流增益需求变大了，使得电路难以起振</p>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-3.png" alt="电感反馈等效"></p>
+<blockquote>
+<p>因为采用的是电感作反馈，所以高频谐波的反馈较强，波形失真大</p>
+</blockquote>
+<h3 id="电容反馈三端式振荡器"><a href="#电容反馈三端式振荡器" class="headerlink" title="电容反馈三端式振荡器"></a>电容反馈三端式振荡器</h3><blockquote>
+<p>Coplitts</p>
+</blockquote>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-4.png" alt="电容反馈"></p>
+<ol>
+<li>采用电容反馈的好处就是高频谐波得到了抑制，振荡波形接近正弦波；</li>
+<li>如果把两个谐振反馈电容数量级取大，那么分布电容的影响就很小；</li>
+<li>一般在电感边上并联一个电容来调谐振点频率</li>
+</ol>
+<h2 id="串联型改进电容三端式"><a href="#串联型改进电容三端式" class="headerlink" title="串联型改进电容三端式"></a>串联型改进电容三端式</h2><blockquote>
+<p>Clapp</p>
+</blockquote>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-6.png" alt="串联改进"></p>
+<p>$$<br>\because C_3 \ll C_1, C_3 \ll C_2<br>\\ \therefore<br>等效串联电容 C \simeq C_3<br>\\ \Rightarrow<br>\omega_o = \frac{1}{\sqrt{LC_3}}<br>$$</p>
+<p>此时晶体管的输入输出电容和反馈电容网络对电路的谐振频率影响都非常的小。但是注意电路的接入系数：</p>
+<p>$$<br>P_{ce} = \frac{C_3}{C_1}<br>,<br>P_{be} = \frac{C_3}{C_2}<br>$$</p>
+<blockquote>
+<p>因为调谐的时候，会改变接入系数，所以过度地调整电容（调谐振点）会导致振荡器不满足起振条件</p>
+<blockquote>
+<p>该电路适用于固定谐振点的电路</p>
 </blockquote>
 </blockquote>
-<h2 id="Buck电路（降压DCDC）"><a href="#Buck电路（降压DCDC）" class="headerlink" title="Buck电路（降压DCDC）"></a>Buck电路（降压DCDC）</h2>
-      
-      <a class="article-more-link" href="/2020/06/05/DCDC/">阅读更多...</a>
-      
+<h2 id="并联型改进电容三端式"><a href="#并联型改进电容三端式" class="headerlink" title="并联型改进电容三端式"></a>并联型改进电容三端式</h2><blockquote>
+<p>Selier</p>
+</blockquote>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20201213/20201213-LC-7.png" alt="并列改进"></p>
+<p>等效电容</p>
+<p>$$<br>C \simeq C_3 + C_4<br>$$</p>
+<p>在该电路中，调整电容（调谐振点）并不会影响接入系数，所以这个电路可以作为波段振荡器</p>
+
       
       <!-- reward -->
+      
+      <div id="reward-btn">
+        Donate
+      </div>
       
     </div>
     
     
       <!-- copyright -->
       
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>Copyright： </strong>
+              Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+            </li>
+          </ul>
+        </div>
+        
     <footer class="article-footer">
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Boost/" rel="tag">Boost</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Buck/" rel="tag">Buck</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC-DC/" rel="tag">DC-DC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/" rel="tag">电源变换</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-MCU移植控制台" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/03/MCU%E7%A7%BB%E6%A4%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/"
-    >MCU移植控制台</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/03/MCU%E7%A7%BB%E6%A4%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/" class="article-date">
-  <time datetime="2020-06-03T08:44:09.000Z" itemprop="datePublished">2020-06-03</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.4k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">5 min</span>
-        </span>
-    </span>
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
 </div>
 
-      
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/12/13/LC-oscillator/" alt="微信分享二维码">
     </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-      
-      <blockquote>
-<p>前言：本移植首先得益于RTT系统（国产开源！力推！）<br>笔者偏爱该操作系统的主要原因就是因为其Finsh组件，在该组件中，可以很好地移植MSH控制台，使得在MCU上进行开发调参更加地容易，实验数据也更容易可视化</p>
-<blockquote>
-<p>在该篇博客中，相比官网的移植来说，使用了更加高效的中断接收的形式</p>
-</blockquote>
-</blockquote>
-<h2 id="RTT-Nano移植工作"><a href="#RTT-Nano移植工作" class="headerlink" title="RTT-Nano移植工作"></a>RTT-Nano移植工作</h2><p>首先，就要把这个RT-Thread移植到MCU上，本例直接在上个<a href="https://www.singularity-blog.top/2020/05/25/UART-DMA/" target="_blank" rel="noopener">UART-DMA</a>实验配置基础上进行移植，移植操作如下：</p>
-      
-      <a class="article-more-link" href="/2020/06/03/MCU%E7%A7%BB%E6%A4%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FinSH/" rel="tag">FinSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSH/" rel="tag">MSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RT-Thread/" rel="tag">RT-Thread</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32CubeMX/" rel="tag">STM32CubeMX</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32H7/" rel="tag">STM32H7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">实时操作系统</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-直流电机模型分析" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/"
-    >直流电机模型分析</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/" class="article-date">
-  <time datetime="2020-06-02T07:28:19.000Z" itemprop="datePublished">2020-06-02</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%BB%BA%E6%A8%A1%E4%BB%BF%E7%9C%9F/">建模仿真</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">528</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
-        </span>
-    </span>
 </div>
 
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
+<div id="share-mask"></div>
       
       
-
-      
-      <blockquote>
-<p>前言：直流电机（DC Motor）是最常见的电机，所以对该模型的分析是后续工作的重要前提。本文将从基础物理原理分析开始，到传递函数及使用Matlab对电机进行建模</p>
-<blockquote>
-<p>本文中公式较多，请耐心等待渲染</p>
-</blockquote>
-</blockquote>
-<h2 id="直流电机结构简图"><a href="#直流电机结构简图" class="headerlink" title="直流电机结构简图"></a>直流电机结构简图</h2><p><img src="https://s1.ax1x.com/2020/06/02/tt2n8P.png" alt="结构简图"></p>
-      
-      <a class="article-more-link" href="/2020/06/02/%E7%9B%B4%E6%B5%81%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC%E7%94%B5%E6%9C%BA/" rel="tag">DC电机</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%9C%BA%E6%A8%A1%E5%9E%8B/" rel="tag">电机模型</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8C%AF%E8%8D%A1%E5%99%A8/" rel="tag">振荡器</a></li></ul>
 
 
     </footer>
@@ -366,27 +275,56 @@
   </div>
 
   
-
   
-
-  
-  
-  
-
-</article>
+  <nav class="article-nav">
     
-  </article>
-  
-
-  
-  <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/11/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/13/">下一页</a>
+      <a href="/2020/12/08/Camera-model-IntrinsicMatrix/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">相机针孔模型&amp;内参矩阵&amp;标定</div>
+      </a>
+    
   </nav>
-  
-</section>
-</div>
 
+
+  
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'cd4d750c727d92fb7436',
+    clientSecret: '4a001cb21bdedc1c0a70af3321e24005223e0ea2',
+    repo: 'studyhooligen.github.io',
+    owner: 'studyhooligen',
+    admin: ['studyhooligen'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+  
+  
+
+</article>
+</section>
       <footer class="footer">
   <div class="outer">
     <ul>
@@ -546,6 +484,23 @@
 
 <!-- Tocbot -->
 
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
 <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
@@ -690,6 +645,14 @@
 <!-- Katex -->
 
 
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/copy-tex.min.css">
+        
     
 
 
