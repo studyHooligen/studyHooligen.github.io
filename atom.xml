@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-12-24T07:30:52.072Z</updated>
+  <updated>2020-12-24T08:25:40.596Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://yoursite.com/2020/12/24/SCons/"/>
     <id>http://yoursite.com/2020/12/24/SCons/</id>
     <published>2020-12-24T03:42:35.000Z</published>
-    <updated>2020-12-24T07:30:52.072Z</updated>
+    <updated>2020-12-24T08:25:40.596Z</updated>
     
     <summary type="html">
     
@@ -38,6 +38,10 @@
     
       <category term="编程技能" scheme="http://yoursite.com/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/"/>
     
+    
+      <category term="OpenCV" scheme="http://yoursite.com/tags/OpenCV/"/>
+    
+      <category term="SCons" scheme="http://yoursite.com/tags/SCons/"/>
     
   </entry>
   

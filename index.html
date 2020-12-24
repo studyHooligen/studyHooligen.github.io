@@ -117,7 +117,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.7k</span>
+            <span class="post-count">2.1k</span>
         </span>
     </span>
 
@@ -126,7 +126,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">6 min</span>
+            <span class="post-count">8 min</span>
         </span>
     </span>
 </div>
@@ -212,7 +212,7 @@
 <p>也许上面的例子还不能够非常体现出SCons强大的优势，你可以试着给这个工程多加一些头文件和源文件</p>
 </blockquote>
 <h2 id="SCons语法"><a href="#SCons语法" class="headerlink" title="SCons语法"></a>SCons语法</h2><p>先来一条比较长的例子</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Program(&#39;helloscons2&#39;, </span><br><span class="line">        [&#39;helloscons2.c&#39;, &#39;file1.c&#39;, &#39;file2.c&#39;],</span><br><span class="line">        LIBS &#x3D; &#39;m&#39;, </span><br><span class="line">        LIBPATH &#x3D; [&#39;&#x2F;usr&#x2F;lib&#39;, &#39;&#x2F;usr&#x2F;local&#x2F;lib&#39;], </span><br><span class="line">        CCFLAGS &#x3D; &#39;-DHELLOSCONS&#39;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Program(&#39;helloscons2&#39;, </span><br><span class="line">        [&#39;helloscons2.c&#39;, &#39;file1.c&#39;, &#39;file2.c&#39;],</span><br><span class="line">        LIBS &#x3D; &#39;m&#39;, </span><br><span class="line">        LIBPATH &#x3D; [&#39;&#x2F;usr&#x2F;lib&#39;, &#39;&#x2F;usr&#x2F;local&#x2F;lib&#39;], </span><br><span class="line">        CPPPATH &#x3D; [&#39;.&#x2F;include&#39;],</span><br><span class="line">        CCFLAGS &#x3D; &#39;-DHELLOSCONS&#39;)</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>Program ： 表示编译</li>
@@ -220,6 +220,7 @@
 <li>[‘helloscons2.c’, ‘file1.c’, ‘file2.c’] ： 当有多个源文件时，采用（python的）列表形式</li>
 <li>LIBS = ‘m’ : 使用的库文件</li>
 <li>LIBPATH = [‘/usr/lib’, ‘/usr/local/lib’] ：使用的库文件路径</li>
+<li>CPPPATH ： 头文件路径</li>
 <li>CCFLAGS = ‘-DHELLOSCONS’ ： 其他编译时的选项。这边是宏定义</li>
 </ul>
 <p>所以SCons其实就是python的写法，非常优美</p>
@@ -260,8 +261,21 @@
 </li>
 <li><p>打印SCons的版本</p>
   <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-v,--version</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
+<h2 id="深入体验SCons"><a href="#深入体验SCons" class="headerlink" title="深入体验SCons"></a>深入体验SCons</h2><p>上面的HelloWorld例子也许没啥意义，所以在本文的最后。笔者决定给出一个比较有价值的DEMO——在windows上开发openCV！</p>
+<blockquote>
+<p>很多小伙伴本来就觉得在Windows上做开发很麻烦，配OpenCV更是劝退💢希望这个例子对你有所帮助</p>
+</blockquote>
+<p>程序实现的就是不断读取本地摄像头的数据，并且显示出来，更新触发条件为用户敲击键盘。上个代码，如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"opencv.hpp"</span>   <span class="comment">//OpenCV（主）头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;    <span class="comment">//引入命名空间</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Mat cap;    <span class="comment">//像素矩阵变量</span></span><br><span class="line">    VideoCapture cam;   <span class="comment">//视频流对象（可以理解为相机）</span></span><br><span class="line">    cam.<span class="built_in">open</span>(<span class="number">0</span>);    <span class="comment">//打开相机，笔记本电脑前置摄像头默认号：0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!cam.isOpened()) <span class="comment">//检查是否成功打开相机</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"Open Failed!"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span>&lt;&lt;<span class="string">"open Success!"</span>&lt;&lt;<span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        cam &gt;&gt; cap;   <span class="comment">//读取视频流</span></span><br><span class="line">        imshow(<span class="string">"camera"</span>,cap);   <span class="comment">//显示图像</span></span><br><span class="line">        waitKey(<span class="number">0</span>); <span class="comment">//按键更新</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>想要编译这个程序，需要的SConstruct内容为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Program(<span class="string">'main'</span>,</span><br><span class="line">        [<span class="string">'main.cpp'</span>],</span><br><span class="line">        LIBS = [<span class="string">'opencv_world420'</span>],</span><br><span class="line">        LIBPATH = [<span class="string">'E:/opencv/build/x64/vc15/lib'</span>],</span><br><span class="line">        CPPPATH = [<span class="string">'E:/opencv/build/include/opencv2/'</span>,</span><br><span class="line">                    <span class="string">'E:/opencv/build/include/'</span>])</span><br></pre></td></tr></table></figure>
+
+<p>简单解释一下上面路径的由来，在OpenCV官网下载最新版（or你喜欢的版本）开发包，解压到你电脑上喜欢的位置（比如笔者显然直接放在了E盘下）就行。然后把相应库、头文件对应的路径代入就搞定了</p>
+<p>这样就完成了在windows上配置OpenCV和允许Demo的所有配置了🍻是不是非常简单呢？完全不需要配置环境变量以及其他IDE参数</p>
 
       
       <!-- reward -->
@@ -274,6 +288,8 @@
     <footer class="article-footer">
       
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SCons/" rel="tag">SCons</a></li></ul>
+
 
     </footer>
 
