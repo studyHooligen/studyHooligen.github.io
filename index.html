@@ -84,7 +84,7 @@
     
     
     
-    <article id="post-NodeJS-Express-Vue-MongoDB" class="article article-type-post" itemscope
+    <article id="post-NodeJS-Express-Vue-MongoDB-Nginx" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -92,8 +92,8 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/01/02/NodeJS-Express-Vue-MongoDB/"
-    >NodeJS+Express+Vue+MongoDB环境搭建</a> 
+  <a class="article-title" href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/"
+    >NodeJS+Express+Vue+MongoDB+Nginx环境搭建</a> 
 </h2>
  
 
@@ -102,7 +102,7 @@
 
     
     <div class="article-meta">
-      <a href="/2021/01/02/NodeJS-Express-Vue-MongoDB/" class="article-date">
+      <a href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/" class="article-date">
   <time datetime="2021-01-02T09:00:53.000Z" itemprop="datePublished">2021-01-02</time>
 </a>
       
@@ -117,7 +117,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">516</span>
+            <span class="post-count">1.4k</span>
         </span>
     </span>
 
@@ -126,7 +126,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
+            <span class="post-count">6 min</span>
         </span>
     </span>
 </div>
@@ -169,55 +169,10 @@
 <p>查看版本号测试一下</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> node -v</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> npm -v</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="安装cnpm"><a href="#安装cnpm" class="headerlink" title="安装cnpm"></a>安装cnpm</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> npm install cnpm -g</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>基本所有用npm的时候都可以用cnpm来替代（速度更快噢）</p>
-</blockquote>
-<h3 id="安装PM2"><a href="#安装PM2" class="headerlink" title="安装PM2"></a>安装PM2</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> npm install pm2 -g</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>如果安装后没有自动添加pm2的启动索引，就手动加一下吧</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ln -s /usr/<span class="built_in">local</span>/nodejs/bin/pm2 /usr/<span class="built_in">local</span>/bin</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="安装express"><a href="#安装express" class="headerlink" title="安装express"></a>安装express</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> npm install express -g</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="安装Vue"><a href="#安装Vue" class="headerlink" title="安装Vue"></a>安装Vue</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> npm install --global vue-cli</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="创建第一个项目DEMO"><a href="#创建第一个项目DEMO" class="headerlink" title="创建第一个项目DEMO"></a>创建第一个项目DEMO</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vue init webpack myProjectName    <span class="comment"># 创建vue工程</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> myProjectName      <span class="comment"># 进入工程目录</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> npm install           <span class="comment"># 安装依赖环境</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> npm run dev           <span class="comment"># 跑起来咯</span></span></span><br></pre></td></tr></table></figure>
-
-<h2 id="安装MongoDB"><a href="#安装MongoDB" class="headerlink" title="安装MongoDB"></a>安装MongoDB</h2><blockquote>
-<p>推荐使用清华源安装</p>
-</blockquote>
-<ol>
-<li><p>新建yum源配置文件</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim /etc/yum.repos.d/mongodb.repo</span></span><br></pre></td></tr></table></figure>
-
-<p> 填入内容</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[mongodb-org]</span><br><span class="line">name&#x3D;MongoDB Repository</span><br><span class="line">baseurl&#x3D;https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;mongodb&#x2F;yum&#x2F;el$releasever&#x2F;</span><br><span class="line">gpgcheck&#x3D;0</span><br><span class="line">enabled&#x3D;1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>刷新缓存</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum makecache</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>一步安装到位</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install mongodb-org</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建数据存放的文件目录</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mkdir -p /var/database/mongo</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mkdir -p /var/<span class="built_in">log</span>/mongodb</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>这一步没啥讲究，你喜欢放哪就放哪</p>
-</blockquote>
-</li>
-<li><p>启动数据库服务端</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mongod --dbpath /var/database/mongo --logpath /var/<span class="built_in">log</span>/mongodb/mongod.log --fork</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>本地客户端测试</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> shell</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-
+<h3 id="安装cnpm"><a href="#安装cnpm" class="headerlink" title="安装cnpm"></a>安装cnpm</h3>
+      
+      <a class="article-more-link" href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/">阅读更多...</a>
+      
       
       <!-- reward -->
       
@@ -229,7 +184,7 @@
     <footer class="article-footer">
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/" rel="tag">MongoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodeJS/" rel="tag">nodeJS</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/" rel="tag">MongoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodeJS/" rel="tag">nodeJS</a></li></ul>
 
 
     </footer>
