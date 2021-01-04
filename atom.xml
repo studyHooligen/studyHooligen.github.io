@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2021-01-03T09:45:35.267Z</updated>
+  <updated>2021-01-04T11:14:45.318Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,12 +21,12 @@
     <link href="http://yoursite.com/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/"/>
     <id>http://yoursite.com/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/</id>
     <published>2021-01-02T09:00:53.000Z</published>
-    <updated>2021-01-03T09:45:35.267Z</updated>
+    <updated>2021-01-04T11:14:45.318Z</updated>
     
     <summary type="html">
     
       &lt;blockquote&gt;
-&lt;p&gt;这一套环境算是目前（2021年）主流的网站建设框架了吧，所以就简要记录一下配置安装的步骤防止自己遗忘&lt;/p&gt;
+&lt;p&gt;这一套环境算是目前（2021年）主流的网站建设框架了吧，最近刚好需要部署学院里的一套网站（前端&amp;amp;后端），所以就简要记录一下配置安装的步骤防止自己后面遗忘😘&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Attention：服务器系统为CentOS7&lt;/p&gt;
 &lt;/blockquote&gt;
