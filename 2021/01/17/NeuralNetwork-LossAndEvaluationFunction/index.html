@@ -11,7 +11,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-     Singularity-blog
+    神经网络基础——常用的损失函数和评价函数 |  Singularity-blog
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -44,57 +44,17 @@
   
   <div id="app">
     <main class="content on">
-      
-<section class="cover">
-    
-      
-      <a class="forkMe" href="https://github.com/studyHooligen"
-        target="_blank"><img width="149" height="149" src="/images/forkme.png"
-          class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
-    
-  <div class="cover-frame">
-    <div class="bg-box">
-      <img src="https://s1.ax1x.com/2020/05/26/tP6Zsf.jpg" alt="image frame" />
-    </div>
-    <div class="cover-inner text-center text-white">
-      <h1><a href="/">Singularity-blog</a></h1>
-      <div id="subtitle-box">
-        
-        <span id="subtitle"></span>
-        
-      </div>
-      <div>
-        
-      </div>
-    </div>
-  </div>
-  <div class="cover-learn-more">
-    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
-  </div>
-</section>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js"></script>
-
-<div id="main">
-  <section class="outer">
-  <article class="articles">
-    
-    
-    
-    
-    <article id="post-buckConverterModule" class="article article-type-post" itemscope
+      <section class="outer">
+  <article id="post-NeuralNetwork-LossAndEvaluationFunction" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
     
     <header class="article-header">
        
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/26/buckConverterModule/"
-    >Simulink设计同步Buck电路</a> 
-</h2>
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  神经网络基础——常用的损失函数和评价函数
+</h1>
  
 
     </header>
@@ -102,12 +62,12 @@
 
     
     <div class="article-meta">
-      <a href="/2020/06/26/buckConverterModule/" class="article-date">
-  <time datetime="2020-06-26T00:23:00.000Z" itemprop="datePublished">2020-06-26</time>
+      <a href="/2021/01/17/NeuralNetwork-LossAndEvaluationFunction/" class="article-date">
+  <time datetime="2021-01-17T04:05:01.000Z" itemprop="datePublished">2021-01-17</time>
 </a>
       
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%BB%BA%E6%A8%A1%E4%BB%BF%E7%9C%9F/">建模仿真</a>
+    <a class="article-category-link" href="/categories/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/">神经网络</a>
   </div>
 
       
@@ -117,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.5k</span>
+            <span class="post-count">1.3k</span>
         </span>
     </span>
 
@@ -136,6 +96,14 @@
     
 
     
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
 
     
     <div class="article-entry" itemprop="articleBody">
@@ -144,217 +112,227 @@
 
       
       <blockquote>
-<p>前言：笔者最近在做的项目中，要自制大功率数字Buck电源，但是笔者并不是专业做电源，所以！笔者今天就要试试用Simulink来建模、仿真、设计一个同步数字Buck</p>
+<p>前言：该博客的内容主要是两大部分：损失函数、评价函数。笔者主要是为了提供后面方便查阅和选择适当函数撰写，所以数学成分和工程思想成分都会相应部分得较重，大家可选择性阅读。😘</p>
 </blockquote>
-<h2 id="建立模型"><a href="#建立模型" class="headerlink" title="建立模型"></a>建立模型</h2><p>先展示一下建好的模型</p>
-<p><img src="https://s1.ax1x.com/2020/06/26/NrJMYF.png" alt="wholeModule"></p>
+<p>在神经网络中，训练模型时需要计算损失函数来进行模型优化（比如梯度下降法使用损失函数的梯度来优化模型）；在测试（训练后）模型时，在模型对测试集推导后得到的结果，通过计算评价函数来评估模型的效果（过、欠拟合等）</p>
+<h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><ul>
+<li>MSE（Mean Squared Error）:均方误差函数</li>
+<li>RMSE（Root Mean Square Error）:均方根误差</li>
+<li>MAE（Mean Absolute Error）:平均绝对误差</li>
+<li>Huber</li>
+<li>Exponential Loss：指数损失函数</li>
+<li>Log-likelihood Loss：①对数似然损失函数；②交叉熵损失函数<ul>
+<li>BCE（Binary Cross Entropy）:二元交叉熵</li>
+<li>CCE（Complement Cross Entropy）：互补交叉熵</li>
+<li>SCCE：稀疏多分类交叉熵</li>
+</ul>
+</li>
+</ul>
+<h3 id="MSE"><a href="#MSE" class="headerlink" title="MSE"></a>MSE</h3><p>$$<br>MSE = \frac{1}{n} \sum^n_{i=1} (y- \hat y)^2<br>$$</p>
+<h4 id="平方损失函数"><a href="#平方损失函数" class="headerlink" title="平方损失函数"></a>平方损失函数</h4><p>$$<br>J(\theta) = \frac{1}{2}(y-\hat y)^2<br>$$</p>
+<h3 id="RMSE"><a href="#RMSE" class="headerlink" title="RMSE"></a>RMSE</h3><p>$$<br>RMSE = \sqrt{\frac{1}{n} \sum^n_{i=1} (y- \hat y)^2}<br>$$</p>
+<h3 id="MAE"><a href="#MAE" class="headerlink" title="MAE"></a>MAE</h3><p>$$<br>MAE = \frac{1}{n} \sum^n_{i=1} |y- \hat y|<br>$$</p>
+<h3 id="Huber"><a href="#Huber" class="headerlink" title="Huber"></a>Huber</h3><p>$$<br>L_\delta(y,f(x)) = \begin{cases}<br>    \frac{1}{2}(y-f(x))^2 &amp;,|y-f(x)| \le\delta<br>    \\<br>    \delta|y-f(x)| - \frac{1}{2}\delta^2 &amp;,other<br>\end{cases}<br>$$</p>
+<p><img src="https://gitee.com/studyHooligen/blogImage/raw/master/20210117/20210117-NeuralNetwork-1.gif" alt="Huber"></p>
+<p>让我们来分析一下Huber函数的数学本质和优缺点。</p>
+<p>从表达式上可见，Huber函数在估计量偏移样本量小的时候，本质上是平方损失函数；而当偏移大的时候，本质上是绝对误差。也就是说Huber是对MSE和MAE的融合</p>
+<p><strong>接下来从实际效果上思考Huber的优缺点</strong>。首先我们要分析一下MAE和MSE：考虑平方误差函数，当有一个样本的误差（大于1）较大的时候，这个误差会被严重放大，并且如果这是一个异常值，那么模型就会对这单个值作出谦让、调整（或称为适应），这就需要更多的正常值样本来平衡；再考虑绝对误差，对绝对值函数求导可知道MAE对小误差和大误差的导数是一样的，那么当一些误差发生小的偏移时（这种误差是可以被接受的，可以理解为噪声），模型应该作出轻微的调整而不是和大误差一样。所以这时候就可见Huber函数的优点啦！😜由于融合了小偏差时MSE的稳定性和大偏差时MAE的鲁棒性，使得Huber具有更加优秀的性能</p>
+<h3 id="Exponential-Loss：指数损失函数"><a href="#Exponential-Loss：指数损失函数" class="headerlink" title="Exponential Loss：指数损失函数"></a>Exponential Loss：指数损失函数</h3><p>$$<br>L(Y,f(X)) = -\exp(Y\cdot f(X))<br>$$</p>
+<h3 id="Log-likelihood-Loss"><a href="#Log-likelihood-Loss" class="headerlink" title="Log-likelihood Loss"></a>Log-likelihood Loss</h3><blockquote>
+<p>该损失函数一般用于分类器损失计算和评价</p>
+</blockquote>
+<p>$$<br>L(Y,P(Y|X)) = - \log P(Y|X) = -\frac{1}{N}\sum_{i=1}^N\sum_{j=1}^M y_{ij} \log p_{ij}<br>$$</p>
+<p>上式中符号意义为：</p>
+<ul>
+<li>输入样本X，样本量为N</li>
+<li>输出样本Y，样本可能的值有M种</li>
+<li>真实类别判别指标（注意是二值的）<br>  $$<br>  y_{ij}<br>  $$</li>
+<li>输入i分类器输出属于j可能的概率<br>  $$<br>  p_{ij}<br>  $$</li>
+</ul>
 <blockquote>
-<p>Buck的一些经验公式、关系公式可见上一篇文章<a href="https://www.singularity-blog.top/2020/06/05/DCDC/" target="_blank" rel="noopener">DC-DC</a></p>
+<p>这个玩意之所以还有个名字叫交叉熵损失，是因为和信息论中的信息熵数学表达式十分相似</p>
 </blockquote>
-<p>以及模型建立好之后的工作效果</p>
-      
-      <a class="article-more-link" href="/2020/06/26/buckConverterModule/">阅读更多...</a>
-      
+<h4 id="BCE二元交叉熵函数"><a href="#BCE二元交叉熵函数" class="headerlink" title="BCE二元交叉熵函数"></a>BCE二元交叉熵函数</h4><p>当分类器输出只有两种情况时（M=2），上式退化为二元交叉熵函数，如下式：</p>
+<p>$$<br>L = - \frac{1}{N} \sum^N_{i = 1} (\hat {y_i} \log \hat{y_i} + (1-\hat{y_i}) \log(1-\hat{y_i}))<br>$$</p>
+<p>显然，该式还可以继续退化：</p>
+<blockquote>
+<p>此时称为：categorical_crossentropy</p>
+</blockquote>
+<p>$$<br>\because \hat y_i = [0,1]<br>\\ \therefore<br>L = -\frac{1}{N}\sum^N_{i=1} \hat{y_i}\log \hat{y_i}<br>$$</p>
+<h2 id="评价函数"><a href="#评价函数" class="headerlink" title="评价函数"></a>评价函数</h2><ul>
+<li>MAE、MSE、RMSE</li>
+<li>MAPE（Mean Absolute Percentage Error）：平均绝对百分比误差</li>
+<li>SMAPE（Symmetric Mean Absolute Percentage Error）：对称平均绝对百分比误差</li>
+<li>R Squared：决定系数</li>
+<li>Confusion Matrix：混淆矩阵<ul>
+<li>准确率</li>
+<li>精确率</li>
+<li>召回率</li>
+</ul>
+</li>
+</ul>
+<h3 id="MAPE"><a href="#MAPE" class="headerlink" title="MAPE"></a>MAPE</h3><p>$$<br>MAPE = \frac{1}{N} \sum^N_{i=1} | \frac{\hat{y_i} - y_i}{y_i} | \cdot 100%<br>$$</p>
+<blockquote>
+<p>BUG☢真实值同时为零时，分母为0！</p>
+</blockquote>
+<h3 id="SMAPE"><a href="#SMAPE" class="headerlink" title="SMAPE"></a>SMAPE</h3><p>$$<br>SMAPE = \frac{1}{N} \sum^N_{i=1} | \frac{\hat{y_i} - y_i}{(|\hat{y_i}|+|y_i|) /2 } | \cdot 100%<br>$$</p>
+<blockquote>
+<p>BUG☢推测值和真实值同时为零时，分母为0！</p>
+</blockquote>
+<h3 id="R-Squared"><a href="#R-Squared" class="headerlink" title="R Squared"></a>R Squared</h3><blockquote>
+<p>最好的衡量线性回归法的指标</p>
+</blockquote>
+<p>$$<br>R^2 = 1- \frac{\sum^n_{i=1}|\hat{y_i} - y_i |^2 }{\sum^n_{i=1}|\overline{y_i} - y_i |^2}<br>$$</p>
+<p>上式中的分母部分，可以理解为一个模型（<strong>基准模型</strong>）：</p>
+<p>$$<br>|\overline{y_i} - y_i |^2<br>$$</p>
+<p>该指标取值范围为[0,1]；如果小于0，则代表你的模型预测结果还不如基准模型</p>
+<h3 id="Confusion-Matrix"><a href="#Confusion-Matrix" class="headerlink" title="Confusion Matrix"></a>Confusion Matrix</h3><blockquote>
+<p>混淆矩阵也称误差矩阵，是表示精度评价的一种标准格式，用n行n列的矩阵形式来表示。此处给出的数学表示基于二分类</p>
+</blockquote>
+<table>
+    <tr>
+        <th>属性</th>
+        <th>属性值</th>
+        <th>描述</th>  
+    </tr >
+    <tr >
+        <td rowspan="9">type</td>
+        <td>text</td>
+        <td>单行文本输入框</td>
+    </tr>
+    <tr>
+        <td>password</td>
+        <td>密码输入框</td>
+    </tr>
+    <tr>
+        <td>radio</td>
+        <td>单选按钮</td>
+    </tr>
+    <tr>
+        <td>CheckBox</td>
+        <td>复选按钮</td>
+    </tr>
+    <tr><td>button</td>
+        <td>普通按钮</td>
+    </tr>
+    <tr>
+        <td>submit</td>
+        <td>提交按钮</td>
+    </tr>
+    <tr>
+        <td>reset</td>
+        <td>重置按钮</td>
+    </tr>
+    <tr>
+        <td>image</td>
+        <td>图像形式的提交按钮</td>
+    </tr>
+    <tr>
+        <td >file</td>
+        <td>文件域</td>
+    </tr>
+    <tr>
+        <td >name</td>
+        <td>用户自定义</td>
+        <td>控件名称</td>
+    </tr>
+    <tr>
+        <td >value</td>
+        <td >用户自定义</td>
+        <td >默认文本值</td>
+    </tr>
+    <tr>
+        <td >size</td>
+        <td >正整数</td>
+        <td >控件在页面中的显示宽度</td>
+    </tr>
+    <tr>
+        <td >checked</td>
+        <td >checked</td>
+        <td >定义选择控件默认被选中项</td>
+    </tr>
+    <tr>
+        <td >maxlength</td>
+        <td >正整数</td>
+        <td >控件允许输入的最多字符</td>
+    </tr>
+</table>
+
       
       <!-- reward -->
+      
+      <div id="reward-btn">
+        Donate
+      </div>
       
     </div>
     
     
       <!-- copyright -->
       
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>Copyright： </strong>
+              Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+            </li>
+          </ul>
+        </div>
+        
     <footer class="article-footer">
       
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Buck/" rel="tag">Buck</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC-DC/" rel="tag">DC-DC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PID/" rel="tag">PID</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/" rel="tag">电源变换</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-控制系统类型" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/20/%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B/"
-    >控制系统类型</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/20/%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B/" class="article-date">
-  <time datetime="2020-06-20T04:21:11.000Z" itemprop="datePublished">2020-06-20</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/">控制技术</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.2k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">5 min</span>
-        </span>
-    </span>
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
 </div>
 
-      
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2021/01/17/NeuralNetwork-LossAndEvaluationFunction/" alt="微信分享二维码">
     </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-      
-
-      
-      <blockquote>
-<p>前言：在上一篇文章中，讨论了<a href="https://www.singularity-blog.top/2020/06/19/%E5%8F%8D%E9%A6%88%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E6%9E%90/" target="_blank" rel="noopener">反馈系统的分析</a>，但是反馈系统到底可以容忍什么信号，在什么范围内可以做到系统稳定、无误差？</p>
-</blockquote>
-<h2 id="系统输入类型（多项式）"><a href="#系统输入类型（多项式）" class="headerlink" title="系统输入类型（多项式）"></a>系统输入类型（多项式）</h2><p>已知基础多项式元式的拉普拉斯变换</p>
-<p>$$<br>\frac{t^k}{k!}u(t) \leftrightarrow \frac{1}{s^{k+1}}<br>$$</p>
-      
-      <a class="article-more-link" href="/2020/06/20/%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8D%E9%A6%88%E7%B3%BB%E7%BB%9F/" rel="tag">反馈系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/" rel="tag">控制原理</a></li></ul>
-
-
-    </footer>
-
-  </div>
-
-  
-
-  
-
-  
-  
-  
-
-</article>
-    
-    <article id="post-反馈控制系统分析" class="article article-type-post" itemscope
-  itemprop="blogPost" data-scroll-reveal>
-
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/06/19/%E5%8F%8D%E9%A6%88%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E6%9E%90/"
-    >反馈控制系统分析</a> 
-</h2>
- 
-
-    </header>
-    
-
-    
-    <div class="article-meta">
-      <a href="/2020/06/19/%E5%8F%8D%E9%A6%88%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E6%9E%90/" class="article-date">
-  <time datetime="2020-06-19T11:28:27.000Z" itemprop="datePublished">2020-06-19</time>
-</a>
-      
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/">控制技术</a>
-  </div>
-
-      
-      
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">633</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
-        </span>
-    </span>
 </div>
 
-      
-    </div>
-    
-
-    
-
-    
-    <div class="article-entry" itemprop="articleBody">
+<div id="share-mask"></div>
       
       
-
-      
-      <h2 id="反馈模型"><a href="#反馈模型" class="headerlink" title="反馈模型"></a>反馈模型</h2><p><img src="https://s1.ax1x.com/2020/06/19/NKx4Vs.png" alt="闭环反馈"></p>
-<p>对于上图所示的闭环反馈框图系统，通过叠加原理，可以求得输出信号为</p>
-<p>$$<br>Y=\frac{GD}{1+GD}R+\frac{G}{1+GD}W-\frac{GD}{1+GD}V<br>$$</p>
-      
-      <a class="article-more-link" href="/2020/06/19/%E5%8F%8D%E9%A6%88%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%E5%88%86%E6%9E%90/">阅读更多...</a>
-      
-      
-      <!-- reward -->
-      
-    </div>
-    
-    
-      <!-- copyright -->
-      
-    <footer class="article-footer">
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8F%8D%E9%A6%88%E7%B3%BB%E7%BB%9F/" rel="tag">反馈系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/" rel="tag">控制原理</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NeuralNetwork/" rel="tag">NeuralNetwork</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E3%80%81%E8%AF%84%E4%BB%B7%E5%87%BD%E6%95%B0/" rel="tag">损失函数、评价函数</a></li></ul>
 
 
     </footer>
@@ -362,27 +340,65 @@
   </div>
 
   
-
   
-
-  
-  
-  
-
-</article>
+  <nav class="article-nav">
     
-  </article>
-  
-
-  
-  <nav class="page-nav">
+      <a href="/2021/02/08/Qt4Python/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            PythonQt开发上位机实战
+          
+        </div>
+      </a>
     
-    <a class="extend prev" rel="prev" href="/page/9/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/11/">下一页</a>
+    
+      <a href="/2021/01/12/webSpider-QuickStart/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">网络爬虫48H快速入门</div>
+      </a>
+    
   </nav>
-  
-</section>
-</div>
 
+
+  
+
+  
+
+  
+  
+<div class="gitalk" id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+
+<script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'cd4d750c727d92fb7436',
+    clientSecret: '4a001cb21bdedc1c0a70af3321e24005223e0ea2',
+    repo: 'studyhooligen.github.io',
+    owner: 'studyhooligen',
+    admin: ['studyhooligen'],
+    // id: location.pathname,      // Ensure uniqueness and length less than 50
+    id: md5(location.pathname),
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    pagerDirection: 'last'
+  })
+
+  gitalk.render('gitalk-container')
+</script>
+
+  
+  
+  
+
+</article>
+</section>
       <footer class="footer">
   <div class="outer">
     <ul>
@@ -541,6 +557,23 @@
 </script>
 
 <!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
