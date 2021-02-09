@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2021-02-08T12:33:02.096Z</updated>
+  <updated>2021-02-09T12:28:13.246Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>xbotPark2021</title>
+    <link href="http://yoursite.com/2021/02/09/xbotPark2021/"/>
+    <id>http://yoursite.com/2021/02/09/xbotPark2021/</id>
+    <published>2021-02-09T12:18:54.000Z</published>
+    <updated>2021-02-09T12:28:13.246Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot;
+        
+      
+    
+    </summary>
+    
+    
+      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>PythonQt开发上位机实战</title>
@@ -714,43 +739,6 @@
     
     
       <category term="学习笔记" scheme="http://yoursite.com/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MSH控制台添加带参命令</title>
-    <link href="http://yoursite.com/2020/08/01/mshCommandWithArguments/"/>
-    <id>http://yoursite.com/2020/08/01/mshCommandWithArguments/</id>
-    <published>2020-08-01T13:59:12.000Z</published>
-    <updated>2020-09-02T02:15:28.491Z</updated>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;前言：之前的&lt;a href=&quot;https://www.singularity-blog.top/2020/06/03/MCU%E7%A7%BB%E6%A4%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;一篇文章&lt;/a&gt;分享了移植RT-Thread和其最具吸引力的FinSH控制台。但是没有讲详细的添加命令到控制台上，直到最近笔者在对外输出带参命令的时候发现参数进去后是乱码的，所以打算把坑记录一下&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;添加MSH命令的代码规则（C）&quot;&gt;&lt;a href=&quot;#添加MSH命令的代码规则（C）&quot; class=&quot;headerlink&quot; title=&quot;添加MSH命令的代码规则（C）&quot;&gt;&lt;/a&gt;添加MSH命令的代码规则（C）&lt;/h2&gt;&lt;p&gt;一般来说导出函数到MSH命令列表非常简单，调用MSH_CMD_EXPORT宏命令即可&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;简单命令（不带参数）&lt;/p&gt;
-&lt;p&gt;  在该情况下，不通过控制台传入参数，所以对函数的形式没有要求，如下是一个对外提供PWM使能的命令demo：&lt;/p&gt;
-  &lt;figure class=&quot;highlight c&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;enablePWM&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;;   &lt;span class=&quot;comment&quot;&gt;//函数声明&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;MSH_CMD_EXPORT(enablePWM,enable the PWM ouput of High-Res timer);   &lt;span class=&quot;comment&quot;&gt;//导出函数到MSH命令列表&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-
-&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-      <category term="嵌入式驱动" scheme="http://yoursite.com/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/"/>
-    
-    
-      <category term="实时操作系统" scheme="http://yoursite.com/tags/%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"/>
-    
-      <category term="RT-Thread" scheme="http://yoursite.com/tags/RT-Thread/"/>
-    
-      <category term="FinSH" scheme="http://yoursite.com/tags/FinSH/"/>
-    
-      <category term="MSH" scheme="http://yoursite.com/tags/MSH/"/>
     
   </entry>
   
