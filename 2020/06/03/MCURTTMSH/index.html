@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>MCU移植控制台 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-MCURTTMSH"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  MCU移植控制台
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/06/03/MCURTTMSH/" class="article-date">
+  <time datetime="2020-06-03T08:44:09.000Z" itemprop="datePublished">2020-06-03</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">5 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：本移植首先得益于RTT系统（国产开源！力推！）<br>笔者偏爱该操作系统的主要原因就是因为其Finsh组件，在该组件中，可以很好地移植MSH控制台，使得在MCU上进行开发调参更加地容易，实验数据也更容易可视化</p>
+<blockquote>
+<p>在该篇博客中，相比官网的移植来说，使用了更加高效的中断接收的形式</p>
+</blockquote>
+</blockquote>
+<h2 id="RTT-Nano移植工作"><a href="#RTT-Nano移植工作" class="headerlink" title="RTT-Nano移植工作"></a>RTT-Nano移植工作</h2><p>首先，就要把这个RT-Thread移植到MCU上，本例直接在上个<a href="/2020/05/25/UART-DMA/">UART-DMA</a>实验配置基础上进行移植，移植操作如下：</p>
+<span id="more"></span>
+
+<ol>
+<li><p>在CubeMX上打开勾选起第三方软件RT-Thread</p>
+<p> 在CubeMX上如何配置RTT包可以参看官方的样例文档<a target="_blank" rel="noopener" href="https://www.rt-thread.org/document/site/tutorial/nano/nano-port-cube/an0041-nano-port-cube/">使用CubeMX移植RTT-Nano</a></p>
+<p> <img src="http://imgjry.fangyikuan.xyz/202006/202006-MCURTT-1.png" alt="启用RTT"></p>
+</li>
+<li><p>取消部分CubeMX自动生成的代码</p>
+<ul>
+<li>硬件错误中断服务函数(Hard fault interrupt)</li>
+<li>内存管理错误服务函数(Memory management fault)</li>
+<li>系统服务的未决请求函数(Pendable request for system service)</li>
+<li>sysTick中断服务函数(Time base:System tick timer)</li>
+</ul>
+<p> <img src="http://imgjry.fangyikuan.xyz/202006/202006-MCURTT-2.png" alt="取消部分自动生成代码"></p>
+<blockquote>
+<p>因为这4个服务函数现在由RTT负责管理了</p>
+</blockquote>
+</li>
+<li><p>在NVIC中开启UART1的全局中断</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/202006/202006-MCURTT-3.png" alt="串口中断"></p>
+</li>
+<li><p>可以生成工程了</p>
+</li>
+</ol>
+<h2 id="适配控制台底层驱动"><a href="#适配控制台底层驱动" class="headerlink" title="适配控制台底层驱动"></a>适配控制台底层驱动</h2><blockquote>
+<p>其实适配移植该控制台非常简单，主要就是实现该控制台和串口收发关系逻辑</p>
+</blockquote>
+<ul>
+<li><p>首先是控制台的输出，所有的控制台输出字符都是通过调用该接口</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* @brief 控制台输出字符接口（RTT标准）</span></span><br><span class="line"><span class="comment">* @arg1  输出的字符串</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">rt_hw_console_output</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str)</span></span><br><span class="line">&#123;</span><br><span class="line">    HAL_UART_Transmit(&amp;huart1,(<span class="type">uint8_t</span> *)str,rt_strlen(str),<span class="number">0xff</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>笔者尝试使用DMA来替代轮询，但是控制台的发送数据多次调用的情况下，若不使用逻辑控制则会导致DMA输出乱码（相当于数据还没有发好，新的字符串就覆盖上去了）</p>
+<blockquote>
+<p>若使用信号量控制，有两个问题：开机的时候信号量调度是系统还没有初始化（启动）的；因为这是一个接口函数，会多次被调用，则系统的压力会增高</p>
+</blockquote>
+</blockquote>
+</li>
+<li><p>接下来是（不定长）输入，这是最难的part了</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> <span class="title function_">rt_hw_console_getchar</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> ch = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 从 ringbuffer 中拿出数据 */</span></span><br><span class="line">    <span class="keyword">while</span> (rt_ringbuffer_getchar(&amp;uart_rxcb, (<span class="type">rt_uint8_t</span> *)&amp;ch) != <span class="number">1</span>)   <span class="comment">//若没有接收到</span></span><br><span class="line">    &#123;</span><br><span class="line">        rt_sem_take(&amp;shell_rx_sem, RT_WAITING_FOREVER); <span class="comment">//永久等待字符接收信号量</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ch;  <span class="comment">//返回字符</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>对于接收不定长数据，若采用轮询的方式，太浪费资源了；所以采用了中断接收的方式。核心思想是开辟一个环形缓冲区，在接收中断到来时，不断将数据填入到缓冲区，并且释放一次信号量；在输入接口处采用信号量的方式挂起。在输人接口使用信号量，不会有输出时未初始化和多次调用的问题</p>
+</blockquote>
+<p>  串口中断服务函数如下：</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">FinshUartIRQHandler</span><span class="params">(<span class="type">void</span>)</span>  <span class="comment">//函数名笔者使用了宏定义进行可移植性扩展</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> ch = <span class="number">-1</span>;</span><br><span class="line">    <span class="comment">/* enter interrupt */</span></span><br><span class="line">    rt_interrupt_enter();          <span class="comment">//在中断中一定要调用这对函数，进入中断</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((__HAL_UART_GET_FLAG(&amp;(FinshUartHandle), UART_FLAG_RXNE) != RESET) &amp;&amp;</span><br><span class="line">        (__HAL_UART_GET_IT_SOURCE(&amp;(FinshUartHandle), UART_IT_RXNE) != RESET))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            ch = <span class="number">-1</span>;</span><br><span class="line">            <span class="keyword">if</span> (__HAL_UART_GET_FLAG(&amp;(FinshUartHandle), UART_FLAG_RXNE) != RESET)</span><br><span class="line">            &#123;</span><br><span class="line">                ch =  FinshUartHandle.Instance-&gt;RDR &amp; <span class="number">0xff</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (ch == <span class="number">-1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="comment">/* 读取到数据，将数据存入 ringbuffer */</span></span><br><span class="line">            rt_ringbuffer_putchar(&amp;uart_rxcb, ch);</span><br><span class="line">        &#125;        </span><br><span class="line">        rt_sem_release(&amp;shell_rx_sem);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* leave interrupt */</span></span><br><span class="line">    rt_interrupt_leave();    <span class="comment">//在中断中一定要调用这对函数，离开中断</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  环形缓冲队列是嫖的RTT的，此处给出接口如下：</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rt_inline <span class="keyword">enum</span> rt_ringbuffer_state <span class="title function_">rt_ringbuffer_status</span><span class="params">(<span class="keyword">struct</span> rt_ringbuffer *rb)</span>;  <span class="comment">//缓冲队列状态</span></span><br><span class="line"><span class="type">rt_size_t</span> <span class="title function_">rt_ringbuffer_data_len</span><span class="params">(<span class="keyword">struct</span> rt_ringbuffer *rb)</span>; <span class="comment">//有效数据长度</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">rt_ringbuffer_init</span><span class="params">(<span class="keyword">struct</span> rt_ringbuffer *rb,<span class="type">rt_uint8_t</span> *pool,<span class="type">rt_int16_t</span> size)</span>; <span class="comment">//初始化缓冲器</span></span><br><span class="line"><span class="type">rt_size_t</span> <span class="title function_">rt_ringbuffer_putchar</span><span class="params">(<span class="keyword">struct</span> rt_ringbuffer *rb, <span class="type">const</span> <span class="type">rt_uint8_t</span> ch)</span>; <span class="comment">//向缓冲器中添加字符</span></span><br><span class="line"><span class="type">rt_size_t</span> <span class="title function_">rt_ringbuffer_getchar</span><span class="params">(<span class="keyword">struct</span> rt_ringbuffer *rb, <span class="type">rt_uint8_t</span> *ch)</span>; <span class="comment">//从缓冲器中取出字符</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>控制台IO初始化</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">rt_uint8_t</span> uart_rx_buf[FinshUartRxBufLen] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rt_ringbuffer</span>  <span class="title">uart_rxcb</span>;</span>         <span class="comment">/* 定义一个 ringbuffer cb */</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">rt_semaphore</span> <span class="title">shell_rx_sem</span>;</span> <span class="comment">/* 定义一个静态信号量 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* @brief 初始化控制台IO</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">FinshIoInit</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    rt_ringbuffer_init(&amp;uart_rxcb, uart_rx_buf, FinshUartRxBufLen); <span class="comment">//初始化缓冲器</span></span><br><span class="line"></span><br><span class="line">    rt_sem_init(&amp;(shell_rx_sem), <span class="string">&quot;shell_rx&quot;</span>, <span class="number">0</span>, <span class="number">0</span>); <span class="comment">//初始化信号量</span></span><br><span class="line"></span><br><span class="line">    __HAL_UART_ENABLE_IT(&amp;FinshUartHandle, UART_IT_RXNE);   <span class="comment">//开启串口接收中断</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RTT板级初始化</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">rt_hw_board_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    HAL_Init();         <span class="comment">//HAL库初始化</span></span><br><span class="line">    MX_GPIO_Init();     <span class="comment">//GPIO口初始化</span></span><br><span class="line">    MX_DMA_Init();      <span class="comment">//DMA接口初始化</span></span><br><span class="line">    MX_USART1_UART_Init();  <span class="comment">//串口初始化</span></span><br><span class="line"></span><br><span class="line">    FinshIoInit();      <span class="comment">//控制台接口驱动初始化</span></span><br><span class="line">    <span class="comment">/* System Clock Update */</span></span><br><span class="line">    SystemCoreClockUpdate();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* System Tick Configuration */</span></span><br><span class="line">    _SysTick_Config(SystemCoreClock / RT_TICK_PER_SECOND);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Call components board initial (use INIT_BOARD_EXPORT()) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> RT_USING_COMPONENTS_INIT</span></span><br><span class="line">    rt_components_board_init();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> defined(RT_USING_USER_MAIN) &amp;&amp; defined(RT_USING_HEAP)</span></span><br><span class="line">    rt_system_heap_init(rt_heap_begin_get(), rt_heap_end_get());</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自定义控制台功能命令</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">toggleLED1</span><span class="params">(<span class="type">void</span>)</span>   <span class="comment">//LED灯状态翻转</span></span><br><span class="line">&#123;</span><br><span class="line">    HAL_GPIO_TogglePin(LED1_GPIO_Port,LED1_Pin);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MSH_CMD_EXPORT(toggleLED1,toggle The LED Light);    <span class="comment">//导出命令接口</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>笔者的开发板上有LED的，大家可以灵活改成自己的接口</p>
+</blockquote>
+</li>
+<li><p>附：其他移植性定义</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> FinshUartHandle huart1   <span class="comment">//适配为使用的UART句柄</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FinshUartIRQHandler  USART1_IRQHandler <span class="comment">//相应的UART中断</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FinshUartRxBufLen 16  <span class="comment">//适配为需要的缓存空间大小</span></span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这是笔者在写HAL库驱动时的一套个人爱好，所有的句柄都使用宏定义可以使得移植性更加优秀</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h2><p>上述代码主要节选出为了理清逻辑用，具体的工程源代码已经上传到Github仓库：<a target="_blank" rel="noopener" href="https://github.com/studyHooligen/Finsh-RTT">Finsh-RTT</a>，工程结构说明如下：</p>
+<ul>
+<li><p>文件组织</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">--+ Finsh-RTT   <span class="comment">//工程根目录</span></span><br><span class="line">    --+ BSP     <span class="comment">//BSP文件夹</span></span><br><span class="line">        - uartFinshCharIO.c     <span class="comment">//串口控制台驱动C</span></span><br><span class="line">        - uartFinshCharIO.h     <span class="comment">//串口控制台接口H</span></span><br><span class="line">    --+ Thread  <span class="comment">//用户自定义线程文件夹</span></span><br><span class="line">        - ShellPort.c           <span class="comment">//自定义的控制台功能线程</span></span><br><span class="line">    --+ Middlewares\Third_Party\RT-Thread\bsp</span><br><span class="line">        - board.c               <span class="comment">//RTT的基础bsp初始化文件</span></span><br><span class="line">    - README.md <span class="comment">//帮助文件</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h2><p><img src="http://imgjry.fangyikuan.xyz/202006/202006-MCURTT-4.png" alt="开机测试"></p>
+<ul>
+<li>系统初始化成功</li>
+<li>help显示正常</li>
+<li>自定义功能函数调用正常</li>
+<li>线程列写正确</li>
+</ul>
+<blockquote>
+<p>开心！😝以后可以用这个控制台调参了</p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/06/03/MCURTTMSH/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FinSH/" rel="tag">FinSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSH/" rel="tag">MSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RT-Thread/" rel="tag">RT-Thread</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32CubeMX/" rel="tag">STM32CubeMX</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32H7/" rel="tag">STM32H7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">实时操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/06/05/DCDC/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            DCDC
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/06/02/DCMotorModel/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">直流电机模型分析</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>STM32H7 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-STM32H7"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  STM32H7
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/23/STM32H7/" class="article-date">
+  <time datetime="2020-05-23T02:11:55.000Z" itemprop="datePublished">2020-05-23</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">10 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="STM32H7概览"><a href="#STM32H7概览" class="headerlink" title="STM32H7概览"></a>STM32H7概览</h1><ul>
+<li>Cube工程结构</li>
+<li>HAL库及编程tips</li>
+<li>H7内存及总线</li>
+<li>外设使用</li>
+</ul>
+<h2 id="Cube工程结构"><a href="#Cube工程结构" class="headerlink" title="Cube工程结构"></a>Cube工程结构</h2><blockquote>
+<p>Keil中打开</p>
+</blockquote>
+<ul>
+<li>driver<ul>
+<li>Application&#x2F;MDK-ARM<ul>
+<li>启动文件：startup_stm32xxxx.s</li>
+</ul>
+</li>
+<li>Application&#x2F;User<ul>
+<li>主程序文件：main.c</li>
+<li>中断服务定义文件：stm32xxxx_it.c</li>
+<li>进行芯片级别硬件初始化设置：stm32xxxx_hal_msp.c</li>
+</ul>
+</li>
+<li>Drivers&#x2F;STM32xxxx_HAL_Driver<br>  标准HAL库驱动 </li>
+<li>Drivers&#x2F;CMSIS<ul>
+<li>定义系统初始化函数及时钟更新函数：system_stm32xxxx.c</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>文件夹中打开</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">--+ Project             //工程根目录</span><br><span class="line">    --+ Drivers         //驱动源文件（CubeMX生成）</span><br><span class="line">        --+ CMSIS                   //ARM的MCU软件接口标准</span><br><span class="line">        --+ STM32H7xx_HAL_Driver    //H7芯片的HAL库</span><br><span class="line">    --+ inc             //外设初始化头文件（CubeMX生成）</span><br><span class="line">    --+ MDK-ARM         //Keil工程目录</span><br><span class="line">    --+ Middlewares     //第三方软件包</span><br><span class="line">    --+ Src             //外设初始化源文件（CubeMX生成）</span><br><span class="line">    --+ Task            //如果有OS的话，该文件夹为任务or线程文件</span><br><span class="line">    --+ BSP             //BSP文件</span><br><span class="line">    --+ REFERENCE       //使用到的参考资料（笔者自己添加的）</span><br><span class="line">        --+ link.md</span><br><span class="line">        --- ...</span><br><span class="line">    --+ Project.ioc     //CubeMX工程文件</span><br><span class="line">    --+ README.md       //README文件（笔者自己加的）</span><br></pre></td></tr></table></figure>
+
+<h2 id="HAL库及编程tips"><a href="#HAL库及编程tips" class="headerlink" title="HAL库及编程tips"></a>HAL库及编程tips</h2><span id="more"></span>
+
+<ul>
+<li>_IO成员变量修饰符：相当于const、variable等</li>
+<li>HAL_Delay()采用的是中断原理，所以有时会误差严重</li>
+<li>注意H7的Dcache功能，若不开启强制透写，可能出现与ram数据不同步bug</li>
+<li>一定一定注意H7的总线结构噢！在AXI总线上的告诉存储是不能被普通DMA访问的！</li>
+<li>在不进行固件升级下，ST-link最大速度为1.8MHz</li>
+<li>_weak函数修饰符：用户可以再次定义为自己的函数内容</li>
+<li>volatile修饰符：修饰的变量是随时改变的，每次读取的时候都要乖乖从变量地址读出<blockquote>
+<p>该修饰符主要用于修饰特殊状态寄存器，这些寄存器是硬件触发改变状态的！</p>
+</blockquote>
+</li>
+<li>__align()修饰符：内存对齐</li>
+<li>内存定位  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint8_t</span> mpudata[<span class="number">128</span>] __attribute__((at(<span class="number">0x20002000</span>)));</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="H7内存及总线"><a href="#H7内存及总线" class="headerlink" title="H7内存及总线"></a>H7内存及总线</h2><ul>
+<li>ITCM<ul>
+<li>地址：0X0000 0000 ~ 0X0000 FFFF</li>
+<li>大小：64Kbytes</li>
+<li>访问：仅CPU和MDMA</li>
+</ul>
+</li>
+<li>DTCM<ul>
+<li>地址：0X2000 0000 ~ 0X2001 FFFF</li>
+<li>大小：128Kbytes</li>
+<li>访问：仅CPU和MDMA</li>
+</ul>
+</li>
+<li>AXI-SRAM<ul>
+<li>地址：0X2400 0000 ~ 0X2407 FFFF</li>
+<li>大小：512Kbytes</li>
+<li>访问：仅CPU和MDMA</li>
+</ul>
+</li>
+<li>SRAM1<ul>
+<li>地址：0X3000 0000 ~ 0X3001 FFFF</li>
+<li>大小：128Kbytes</li>
+</ul>
+</li>
+<li>SRAM2<ul>
+<li>地址：0X3002 0000 ~ 0X3003 FFFF</li>
+<li>大小：128Kbytes</li>
+</ul>
+</li>
+<li>SRAM3<ul>
+<li>地址：0X3004 0000 ~ 0X3004 7FFF</li>
+<li>大小：32Kbytes</li>
+<li>一般独立给以太网使用</li>
+</ul>
+</li>
+<li>SRAM4<ul>
+<li>地址：0X3800 0000 ~ 0X3800 FFFF</li>
+<li>大小：64Kbytes</li>
+</ul>
+</li>
+<li>Reserved<ul>
+<li>地址：0X3801 0000 ~ 0X3FFF FFFF</li>
+<li>大小：127Mbytes</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/202005/202005-STM32H7-1.png" alt="H7总线"></p>
+<blockquote>
+<p>显然挂在内核上的高速RAM是只能被主DMA设备(MDMA)和内核本身访问！这个不注意会坑得很死<br>还有H7的AXI总线是64位的呢！可以说和存储设备的访问简直nice到没盆友</p>
+</blockquote>
+<h2 id="外设使用"><a href="#外设使用" class="headerlink" title="外设使用"></a>外设使用</h2><h3 id="GPIO"><a href="#GPIO" class="headerlink" title="GPIO"></a>GPIO</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HAL_GPIO_WritePin(GPIOx,GPIO_PIN_x,GPIO_PIN_xxx);   <span class="comment">//写端口</span></span><br><span class="line">HAL_GPIO_ReadPin(GPIOx,GPIO_PIN_x); <span class="comment">//读端口状态</span></span><br><span class="line">HAL_GPIO_TogglePin(GPIOx,GPIO_PIN_x);   <span class="comment">//端口翻转</span></span><br></pre></td></tr></table></figure>
+
+<p>复位后一般默认输入模式</p>
+<h3 id="UART"><a href="#UART" class="headerlink" title="UART"></a>UART</h3><ul>
+<li>过采样模式，16倍过采样可获得高容错性</li>
+<li>使能校验位时，MSB位是接收到的校验位</li>
+<li>中断回调函数函数  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">HAL_UART_RxCpltCallback</span><span class="params">(UART_HandleTypeDef *huart)</span> <span class="comment">//直接定义该函数就是中断的</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(huart-&gt;Instance == USART1)   <span class="comment">//判断是否你要处理的uart接口</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* TODO */</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span>(HAL_UART_GetState(&amp;huart1) != HAL_UART_STATE_READY);  <span class="comment">//检测是否空闲</span></span><br><span class="line">        <span class="keyword">while</span>(HAL_UART_Receive_IT(&amp;huart1,bufferUART1Rx,UART1RXBUFFERSIZE)!=HAL_OK);    <span class="comment">//重新开启接收中断</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>数据收发  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef <span class="title function_">HAL_UART_Transmit</span><span class="params">(UART_HandleTypeDef *huart, <span class="type">uint8_t</span> *pData, <span class="type">uint16_t</span> Size, <span class="type">uint32_t</span> Timeout)</span>；  <span class="comment">//数组数据发送</span></span><br><span class="line">HAL_StatusTypeDef <span class="title function_">HAL_UART_Receive_IT</span><span class="params">(UART_HandleTypeDef *huart, <span class="type">uint8_t</span> *pData, <span class="type">uint16_t</span> Size)</span>; <span class="comment">//接收开启</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="中断"><a href="#中断" class="headerlink" title="中断"></a>中断</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HAL_NVIC_EnableIRQ(USART1_IRQn);    <span class="comment">//使能中断</span></span><br><span class="line">HAL_NVIC_SetPriority(USART1_IRQn,<span class="number">3</span>,<span class="number">3</span>);  <span class="comment">//设置中断优先级</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>外部中断  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">HAL_GPIO_EXTI_Callback</span><span class="params">(<span class="type">uint16_t</span> GPIO_Pin)</span>; <span class="comment">//在该回调函数中定义各中断处理</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="看门狗"><a href="#看门狗" class="headerlink" title="看门狗"></a>看门狗</h3><h4 id="独立看门狗：IWDG"><a href="#独立看门狗：IWDG" class="headerlink" title="独立看门狗：IWDG"></a>独立看门狗：IWDG</h4><ul>
+<li>时钟源：LSI  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HAL_IWDG_Refresh(&amp;hiwdg1);  <span class="comment">//喂狗</span></span><br></pre></td></tr></table></figure></li>
+<li>超时公式  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T = \frac&#123;4 \cdot 2^&#123;PRE&#125; \cdot RLR&#125;&#123;CLK&#125;</span><br></pre></td></tr></table></figure>
+  PRE为分频系数，RLR为重装载值</li>
+</ul>
+<h4 id="窗口看门狗：WWDG"><a href="#窗口看门狗：WWDG" class="headerlink" title="窗口看门狗：WWDG"></a>窗口看门狗：WWDG</h4><ul>
+<li>时钟源：PCLK1</li>
+<li>可采用中断触发方式喂狗  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HAL_WWDG_EarlyWakeupCallback(WWDG_HandleTypeDef*);  <span class="comment">//提前唤醒中断</span></span><br><span class="line">HAL_WWDG_Refresh(WWDG_HandleTypeDef*);  <span class="comment">//喂狗</span></span><br></pre></td></tr></table></figure></li>
+<li>超时公式  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T = \frac&#123;4096 \cdot 2^&#123;PRE&#125; \cdot (T[5:0]+1)&#125;&#123;PCLK&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="定时器"><a href="#定时器" class="headerlink" title="定时器"></a>定时器</h3><ul>
+<li>高级定时器：1、8</li>
+<li>通用定时器：2 ~ 5，12 ~ 17<ul>
+<li>TIM2、5是32位，其他为16位</li>
+<li>TIM12 ~ 14不支持DMA</li>
+<li>TIM12 ~ 17只能向上计数，不支持编码器</li>
+</ul>
+</li>
+<li>LP开头的为低功耗计时器</li>
+<li>基本定时器：6、7</li>
+<li>对齐模式<ul>
+<li>边沿：递增or递减</li>
+<li>中心1：交替递增递减；仅递减时，输出通道比较中断才能置1</li>
+<li>中心2：交替递增递减；仅递增时，输出通道比较中断才能置1</li>
+<li>中心3：交替递增递减；都能输出通道比较中断置1</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">__HAL_TIM_SET_COUNTER(&amp;htim5,<span class="number">0</span>);    <span class="comment">//设置计数器值</span></span><br><span class="line">__HAL_TIM_DISABLE(&amp;htim5);  <span class="comment">//停止定时器</span></span><br><span class="line">__HAL_TIM_ENABLE(&amp;htim5);   <span class="comment">//启动定时器</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="定时器中断"><a href="#定时器中断" class="headerlink" title="定时器中断"></a>定时器中断</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim); <span class="comment">//开启中断</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">HAL_TIM_PeriodElapsedCallback</span><span class="params">(TIM_HandleTypeDef *htim)</span>；<span class="comment">//定义改函数就可以处理更新中断</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="PWM"><a href="#PWM" class="headerlink" title="PWM"></a>PWM</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef <span class="title function_">HAL_TIM_PWM_Start</span><span class="params">(TIM_HandleTypeDef *htim, <span class="type">uint32_t</span> Channel)</span>; <span class="comment">//开启PWM输出</span></span><br><span class="line">__HAL_TIM_SetCompare(&amp;htim3,TIM_CHANNEL_4,pwmValue);    <span class="comment">//设置PWM比较器值</span></span><br><span class="line">__HAL_TIM_GetCompare(&amp;htim3,TIM_CHANNEL_4);     <span class="comment">//获取当前PWM比较器值</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>输出模式<ul>
+<li>PWM1</li>
+<li>PWM2</li>
+<li>C1</li>
+<li>C2</li>
+<li>A1</li>
+<li>A2</li>
+</ul>
+</li>
+</ul>
+<h4 id="输入捕获"><a href="#输入捕获" class="headerlink" title="输入捕获"></a>输入捕获</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">HAL_TIM_IC_CaptureCallback</span><span class="params">(TIM_HandleTypeDef *htim)</span>;   <span class="comment">//输入捕获中断回调处理</span></span><br><span class="line"><span class="type">uint32_t</span> <span class="title function_">HAL_TIM_ReadCapturedValue</span><span class="params">(TIM_HandleTypeDef *htim, <span class="type">uint32_t</span> Channel)</span>； <span class="comment">//获取输入捕获值</span></span><br><span class="line"><span class="title function_">TIM_RESET_CAPTUREPOLARITY</span><span class="params">(&amp;htim5,TIM_CHANNEL_1)</span>;    <span class="comment">//清楚原捕获设置</span></span><br><span class="line">TIM_SET_CAPTUREPOLARITY(&amp;htim5,TIM_CHANNEL_1,TIM_ICPOLARITY_RISING);    <span class="comment">//设置捕获</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="内存保护"><a href="#内存保护" class="headerlink" title="内存保护"></a>内存保护</h3><ul>
+<li>Memory Protection Unit<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">MemManage_Handler</span><span class="params">(<span class="type">void</span>)</span>;   <span class="comment">//内存操作错误中断服务函数</span></span><br><span class="line">NVIC_SystemReset(); <span class="comment">//软复位</span></span><br></pre></td></tr></table></figure>
+<h4 id="保护模式"><a href="#保护模式" class="headerlink" title="保护模式"></a>保护模式</h4></li>
+<li>背景区域：开启MPU后，特权程序可以访问无region地址，用户程序被卡</li>
+<li>错误静止MPU：若有NMI和硬件fault中断，则关闭MPU<ul>
+<li>NMI：不可屏蔽中断</li>
+<li>硬件fault：硬件错误</li>
+</ul>
+</li>
+</ul>
+<h4 id="Rigion"><a href="#Rigion" class="headerlink" title="Rigion"></a>Rigion</h4><ul>
+<li>最小容量：32字节</li>
+<li>缓存：预先读取</li>
+<li>缓冲：写入一定数量后一次性写（提高性能）</li>
+<li>子Rigion属性和主一样</li>
+<li>Rigion必须8等分为子Rigion</li>
+</ul>
+<h3 id="DMA"><a href="#DMA" class="headerlink" title="DMA"></a>DMA</h3><p><strong>注意</strong>：非MDMA使用时，注意总线域访问问题</p>
+<h4 id="用于图像的DMA2D"><a href="#用于图像的DMA2D" class="headerlink" title="用于图像的DMA2D"></a>用于图像的DMA2D</h4><ul>
+<li>用特定颜色填充图像的一部分</li>
+<li>源图像一部分复制到目标图像的一部分</li>
+<li>通过像素格式转换将源图像的一部分复制到目标的一部分</li>
+<li>将像素格式不同的两个源部分&#x2F;全部混合</li>
+</ul>
+<h4 id="MDMA"><a href="#MDMA" class="headerlink" title="MDMA"></a>MDMA</h4><ul>
+<li>AXI总线和AHBS总线</li>
+</ul>
+<h4 id="双口DMA"><a href="#双口DMA" class="headerlink" title="双口DMA"></a>双口DMA</h4><ul>
+<li>8个数据流&#x2F;DMA，115通道&#x2F;数据流</li>
+<li>四级32位FIFO&#x2F;数据流</li>
+<li>4个请求优先级</li>
+<li>数据数目可以软件控制，也可以外设硬件结束</li>
+<li>数据宽度不等时，自动优化带宽（仅仅FIFO）</li>
+<li>可突发传输（4、8、16节拍）</li>
+<li>5个事件：半传输、传输完成、传输错误、FIFO错误、直接传输错误</li>
+</ul>
+<h4 id="BDMA"><a href="#BDMA" class="headerlink" title="BDMA"></a>BDMA</h4><h3 id="RTC"><a href="#RTC" class="headerlink" title="RTC"></a>RTC</h3><ul>
+<li>闹钟A、B和中断、唤醒</li>
+<li>读写掉电备份寄存器  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">uint32_t HAL_RTCEx_BKUPRead(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister);</span><br><span class="line">HAL_RTCEx_BKUPWrite(RTC_HandleTypeDef *hrtc, uint32_t BackupRegister, uint32_t Data)；</span><br></pre></td></tr></table></figure></li>
+<li>读写RTC时间  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef HAL_RTC_SetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format);   //设置时间</span><br><span class="line">HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format)；  //读取时间</span><br><span class="line">HAL_StatusTypeDef HAL_RTC_SetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format)；  //设置日期</span><br><span class="line">HAL_StatusTypeDef HAL_RTC_GetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format)；  //读取日期</span><br></pre></td></tr></table></figure></li>
+<li><em><strong>注意BUG</strong></em>：读取时间后必须读取日期</li>
+</ul>
+<h3 id="RNG"><a href="#RNG" class="headerlink" title="RNG"></a>RNG</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef HAL_RNG_GenerateRandomNumber(RNG_HandleTypeDef *hrng, uint32_t *random32bit);  //获取随机数</span><br></pre></td></tr></table></figure>
+
+<h3 id="ADC"><a href="#ADC" class="headerlink" title="ADC"></a>ADC</h3><ul>
+<li>注意：时钟不能超过36M</li>
+<li>注入通道：中断一样的转换请求，可以打断规则通道</li>
+<li>芯片温度通道在ADC3</li>
+<li>非触发模式下，软件直接开始转换  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef HAL_ADC_Start(ADC_HandleTypeDef *hadc);</span><br></pre></td></tr></table></figure></li>
+<li>校准ADC  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef *hadc, uint32_t CalibrationMode, uint32_t SingleDiff);</span><br></pre></td></tr></table></figure></li>
+<li>获取目前规则通道转换值  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uint32_t HAL_ADC_GetValue(ADC_HandleTypeDef *hadc);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="DAC"><a href="#DAC" class="headerlink" title="DAC"></a>DAC</h3><ul>
+<li>供电：VDDA、VSSA</li>
+<li>参考电压：Vref+</li>
+<li>硬件触发：3个APB时钟后传输数据；否则一个APB时钟</li>
+<li>DA建立时间最大2us</li>
+<li>输出  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel);</span><br><span class="line">HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="IIC"><a href="#IIC" class="headerlink" title="IIC"></a>IIC</h3><ul>
+<li>SCL为高时，SDA不变；若SDA拉高，为结束信号，若SDA拉低为起始信号</li>
+<li>接受器件拉低SDA为应答</li>
+<li>7位地址+1位操作（W&#x2F;R）<br><strong>注意</strong>：使用CubeMX生产的代码，IIC初始化函数中要修正时钟初始化步骤<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout);   //写内容到I2C存储器</span><br><span class="line">HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)；  //从I2C存储器读内容</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Quad-SPI"><a href="#Quad-SPI" class="headerlink" title="Quad SPI"></a>Quad SPI</h3><ul>
+<li>工作模式<ul>
+<li>间接模式：使用QSPI寄存器完成所有操作</li>
+<li>状态轮询：周期性读取外部FLASH状态位，若置1时会产生中断</li>
+<li>内存映射模式：当作系统内部定时器使用</li>
+</ul>
+</li>
+<li>双闪存模式：并行两个FLASH</li>
+<li>可SDR和DDR</li>
+<li>DMA可用于间接模式</li>
+<li>内部有直接拉到AXI总线的接口</li>
+<li>传输阶段  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">指令--&gt;地址</span><br><span class="line">地址--&gt;交替字节</span><br><span class="line">交替字节--&gt;空指令周期</span><br><span class="line">空指令周期--&gt;数据</span><br></pre></td></tr></table></figure></li>
+<li>时钟模式<ul>
+<li>模式0：CS高电平（空闲）时CLK保持低电平</li>
+<li>模式3：CS高电平（空闲）时CLK保持高电平</li>
+</ul>
+</li>
+<li><em>NOTE</em> : <strong>QSPI</strong> 和 <strong>Quad SPI</strong>是不同的<ul>
+<li>QSPI指令采用4线传输</li>
+<li>Quad SPI指令采用单线传输</li>
+</ul>
+</li>
+<li><strong>BUG</strong>：CubeMX默认生成的初始化代码，GPIO时钟是Low！会导致传输卡住</li>
+</ul>
+<h3 id="FDCAN"><a href="#FDCAN" class="headerlink" title="FDCAN"></a>FDCAN</h3><ul>
+<li>由ID显性确定抢占优先级</li>
+<li>ID和ACK的速率是和普通CAN一样的，最高1M；但是，数据段可以甚至超过5M</li>
+<li>一帧最高64字节</li>
+<li>总线起止要有120R终端电阻</li>
+<li>帧结构  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">帧起始--&gt;仲裁段</span><br><span class="line">仲裁段--&gt;控制段</span><br><span class="line">控制段--&gt;数据段</span><br><span class="line">数据段--&gt;CRC</span><br><span class="line">CRC--&gt;ACK</span><br><span class="line">ACK--&gt;帧结束</span><br></pre></td></tr></table></figure></li>
+<li>位段<ul>
+<li>同步</li>
+<li>传播时间</li>
+<li>相位缓冲1</li>
+<li>相位缓冲2</li>
+</ul>
+</li>
+<li>消息RAM是FDCAN1和FDCAN2共享的</li>
+<li>工作在普通CAN模式时，要关闭自动重传机制</li>
+</ul>
+<h3 id="SPI"><a href="#SPI" class="headerlink" title="SPI"></a>SPI</h3><ul>
+<li>基本信号线<ul>
+<li>MISO&#x2F;SDI：主设备数据输入and从设备数据输出</li>
+<li>MOSI&#x2F;SDO：主设备数据输出and从设备数据输入</li>
+<li>SCK&#x2F;CK：主设备产生的时钟</li>
+<li>SS&#x2F;WS&#x2F;CS：主设备控制的从设备片选信号</li>
+</ul>
+</li>
+<li>SPI模式<ul>
+<li>模式0<ul>
+<li>CPOL:0（时钟空闲电平低）</li>
+<li>CPHA:0（在第一个时钟沿采集信号）</li>
+</ul>
+</li>
+<li>模式1<ul>
+<li>CPOL:0</li>
+<li>CPHA:1（在第二个时钟沿采集信号）</li>
+</ul>
+</li>
+<li>模式2<ul>
+<li>CPOL:1（时钟空闲电平高）</li>
+<li>CPHA:0</li>
+</ul>
+</li>
+<li>模式3<ul>
+<li>CPOL:1</li>
+<li>CPHA:1</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>H7性能<ul>
+<li>最高时钟133M</li>
+<li>可配成全双工I2S</li>
+</ul>
+</li>
+</ul>
+<h3 id="SDMMC"><a href="#SDMMC" class="headerlink" title="SDMMC"></a>SDMMC</h3><ul>
+<li>MicroSD卡引脚定义<table>
+<thead>
+<tr>
+<th>PIN</th>
+<th align="center">SD</th>
+<th align="center">SPI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td align="center">DATA2</td>
+<td align="center">X</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="center">DATA3&#x2F;CD</td>
+<td align="center">CS</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="center">CMD</td>
+<td align="center">DI</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="center">VDD</td>
+<td align="center">VDD</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="center">CLK</td>
+<td align="center">SCLK</td>
+</tr>
+<tr>
+<td>6</td>
+<td align="center">VSS</td>
+<td align="center">VSS</td>
+</tr>
+<tr>
+<td>7</td>
+<td align="center">DATA0</td>
+<td align="center">DO</td>
+</tr>
+<tr>
+<td>8</td>
+<td align="center">DATA1</td>
+<td align="center">X</td>
+</tr>
+</tbody></table>
+</li>
+<li>FIFO读写，必须是对4字节对齐的内存进行操作</li>
+</ul>
+<h3 id="FPU"><a href="#FPU" class="headerlink" title="FPU"></a>FPU</h3><p><strong>NOTE</strong>：该部分笔记全部为H7平台</p>
+<ul>
+<li>开启方式  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> __FPU_PRESENT 1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> __FPU_USED 1</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="DSP"><a href="#DSP" class="headerlink" title="DSP"></a>DSP</h3><p><strong>NOTE</strong>：该部分笔记全部为H7平台</p>
+<ul>
+<li>支持指令集<ul>
+<li>单周期乘加(MAC)</li>
+<li>单指令多数据指令(SIMD)</li>
+</ul>
+</li>
+<li>开启方法（添加全局宏）  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ARM_MATH_CM7</span><br><span class="line">__CC_ARM</span><br><span class="line">ARM_MATH_MATRIX_CHECK</span><br><span class="line">ARM_MATH_ROUNDING</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="USB"><a href="#USB" class="headerlink" title="USB"></a>USB</h3><ul>
+<li>内核时钟必须是48MHz</li>
+</ul>
+<h4 id="硬件层"><a href="#硬件层" class="headerlink" title="硬件层"></a>硬件层</h4><ul>
+<li>D+和D-差分传输</li>
+<li>主机双线过15K下拉到地</li>
+<li>设备机<ul>
+<li>高速设备：D+过1K5上拉</li>
+<li>低速设备：D-过1K5上拉</li>
+</ul>
+</li>
+<li>高速USB要外扩高速物理接口芯片，480Mbps</li>
+<li>全速，12Mbps</li>
+<li>低速，1.5Mbps</li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/05/23/STM32H7/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IOT/" rel="tag">IOT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32/" rel="tag">STM32</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag">嵌入式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/05/23/Power-MOSFET/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            PowerMOSFET
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/05/20/firstBlog/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">firstBlog</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

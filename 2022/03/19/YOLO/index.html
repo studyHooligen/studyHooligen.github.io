@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>YOLO |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-YOLO"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  YOLO
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/03/19/YOLO/" class="article-date">
+  <time datetime="2022-03-19T03:16:54.000Z" itemprop="datePublished">2022-03-19</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本来笔者已决定退CV坑了，但最近要研究生复试了，还是回顾下去年研究的YOLO顺便简单记录一下备查。</p>
+</blockquote>
+<h2 id="YOLO长话短说"><a href="#YOLO长话短说" class="headerlink" title="YOLO长话短说"></a>YOLO长话短说</h2><p>个人感觉有深度学习基础的情况下，去学习一个YOLO的网络还是相对容易的，但笔者认为YOLO的精髓不在于网络结构而在于其One-Stage的各种思想。下图是<code>YOLO3</code>的网络结构，里面的小积木打开来看无非是卷积层（Conv）、正则化（BN：Batch Normalization）、激活层（Leaky Relu）以及由这3个家伙一起（DBL）构成的残差块（Res Unit）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-1.png" alt="YOLO3"></p>
+<p>笔者在这里直接讨论YOLO3，略过了YOLO1、2和忽视更新的4、5的原因是：这是YOLO系列发展过程中的一个重要节点！</p>
+<blockquote>
+<p>从理解算法设计思想的角度来看，学3就够了</p>
+</blockquote>
+<ul>
+<li>YOLO1发布时，最大的贡献是做了<strong>Bounding Box</strong>的思想（下面聊），至于网络结构就是最最最简单的全卷积网络，输出一个尺度的特征图；</li>
+<li>YOLO2个人认为没啥大突破，就是调卷积结构和训练技巧（当然不可否认这些工作是很重要且必要的）</li>
+<li>YOLO3则是划时代的发布，正如我们观察上面框图所见，YOLO3的输出有3个不同尺寸的特征图（$y_1,y_2,y_3$），每个特征图中又有针对尺寸分布设计的<strong>Anchor</strong>,直接解决了物体的<strong>多尺度</strong>问题（远近、大小）；其次，用了预训练的<strong>Darknet-53</strong>做骨干网，并且从尾巴往前分别抽3个特征图，用于相应尺度的进一步识别；还有一个重要的思想——<strong>信息共享</strong>，也就是大尺寸识别网络的中间结果会传递给小一级尺寸的网络；</li>
+<li>YOLO4和5就没有太多突破性的思想了，和2差不多都是网络优化和训练技巧</li>
+</ul>
+<p>好，如果读者是初学者的话，想必看不懂上面这些天书在讲什么（上面这段准备面试啥的应该够了），笔者将在下文中详细记录自己学习过程中的对各个重要拗口概念的理解。</p>
+<span id="more"></span>
+
+<h2 id="YOLO深入浅出"><a href="#YOLO深入浅出" class="headerlink" title="YOLO深入浅出"></a>YOLO深入浅出</h2><h3 id="Anchor-amp-Bounding-Box"><a href="#Anchor-amp-Bounding-Box" class="headerlink" title="Anchor &amp; Bounding Box"></a>Anchor &amp; Bounding Box</h3><p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-2.png" alt="MultiBox"></p>
+<p>首先介绍<code>Bounding Box</code>这个概念，如上图所示这是网络最后输出特征图的形式（后续简写为<code>BBox</code>）。每个BBox依次含有的信息为：预测对象中心坐标$t_x$、$t_y$，预测对象长宽$t_w$、$t_h$，置信度$p_o$（是个东西），对象类别概率$p_i$（哪类对应数值大就是啥）。</p>
+<p>听起来这样的一个输出结果挺合理的哈，那么每个数据对应到图片中的规则是什么呢？YOLO有一个很重要的思想，就是把原图像分割为很多个小格子（格子大或小就是后面聊的多特征图），比如上图中的小狗图片在输出张量（结果）被分为了$13\times13$格子，而<strong>每个小格子只负责识别中心点在小格子内的对象</strong>。（提前答疑：训练时由损失函数控制，推理时由NMS算法实现）</p>
+<p>好的，那么打开一个对应目标的BBox，让我们来看看具体的映射关系$t_x,t_y,t_w,t_h\Rightarrow b_x,b_y,b_w,b_h$。下图截取自原论文，其中偏移量$c_x,c_y$是归一化的特征图格子号（比如这边是$c_x&#x3D;1,c_y&#x3D;1$），$\sigma$是非线性激活函数（同时起到限幅作用），这两项加起来就是目标框的中心坐标$b_x,b_y$；至于目标框的长宽尺寸，由网络输出的预测量做指数运算后（获得缩放比例），与Anchor框（可理解为参考标准尺寸）相乘得到目标框$b_w,b_h$。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-3.png" alt="DeBox"></p>
+<p>Well，这里我们又讲到了一个新词“<code>Anchor</code>”。<br>请注意一个事：上面把小狗图片切成了$13\times13$的识别小格子，但是每个小格子里有<strong>3个BBox</strong>，为什么有3个呢？考虑到一条狗的生活可是多彩多样的呀！可以蜷缩成一团（BBox长宽比<code>1:1</code>），也可以跳起来（BBox长宽比<code>1:H</code>），也可以躺平平（BBox长宽比<code>W:1</code>）。如果只有一个BBox，那么在长宽比分布比较离谱的时候最后得到的精度就比较差了（实际部署效果如此，才有这么个需求），所以如下图所示的蓝色框框，在一个特征图中我们设置3个参考尺寸框（分别由3个BBox负责相应类型尺寸目标的识别），这就是Anchor啦。</p>
+<blockquote>
+<p>Anchor的大小选取，除了凭感觉设几个，建议使用<code>K-Means</code>等算法从训练数据集中实际目标框的尺寸分布中选取</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-5.jpg" alt="multiMap"></p>
+<h3 id="非极大值抑制"><a href="#非极大值抑制" class="headerlink" title="非极大值抑制"></a>非极大值抑制</h3><p>非极大值抑制，简称：NMS（Non-Maximum Suppression）。这个算法在YOLO的部署时，是必不可少的，虽然YOLO规定了每个目标只由中心在格子内的小格子负责检测，但是神经网络只是个神经网络，检测的时候实际中心格子边上的格子也会加入到检测工作中去，就像下图中最上面的许多凌乱框（已经用置信度卡掉了一些无效框）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-4.png" alt="YOLO3"></p>
+<p>因此加入NMS算法，在可能属于同一类物品的一坨框中，求最有代表性的一个BBox。具体来说，可理解为局部最大搜索：</p>
+<ol>
+<li>选取属于<strong>同类</strong>的BBox中置信度最大的哪一个，记为$\text{BBox}_{best}$，并保留它</li>
+<li>计算$\text{BBox}_{best}$与其余的BBox的IOU</li>
+<li>如果其IOU&gt;0.5（或者你觉得不错的阈值）了，那么就舍弃这个BBox（因为可能这两BBox属于同目标，所以保留分数最高的那一个）</li>
+<li>一直重复2、3直到没有BBox再被踢出</li>
+<li>从剩余的BBox中，再找出最大置信度的一个$\text{BBox}_{best}$</li>
+<li>回到第2步，如此循环往复直到全部做完</li>
+</ol>
+<blockquote>
+<p>IOU就是两个框框的交集面积与并集面积之比，说白了就是两个框叠在一起有多严重，还不懂建议百度。</p>
+</blockquote>
+<p>要是看这个流程有点晕，就找一张有几只猫和几只小狗的图片，跟我一起观察：首先把小狗的BBox框都提出来放一起，然后找到置信度最大的一个框，记为一只狗狗（1）；接着找出在这个狗狗身上的其他框框（2），并删掉这些框（3→4）；再找一个置信度最大的框，这是另一只狗狗（5），接着删掉这只狗狗身上的其他框（6→2→3→4）。</p>
+<h3 id="多特征图"><a href="#多特征图" class="headerlink" title="多特征图"></a>多特征图</h3><p>上面说的Anchor是为了提高在一个特征图中，物体的尺寸比例带来的问题，还有一个尺度问题就是缩放，比如小狗跑远跑近在图像上来看就是缩小和放大。因此如下图所示，在YOLO3中输出了3个尺寸精度的特征图（$13 \times 13$、$26 \times 26$、$52 \times 52$），分别对应从大到小的识别对象。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-5.jpg" alt="multiMap"></p>
+<h3 id="信息共享"><a href="#信息共享" class="headerlink" title="信息共享"></a>信息共享</h3><p>YOLO3开始就有了粗特征上采样（Upsample）后给细特征网络识别的思想，如下图是截取对应的网络结构。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-6.png" alt="concat"></p>
+<p>这里观察到有一个concat的数据合并器，不是做加法！是把两个特征图按深度拼接，相当于特征变多而张量图长宽不变。</p>
+<h2 id="损失函数与训练方法"><a href="#损失函数与训练方法" class="headerlink" title="损失函数与训练方法"></a>损失函数与训练方法</h2><ol>
+<li>首先，对数据做预处理。比如尺寸分布分析求Anchor、目标标记框（ground truce）转训练框（BBox）、数据增强等等</li>
+<li>定义损失函数</li>
+<li>跑训练集</li>
+</ol>
+<p>YOLO3中的损失函数定义为：</p>
+<p>$$<br>\begin{matrix}<br>    Loss &#x3D; &amp; -\lambda_{coord} \sum_{i&#x3D;0}^{S^2} \sum_{j&#x3D;0}^{B} I_{ij}^{obj} [ &amp; CE(x,\hat{x})<br>    \\<br>    &amp;&amp;+ CE(y,\hat{y})<br>    \\<br>    &amp;&amp;+ MSE(w,\hat{w})<br>    \\<br>    &amp;&amp;+ MSE(h,\hat{h})<br>    \\<br>    &amp;&amp;+ CE(p_0,\hat{p}_0)<br>    \\<br>    &amp;&amp;+ \sum _{c \in Class} CE(p_i,\hat{p}_i)<br>    &amp;]\\<br>    &amp; -\lambda _ {noobj} \sum _{i&#x3D;0}^{S^2} \sum _{j&#x3D;0}^{B}  I _{ij}^{noobj} &amp; CE(p_i,\hat{p} _i)<br>\end{matrix}<br>$$</p>
+<p>式中，两个求总和分别是特征图$\sum_{i&#x3D;0}^{S^2}$和其中每个格子中的各个盒子$\sum_{j&#x3D;0}^{B}$；在训练过程中，只有真实目标在的BBox盒子（$I_{ij}^{obj}$）才贡献识别框Loss，中心坐标以交叉熵的形式（$CE(x,\hat{x})+CE(y,\hat{y})$），长宽以MSE形式贡献，置信度和类别概率都以交叉熵形式贡献。除此之外，非目标的盒子（$I _{ij}^{noobj}$），只有置信度参与贡献Loss，这样的好处是可以防止盒子中其他参数被错误训练。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1804.02767.pdf">YOLO3原论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1506.02640.pdf">YOLO1原论文</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2022/03/19/YOLO/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Anchor-Bounding-Box/" rel="tag">Anchor &amp; Bounding Box</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NMS/" rel="tag">NMS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/YOLO/" rel="tag">YOLO</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2022/03/10/AXI4BusType/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">AXI4总线</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>天线 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-antenna"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  天线
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/08/07/antenna/" class="article-date">
+  <time datetime="2021-08-07T09:29:20.000Z" itemprop="datePublished">2021-08-07</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">9 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：继上一篇<a href="/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/">传输线阻抗匹配</a>文章后，笔者又接了一个智能医疗项目（内容保密），用到一款集成蓝牙射频功能的MCU，需要做的就是设计一个PCB板载微带天线。由于需要自学通信天线设计，所以就顺手将学习内容记录下来以供有兴趣速成的朋友学习和后续查阅</p>
+</blockquote>
+<h2 id="天线的那些事"><a href="#天线的那些事" class="headerlink" title="天线的那些事"></a>天线的那些事</h2><blockquote>
+<p>要自学本文，需要先完全掌握（上一篇文章中的）微波传输线相关知识和基础的大学物理电磁学</p>
+</blockquote>
+<p>天线理论的基础是对称振子（有磁基本振子和电基本振子两种），下图是天线的原理简图。可以大概观察到，天线的大小是和信号波长相当的</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-1.png" alt="原理简图"></p>
+<p>目前人类正在使用的无线电波频率，下至Hz，上至百GHz不等。</p>
+<span id="more"></span>
+
+<ul>
+<li>频率越低，传播损耗越小，覆盖距离越远，绕射能力也越强。但是低频段的频率资源紧张，系统容量有限，因此低频段的无线电波主要应用于广播、电视、寻呼等系统。注意：超长波（Hz数量级）一般是军事上用的，比如核潜艇</li>
+<li>频率越高，传播损耗越大，覆盖距离越近，绕射能力越弱，但是<strong>天线越小越容易集成</strong>。另外，频率越高，技术难度也越大，系统的成本相应提高。我们一般用的蓝牙、WiFi的频率是2.4GHz，通信范围就是几个房间</li>
+</ul>
+<blockquote>
+<p>Tips：这些频率不是你想用就用的，<strong>无线电频谱资源也属于国家资源的一种</strong>，合法使用是要交钱的！只有2.4GHz比较特别，这是专门一个小频带在通信领域中叫做ISM（Industry Science Medicine）全世界公开通用使用的无线频段，是免费无需申请就可以使用的，这也是为什么蓝牙和普通版Wifi是这个频率，而5GHz的Wifi普遍贵很多的原因。（附：<a target="_blank" rel="noopener" href="http://www.srrc.org.cn/kindeditor/attached/file/20190704/20190704100047_2979.pdf">中国频率划分政府文件</a>)</p>
+<blockquote>
+<p>经常在新闻上看到5G网络成本高、基站密度相比4G更大也是和频谱有关，移动数据网络4G的频率和频段是：1880-1900MHz、2320-2370MHz、2575-2635MHz；5G的频率和频段频段：3300-3400MHz（原则上限室内使用）、3400-3600MHz和4800-5000MHz。</p>
+</blockquote>
+</blockquote>
+<p>接下来进入硬核的天线分析环节，且本文中讨论的内容将主要围绕消费电子领域的天线设计</p>
+<h2 id="天线分类"><a href="#天线分类" class="headerlink" title="天线分类"></a>天线分类</h2><p>根据天线结构分：</p>
+<ul>
+<li>线天线：半径远小于信号波长的金属导线，长度远大于半径；用于长、中、短波通信</li>
+<li>面天线：整块金属板或者导线栅格组成的面型天线阵列，面积远大于波长的平方；用于微波</li>
+</ul>
+<p>也可以根据天线波长分：</p>
+<ul>
+<li>微波天线</li>
+<li>超短波天线</li>
+<li>短波天线</li>
+<li>中波天线</li>
+<li>长波天线</li>
+<li>超长波天线</li>
+</ul>
+<p>还有一种和我们最息息相关的，方向性：</p>
+<ul>
+<li>全向天线：我们常常希望WiFi天线是全向的，否则走两步信号就变差了</li>
+<li>定向天线：雷达的重要部分</li>
+</ul>
+<h2 id="重要参数指标"><a href="#重要参数指标" class="headerlink" title="重要参数指标"></a>重要参数指标</h2><h3 id="方向图"><a href="#方向图" class="headerlink" title="方向图"></a>方向图</h3><p>天线的方向图表征天线的方向特征，有：振幅、功率、相位等方向图。这个玩意一般是三维的，像下面这样：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-5.png" alt="三维方向图"></p>
+<p>但为了方便分析，我们选用通过天线最大辐射方向上的两个互相垂直的刨面图（主平面）来描述，如下：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-2.jpeg" alt="二维方向剖图"></p>
+<p>辐射区域最大强度最强的称为主瓣（主波束），其他是旁瓣。正如图中标注的，一个天线在方向特性上可引出参数：</p>
+<ul>
+<li>波瓣宽度和主瓣宽度<br>  主瓣的波瓣宽度就是主瓣宽度，如果把主瓣场强最大的位置强度归一化为1，那么场强为0.707（即半功率点）的两个点之间的宽度，称为主瓣宽度</li>
+<li>天线副瓣电平<br>  天线最大辐射强度与天线最大副瓣辐射强度之比</li>
+<li>方向系数<blockquote>
+<p>表征天线辐射能量集中程度的参数</p>
+</blockquote>
+<p>  在某一距离处，天线某方向（一般是最大辐射方向）上的辐射功率流密度与<strong>相同辐射功率</strong>的理想无向天线的功率流密度比：<br>  $$<br>  D &#x3D; \frac{S(\theta,\phi)}{S_0} &#x3D; \frac{|E(\theta,\phi)|^2}{|E_0|^2}<br>  $$<br>  可以分析，无向天线发出的是均匀球面波，所以有：<br>  $$<br>  D &#x3D; \frac{S(\theta,\phi)}{P&#x2F;(4\pi r^2)} &#x3D; \frac{4\pi}{\int^{2\pi}_0\int^{\pi}_0 |F(\theta,\phi)|^2 \sin\theta d\theta d\phi}<br>  $$<br>  其中F为归一化的天线电场方向函数。在工程上，一般用分贝表示：<br>  $$<br>  D(dBi) &#x3D; 10\lg D<br>  $$</p>
+</li>
+</ul>
+<h3 id="能量和效益"><a href="#能量和效益" class="headerlink" title="能量和效益"></a>能量和效益</h3><ul>
+<li><p>天线辐射效率<br>  天线辐射功率与天线输入功率之比<br>  $$<br>  \eta_{rad} &#x3D; \frac{P_{rad}}{P_{in}} &#x3D; \frac{P_{rad}}{P_{rad}+P_{L}}<br>  $$<br>  因为天线辐射出去的能量，是向空间中不断传播的，永远不会回到发射天线上，所以也可以使用天线（等效）的辐射电阻和损耗电阻进行度量<br>  $$<br>  \eta_{rad} &#x3D; \frac{R_{rad}}{R_{rad}+R_{L}}<br>  $$</p>
+</li>
+<li><p>天线增益<br>  上面的天线方向增益体现了天线方向图的特性，不能很好的考虑到天线效率的影响。所以有天线增益定义，天线在<strong>空间某点</strong>（一般选主瓣中心方向）产生的功率（电场强平方）与理想无方向点源天线在同点产生功率比：<br>  $$<br>  G(\theta,\phi) &#x3D; \frac{|E(\theta,\phi)|^2}{|E_0|^2}<br>  $$<br>  显然有：<br>  $$<br>  G &#x3D; D\cdot \eta_{rad}<br>  $$<br>  也就是如果没有天线损耗，天线增益和方向系数是一样的</p>
+</li>
+<li><p>接收和发射功率</p>
+<p>  在工程上，天线发送和接收电磁波的功率，常常采用dB法：</p>
+<p>  $$<br>  P(dBm) &#x3D; 10\lg(\frac{P}{1mW})<br>  $$</p>
+<blockquote>
+<p>接收灵敏度：虽然这个指标并不只是由天线决定的，而是整个接收机，但还是要提一下，因为在工程和日常使用时常常见到。接收灵敏度是指无线电可靠接收数据的最低功率，接收器灵敏度高通俗点讲就是很微弱的信号也能被检测到。</p>
+<blockquote>
+<p>一般来说，这个指标是负值，比如<code>802.15.4</code>标准规定<code>2.4GHz</code>射频的最低接收器灵敏度为<code>-85 dBm</code>（相当于<code>3pW</code>），<code>900 MHz</code>为<code>-92 dBm</code>。这个值越负，代表接收机正常通信能接收的信号越微弱，射频间隔距离越大，所需射频功率也更少</p>
+</blockquote>
+</blockquote>
+</li>
+</ul>
+<h3 id="天线的连接"><a href="#天线的连接" class="headerlink" title="天线的连接"></a>天线的连接</h3><blockquote>
+<p>注意：在PCB上走线时，天线和射频芯片之间的传输线要做好阻抗匹配设计，并且在端接点处小心阻抗变化带来的影响</p>
+</blockquote>
+<ul>
+<li><p>输入阻抗：天线输入端看进去的阻抗值<br>  那么就存在天线的馈线（也就是连接到信号源的传输线）和天线间的匹配问题，有反射系数：</p>
+<p>  $$<br>  \Gamma &#x3D; \frac{Z_{in}-Z_0}{Z_{in}+Z_0}<br>  $$<br>  电压驻波比：<br>  $$<br>  VSWR &#x3D; \frac{1+|\Gamma|}{1-|\Gamma|}<br>  $$</p>
+<blockquote>
+<p>线天线，天线输入端的电压与电流的比值称为天线的输入阻抗；面天线，则常用馈线上电压驻波比来表示天线的阻抗特性</p>
+</blockquote>
+</li>
+<li><p>天线带宽：天线参数不超出规定范围的频率范围，比如增益-3dB带宽等</p>
+</li>
+<li><p>回波损耗：指的是射频输入信号反射回来的功率与输入信号功率的比值。一般采用dB法：</p>
+<p>  $$<br>  \text{RL} &#x3D; 10\lg\frac{P_{反射}}{P_{入射}} &#x3D; 20\lg\Gamma<br>  $$</p>
+<p>  因为反射功率总是小于（或等于）入射功率，所以回波损耗算出来都是负值。并且根据上式，在实际工程中可以直接用矢网仪测反射系数（<code>S11</code>)并求对数坐标就得到回损了。</p>
+<blockquote>
+<p>在理想情况下，天线与射频电路的阻抗完全匹配，完全没有反射功率，这时的回波损耗为无限小。但是在工程上阻抗不可能完全匹配，因此反射功率是一定存在的。最差的情况是输入功率完全被反射，此时回波损耗为0。因此对回波损耗这个技术参数，数值越低表示天线性能越好。</p>
+</blockquote>
+<p>  下图是笔者截取自Cypress公司《天线设计与射频布局指南》中推荐的MIFA天线设计方案的回波损耗曲线，在图中有一个最低损耗点就是这个天线工作的中心频率，我们要设计天线的目标也就是这个点的位置和大小；同时还可以在最低点两端选取相应的回损截止点作为带宽评价指标。</p>
+<p>  <img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-7.png" alt="回波损耗"></p>
+</li>
+</ul>
+<h3 id="极化方式"><a href="#极化方式" class="headerlink" title="极化方式"></a>极化方式</h3><p>天线的极化就是指天线辐射时形成的电场强度方向。当电场强度方向垂直于地面时，此电波就称为垂直极化波;当电场强度方向平行于地面时，此电波就称为水平极化波。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-3.jpeg" alt="极化方向"></p>
+<p>双极化天线是由极化彼此正交的两根天线封装在同一天线罩中组成的。由于性能原因，两根天线采用±45度的极化方式。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-4.jpeg" alt="双极化方式"></p>
+<blockquote>
+<p>要注意，天线极化就类似光的偏振，如果两个天线极化不匹配，接收效果将会大打折扣甚至收不到信号</p>
+</blockquote>
+<h2 id="非理想天线的影响"><a href="#非理想天线的影响" class="headerlink" title="非理想天线的影响"></a>非理想天线的影响</h2><p><img src="http://imgjry.fangyikuan.xyz/20210807/20210807-ANT-6.jpg" alt="天线方向"></p>
+<p>这就是一个经典的非全向性天线带来的盲区问题，所以这就是为什么我们常常看到蜂窝网络一般是有好几个天线绕一圈组成一个电信塔。</p>
+<p>但是方向性在通信上也有一定的好处，比如使用一个功率为10W的理想无向天线可以与某点进行通信，而使用功率为1W的增益为10的天线就可以在最大辐射方向上具有同样效果。</p>
+<h2 id="天线的设计"><a href="#天线的设计" class="headerlink" title="天线的设计"></a>天线的设计</h2><p>天线的设计是一个非常困难的事情，一般很难求出解析解，通常采用的是计算机软件进行设计。</p>
+<blockquote>
+<p>这个数理知识太多了，后面有机会再学习补充吧。暂时先用现成设计好的特定参数天线，试了一下HFSS，从入门到入土😭</p>
+</blockquote>
+<h2 id="板载天线的使用设计"><a href="#板载天线的使用设计" class="headerlink" title="板载天线的使用设计"></a>板载天线的使用设计</h2><blockquote>
+<p>DOING</p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2021/08/07/antenna/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/08/19/photopair-grayDetect/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            光电对管模拟信号检测
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">阻抗匹配和枝节匹配器</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

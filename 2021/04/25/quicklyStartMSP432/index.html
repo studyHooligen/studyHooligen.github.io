@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>一天速成MSP432 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-quicklyStartMSP432"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  一天速成MSP432
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/04/25/quicklyStartMSP432/" class="article-date">
+  <time datetime="2021-04-25T11:20:54.000Z" itemprop="datePublished">2021-04-25</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">3.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">13 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>为了备战2021年的全国大学生电子设计竞赛🚀笔者于昨日开始上手TI的MSP432主控并且于今日速成了基础的开发。为了让亲爱的读者们早日脱离苦海，我将在本文中分享：开发环境安装、MSP432架构分析、时钟设置、串口开发、DMA传输和中断（💎一条龙服务）</p>
+</blockquote>
+<h2 id="认识MSP432"><a href="#认识MSP432" class="headerlink" title="认识MSP432"></a>认识MSP432</h2><blockquote>
+<p>在文末有官方文献链接</p>
+<blockquote>
+<p>声明：本文中所有历程都基于<code>MSP432P401R LaunchPad</code>开发板</p>
+</blockquote>
+</blockquote>
+<p>首先，下图为MSP432R401控制器的总体架构。和STM32对比来看，这个片子架构确实简单，CPU和外设交互只有一对系统总线。外设除了常见的通信口、定时器和存储外，注意到432特色的一些设备：高精度ADC等模拟外设、时钟系统（将在下面专门讨论）和功率控制器。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-1.png" alt="架构"></p>
+<span id="more"></span>
+
+<p>这个片子的资源可以说是非常充足的，参看下图的引脚分布&amp;功能复用图，左侧都是数字类接口，右侧都是模拟类，可见TI在干扰设计上还是不错的呢。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-2.png" alt="引脚分布"></p>
+<h2 id="安装开发环境"><a href="#安装开发环境" class="headerlink" title="安装开发环境"></a>安装开发环境</h2><p>在Windows环境上开发TI的产品，还是推荐使用<code>Code Composer Studio</code>这个官方软件。看界面就知道是基于<code>Eclipse</code>做的定制产品，这个软件对TI的工具和资源支持非常好，笔者个人还是非常喜欢的，界面如下：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-3.png" alt="CCS"></p>
+<p>安装过程也非常的简单，从官网上分别下载：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.ti.com.cn/tool/cn/CCSTUDIO#downloads">CCS安装包</a>：直接下载最新版</li>
+<li><a target="_blank" rel="noopener" href="https://www.ti.com.cn/tool/cn/SIMPLELINK-MSP432-SDK#downloads">SimpleLink MSP432 软件开发套件 (SDK)</a>：根据使用的实际MSP432类型选择性下载E系列或P系列</li>
+</ul>
+<blockquote>
+<p>注意安装在同一个目录下</p>
+</blockquote>
+<p>下载好后直接双击一路next安装，接着打开CCS配置导入刚安装的SDK。至此，环境就都准备好了！打开<code>Resource Explorer</code>就可以看到官方的驱动库和例子了，还能找到已经配置好了的空模板工程。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-4.png" alt="Resource Explorer"></p>
+<h2 id="从点灯开始"><a href="#从点灯开始" class="headerlink" title="从点灯开始"></a>从点灯开始</h2><p>点灯就是嵌入式的Hello Word操作，只要我们让这个芯片正常地跑起来，点灯就是翻转GPIO口子的事情。所以我们首先要配置好芯片的时钟，下图是MSP432的时钟树：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-5.png" alt="时钟"></p>
+<p>时钟源有7种：低速振荡器（LFXT）、高速振荡器（HFXT）、数字控制振荡器（DCO）、超低功耗振荡器（VLO）、低频振荡器（REFO）、高速内部振荡器（MODOSC）和内部系统振荡器（SYSOSC）。然后读一波手册了解到：系统上电&#x2F;复位后，MCLK、HSMCLK和SMCLK都默认为DCO时钟源且不分频，ACLK和BCLK默认为LFXT时钟源。这里要注意到DCO是TI设计很棒的一个时钟源，它的频率是可以随时编程改变的（可高达48M），而其他时钟源基本都是硬件定死的参数。</p>
+<p>基于此，我们已经初步了解了时钟的产生与配置，就可以开始写代码了！🚩</p>
+<blockquote>
+<p>工程中除了下面我们自己写的文件外，还包含了官方的<code>DriverLibrary</code>，以及系统文件<code>startup_msp432p401r_ccs.c</code>和<code>system_msp432p401r.c</code>两个重要文件。完整工程见文末的Git链接</p>
+</blockquote>
+<p>首先是系统初始化。这里我们把DCO的频率设置为48MHz，也就意味着在默认配置下，系统的总时钟（MCLK）和子系统&#x2F;外设时钟（HSMCLK、SMCLK）都是48MHz。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">sysClock_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 停止系统看门狗定时器</span></span><br><span class="line">    MAP_WDT_A_holdTimer();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置DCO中心频率为48MHz</span></span><br><span class="line">    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>main</code>程序中不断延时翻转LED状态即可。</p>
+<blockquote>
+<p>这边包含的<code>ti/devices/msp432p4xx/driverlib/driverlib.h</code>头文件读者可以打开观察，是TI官方驱动库的总头文件</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;ti/devices/msp432p4xx/driverlib/driverlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">uint32_t</span> i;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">uint32_t</span> b =<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 系统时钟初始化</span></span><br><span class="line">    sysClock_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 外设初始化</span></span><br><span class="line">    GPIO_init();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Toggle P1.0 output</span></span><br><span class="line">        GPIO_toggleOutputOnPin(</span><br><span class="line">            GPIO_PORT_P1,</span><br><span class="line">			GPIO_PIN0</span><br><span class="line">			);</span><br><span class="line"></span><br><span class="line">        GPIO_toggleOutputOnPin(</span><br><span class="line">                GPIO_PORT_P2,</span><br><span class="line">                GPIO_PIN1</span><br><span class="line">                );</span><br><span class="line">        <span class="keyword">if</span>(b)</span><br><span class="line">        &#123;</span><br><span class="line">            GPIO_toggleOutputOnPin(</span><br><span class="line">                    GPIO_PORT_P2,</span><br><span class="line">                    GPIO_PIN2</span><br><span class="line">                    );</span><br><span class="line">            b=<span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            b=<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Delay</span></span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">4000000</span>; i&gt;<span class="number">0</span>; i--);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意这里我们编写了一个GPIO初始化函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">GPIO_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// P1.0 为红色指示灯</span></span><br><span class="line">    MAP_GPIO_setAsOutputPin(</span><br><span class="line">            GPIO_PORT_P1,</span><br><span class="line">            GPIO_PIN0);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// P2.0/1/2 为RGB灯</span></span><br><span class="line">    MAP_GPIO_setAsOutputPin(</span><br><span class="line">            GPIO_PORT_P2,</span><br><span class="line">            GPIO_PIN0);</span><br><span class="line">    MAP_GPIO_setAsOutputPin(</span><br><span class="line">            GPIO_PORT_P2,</span><br><span class="line">            GPIO_PIN1);</span><br><span class="line">    MAP_GPIO_setAsOutputPin(</span><br><span class="line">            GPIO_PORT_P2,</span><br><span class="line">            GPIO_PIN2);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以看到开发板上灯不停闪了</p>
+<h2 id="基础通信（UART）"><a href="#基础通信（UART）" class="headerlink" title="基础通信（UART）"></a>基础通信（UART）</h2><h3 id="eUSCI-UART框图解析"><a href="#eUSCI-UART框图解析" class="headerlink" title="eUSCI-UART框图解析"></a>eUSCI-UART框图解析</h3><p>接下来介绍的就是MSP432的基础通信外设了——eUSCI（全称：Enhanced Universal Serial Communication Interface），从引脚分布图上就可以观察到在432上有两个eUSCI实例：</p>
+<ul>
+<li>A实例：可配置为UART、IrDA和SPI</li>
+<li>B实例：可配置为IIC和SPI</li>
+</ul>
+<p>而现在我们只关注UART配置，那么我们使用到的就是A实例，该实例有4个通道，每个通道的UART实现如下框图：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-6.png" alt="UART"></p>
+<p>当我们使用UART通信时，需要依次配置图中的时钟源选择器、波特率控制器和相应的使能位。操作还是相对好理解的，但是配置波特率的几个参数还是挺头疼的，有</p>
+<ul>
+<li>UCBR：时钟预分频寄存器</li>
+<li>UCBRF：调制1阶段寄存器</li>
+<li>UCBRS：调整2阶段寄存器</li>
+<li>UCOS16：过采样控制寄存器（Universal Communication OverSampling），16代表使用16倍过采样率</li>
+</ul>
+<p>直接看名字和框图的话，UCBR还好理解，但是这个UCBRS和UCBRF只能根据官方手册硬算和查表，整体步骤如下：</p>
+<ol>
+<li><p>计算分频因子</p>
+<p> $$<br> N&#x3D;\frac{f_{BRCLK}}{BaudRate}<br> $$</p>
+</li>
+<li><p>过采样选择</p>
+<p> $$<br> \text{UCOS16}&#x3D;\begin{cases}<br> 1, &amp;N&gt;16, &amp;使能过采样 \\<br> 0, &amp;N&lt;16, &amp;不使能<br> \end{cases}<br> $$</p>
+</li>
+<li><p>配置UCBR分频器参数</p>
+<p> $$<br> \text{UCBR} &#x3D; \begin{cases}<br> \text{INT}(\frac{N}{16}), &amp;N&gt;16 \\<br> \text{INT}(N), &amp;N&lt;16<br> \end{cases}<br> $$</p>
+<blockquote>
+<p>以下的两个参数只有当过采样时有用</p>
+</blockquote>
+</li>
+<li><p>计算UCBRF参数</p>
+<p> $$<br> BRF &#x3D;\text{INT} ([\frac{N}{16} - \text{INT}(\frac{N}{16})]\times 16)<br> $$</p>
+</li>
+<li><p>查表UCBRS参数</p>
+<p> 根据上面计算出的分频因子N，因为一般是有小数部分，所以取出小数部分查下表即可获得UCBRS参数</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-7.png" alt="UCBRS"></p>
+</li>
+</ol>
+<blockquote>
+<p>探讨环节🧐TI官方没有在框图中给出这两个寄存器的实现原理，但是笔者大致将BRF和BRS理解为波特率微调匹配用途。欢迎读者分享个人想法</p>
+</blockquote>
+<h3 id="通信实战"><a href="#通信实战" class="headerlink" title="通信实战"></a>通信实战</h3><p>基于上点灯实验（注意时钟为48MHz），我们选用USCIA3-UART实例以115200波特率进行通信：</p>
+<p>首先计算波特率寄存器相关参数：</p>
+<ul>
+<li><p>分频因子</p>
+<p>  $$<br>  N&#x3D;\frac{48M}{115200}&#x3D;416.667<br>  $$</p>
+</li>
+<li><p>BR</p>
+<p>  $$<br>  BR&#x3D;\frac{416.667}{16} &#x3D;26<br>  $$</p>
+</li>
+<li><p>BRF</p>
+<p>  $$<br>  BRF&#x3D;0<br>  $$</p>
+</li>
+<li><p>BRS</p>
+<p>  $$<br>  BRS&#x3D;\text{0xD6}<br>  $$</p>
+</li>
+</ul>
+<p>则我们可创建一个串口配置对象（eUSCI_UART_ConfigV1类型），然后使用配置对象，对串口实例进行参数初始化：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;BSP.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Uart4OpenMV_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// GPIO初始化为串口外设</span></span><br><span class="line">    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(</span><br><span class="line">            GPIO_PORT_P3,GPIO_PIN2 | GPIO_PIN3,</span><br><span class="line">            GPIO_PRIMARY_MODULE_FUNCTION);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化串口参数</span></span><br><span class="line">    MAP_UART_initModule(EUSCI_A2_BASE, &amp;uartConfig4openMV);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使能串口</span></span><br><span class="line">    MAP_UART_enableModule(EUSCI_A2_BASE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着修改我们的main函数，加入上面编写的初始化函数并调用串口发送数据API：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;BSP.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">uint32_t</span> i;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">uint32_t</span> b =<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 系统时钟初始化</span></span><br><span class="line">    sysClock_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 外设初始化</span></span><br><span class="line">    GPIO_init();</span><br><span class="line">    Uart4OpenMV_init();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Toggle P1.0 output</span></span><br><span class="line">        GPIO_toggleOutputOnPin(</span><br><span class="line">            GPIO_PORT_P1,</span><br><span class="line">			GPIO_PIN0</span><br><span class="line">			);</span><br><span class="line"></span><br><span class="line">        GPIO_toggleOutputOnPin(</span><br><span class="line">                GPIO_PORT_P2,</span><br><span class="line">                GPIO_PIN1</span><br><span class="line">                );</span><br><span class="line">        <span class="keyword">if</span>(b)</span><br><span class="line">        &#123;</span><br><span class="line">            GPIO_toggleOutputOnPin(</span><br><span class="line">                    GPIO_PORT_P2,</span><br><span class="line">                    GPIO_PIN2</span><br><span class="line">                    );</span><br><span class="line">            b=<span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            b=<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Delay</span></span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">4000000</span>; i&gt;<span class="number">0</span>; i--);</span><br><span class="line">        UART_transmitData(EUSCI_A2_BASE,<span class="string">&#x27;c&#x27;</span>);</span><br><span class="line">        UART_transmitData(EUSCI_A2_BASE,<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里附以下<code>BSP.h</code>头文件内容</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> _BSP_H_</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;ti/devices/msp432p4xx/driverlib/driverlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* @brief   初始化时钟类外设</span></span><br><span class="line"><span class="comment">* @note    无</span></span><br><span class="line"><span class="comment">* @author  江榕煜</span></span><br><span class="line"><span class="comment">* @param   None</span></span><br><span class="line"><span class="comment">* @retn    None</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">sysClock_init</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* @brief   初始化GPIO外设</span></span><br><span class="line"><span class="comment">* @note    无</span></span><br><span class="line"><span class="comment">* @author  江榕煜</span></span><br><span class="line"><span class="comment">* @param   None</span></span><br><span class="line"><span class="comment">* @retn    None</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">GPIO_init</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* @brief   初始化UART外设</span></span><br><span class="line"><span class="comment">* @note    服务于OpenMV通信</span></span><br><span class="line"><span class="comment">* @author  江榕煜</span></span><br><span class="line"><span class="comment">* @param   None</span></span><br><span class="line"><span class="comment">* @retn    None</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Uart4OpenMV_init</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>现在找个USB转TTL连接上开发板的P3.2和P3.3就可以收到432不停发送的测试数据了。</p>
+<h2 id="高级硬件资源"><a href="#高级硬件资源" class="headerlink" title="高级硬件资源"></a>高级硬件资源</h2><p>对于MSP432P401这种CPU主频最高48MHz的设备，如果不使用DMA和中断则很难开发出高性能的产品。接下来让笔者依次解析DMA和中断的开发</p>
+<h3 id="DMA解析"><a href="#DMA解析" class="headerlink" title="DMA解析"></a>DMA解析</h3><p>首先，观察下DMA框架图，可以看到这个DMA架构还是很简单的（ARM的μDMA实例IP），左边是数据通道，右边是控制DMA的一些接口。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-8.png" alt="DMA"></p>
+<blockquote>
+<p>相比起来，STM32的DMA就强大多了，具有FIFO等功能，可以进行数据格式转换等操作</p>
+</blockquote>
+<p>只要配置好DMA控制器中各个通道的参数，就可以启动传输了，可以简要概括为：</p>
+<ol>
+<li>DMA实例使能</li>
+<li>DMA通道对象选择</li>
+<li>DMA通道参数设置</li>
+<li>DMA通道内存地址设置</li>
+<li>分配DMA通道中断</li>
+<li>使能DMA中断</li>
+<li>启动DMA传输</li>
+</ol>
+<h3 id="中断简析"><a href="#中断简析" class="headerlink" title="中断简析"></a>中断简析</h3><p>MSP432的嵌套中断向量控制器（NVIC：Nested Vectored Interrupt Controller）具有如下特性：</p>
+<ul>
+<li>共64中断源</li>
+<li>每个中断可编程为8级优先次序。注意，0为最高中断优先级</li>
+<li>外部不可屏蔽中断</li>
+</ul>
+<p>中断的概念相对还是简单的，本文中不加解释。</p>
+<h3 id="串口DMA传输实战"><a href="#串口DMA传输实战" class="headerlink" title="串口DMA传输实战"></a>串口DMA传输实战</h3><p>基于上基础的串口发送例子，我们将串口的初始化文件升级为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;BSP.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">uint8_t</span> recBuffer[<span class="number">1024</span>];</span><br><span class="line"><span class="type">uint8_t</span> getMsg[]=<span class="string">&quot;get data\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* DMA Control Table */</span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> defined(__TI_COMPILER_VERSION__)</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> DATA_ALIGN(controlTable, 1024)</span></span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(__IAR_SYSTEMS_ICC__)</span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> data_alignment=1024</span></span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(__GNUC__)</span></span><br><span class="line">__attribute__ ((aligned (<span class="number">1024</span>)))</span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(__CC_ARM)</span></span><br><span class="line">__align(<span class="number">1024</span>)</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="type">uint8_t</span> controlTable[<span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> eUSCI_UART_ConfigV1 uartConfig4openMV =</span><br><span class="line">&#123;</span><br><span class="line">     EUSCI_A_UART_CLOCKSOURCE_SMCLK,    <span class="comment">// 选择时钟源，注：48MHz</span></span><br><span class="line">     <span class="number">26</span>,    <span class="comment">// 时钟分频器，  UCxBR</span></span><br><span class="line">     <span class="number">0</span>,     <span class="comment">// 模式寄存器1，UCxBRF</span></span><br><span class="line">     <span class="number">0xD6</span>,     <span class="comment">// 模式寄存器2，UCxBRS</span></span><br><span class="line">     EUSCI_A_UART_NO_PARITY,    <span class="comment">// 无校验位</span></span><br><span class="line">     EUSCI_A_UART_LSB_FIRST,    <span class="comment">// 小端序</span></span><br><span class="line">     EUSCI_A_UART_ONE_STOP_BIT, <span class="comment">// 一个停止位</span></span><br><span class="line">     EUSCI_A_UART_MODE,         <span class="comment">// 普通串口模式</span></span><br><span class="line">     EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION, <span class="comment">// 过采样</span></span><br><span class="line">     EUSCI_A_UART_8_BIT_LEN     <span class="comment">// 数据长度</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   初始化UART外设</span></span><br><span class="line"><span class="comment"> * @note    服务于OpenMV通信</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param   None</span></span><br><span class="line"><span class="comment"> * @retn    None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Uart4OpenMV_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// GPIO初始化为串口外设</span></span><br><span class="line">    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(</span><br><span class="line">            GPIO_PORT_P3,GPIO_PIN2 | GPIO_PIN3,</span><br><span class="line">            GPIO_PRIMARY_MODULE_FUNCTION);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化串口参数</span></span><br><span class="line">    MAP_UART_initModule(EUSCI_A2_BASE, &amp;uartConfig4openMV);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使能串口</span></span><br><span class="line">    MAP_UART_enableModule(EUSCI_A2_BASE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 配置串口中断</span></span><br><span class="line"><span class="comment">//    MAP_UART_enableInterrupt(EUSCI_A2_BASE,EUSCI_A_UART_RECEIVE_INTERRUPT);</span></span><br><span class="line"><span class="comment">//    MAP_Interrupt_enableInterrupt(INT_EUSCIA2);</span></span><br><span class="line"><span class="comment">//    // MAP_Interrupt_enableSleepOnIsrExit();    // 退出中断的时候顺手进入低功耗睡眠模式</span></span><br><span class="line"><span class="comment">//    MAP_Interrupt_enableMaster();</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// DMA初始化</span></span><br><span class="line">    <span class="built_in">memset</span>(recBuffer, <span class="number">0x00</span>, <span class="number">1024</span>);</span><br><span class="line">    MAP_DMA_enableModule();</span><br><span class="line">    MAP_DMA_setControlBase(controlTable);</span><br><span class="line"></span><br><span class="line">    MAP_DMA_assignChannel(DMA_CH4_EUSCIA2TX);</span><br><span class="line">    MAP_DMA_assignChannel(DMA_CH5_EUSCIA2RX);</span><br><span class="line"></span><br><span class="line">    MAP_DMA_disableChannelAttribute(DMA_CH4_EUSCIA2TX,  <span class="comment">// 取消通道的原有属性</span></span><br><span class="line">                                     UDMA_ATTR_ALTSELECT |  <span class="comment">// 替代控制结构</span></span><br><span class="line">                                     UDMA_ATTR_USEBURST |   <span class="comment">// 只使用突发模式</span></span><br><span class="line">                                     UDMA_ATTR_HIGH_PRIORITY |  <span class="comment">// 通道优先级为High</span></span><br><span class="line">                                     UDMA_ATTR_REQMASK);    <span class="comment">// 屏蔽来自外设的硬件请求信号</span></span><br><span class="line">    MAP_DMA_disableChannelAttribute(DMA_CH5_EUSCIA2RX,</span><br><span class="line">                                     UDMA_ATTR_ALTSELECT |</span><br><span class="line">                                     UDMA_ATTR_USEBURST |</span><br><span class="line">                                     UDMA_ATTR_HIGH_PRIORITY |</span><br><span class="line">                                     UDMA_ATTR_REQMASK);</span><br><span class="line"></span><br><span class="line">    MAP_DMA_setChannelControl(UDMA_PRI_SELECT | DMA_CH4_EUSCIA2TX,</span><br><span class="line">                              UDMA_SIZE_8 |     <span class="comment">// 单次传输数据单元大小</span></span><br><span class="line">                              UDMA_SRC_INC_8 |  <span class="comment">// 地址增量</span></span><br><span class="line">                              UDMA_DST_INC_NONE |</span><br><span class="line">                              UDMA_ARB_1);      <span class="comment">// 被仲裁到别的通道前最少传1个数据</span></span><br><span class="line">    MAP_DMA_setChannelControl(UDMA_PRI_SELECT | DMA_CH5_EUSCIA2RX,</span><br><span class="line">                              UDMA_SIZE_8 |</span><br><span class="line">                              UDMA_SRC_INC_NONE |</span><br><span class="line">                              UDMA_DST_INC_8 |</span><br><span class="line">                              UDMA_ARB_1);</span><br><span class="line"></span><br><span class="line">    MAP_DMA_setChannelTransfer(UDMA_PRI_SELECT | DMA_CH4_EUSCIA2TX,</span><br><span class="line">                               UDMA_MODE_BASIC,</span><br><span class="line">                               getMsg,</span><br><span class="line">                               (<span class="type">void</span>*) MAP_UART_getTransmitBufferAddressForDMA(EUSCI_A2_BASE),</span><br><span class="line">                               <span class="keyword">sizeof</span>(getMsg));</span><br><span class="line">    MAP_DMA_setChannelTransfer(UDMA_PRI_SELECT | DMA_CH5_EUSCIA2RX,</span><br><span class="line">                               UDMA_MODE_BASIC,</span><br><span class="line">                               (<span class="type">void</span>*)MAP_UART_getReceiveBufferAddressForDMA(EUSCI_A2_BASE),</span><br><span class="line">                               recBuffer,</span><br><span class="line">                               <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    MAP_DMA_assignInterrupt(DMA_INT1, <span class="number">5</span>);   <span class="comment">// 使能中断</span></span><br><span class="line">    MAP_Interrupt_enableInterrupt(INT_DMA_INT1);</span><br><span class="line"></span><br><span class="line"><span class="comment">//    MAP_DMA_enableChannel(4);</span></span><br><span class="line">    MAP_DMA_enableChannel(<span class="number">5</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   串口中断处理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">EUSCIA2_IRQHandler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint32_t</span> status = MAP_UART_getEnabledInterruptStatus(EUSCI_A2_BASE);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(status &amp; EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 串口中断处理</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   DMA传输中断</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">DMA_INT1_IRQHandler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    MAP_DMA_disableChannel(<span class="number">5</span>);  <span class="comment">// 失能DMA通道</span></span><br><span class="line">    MAP_DMA_disableInterrupt(INT_DMA_INT1); <span class="comment">// 失能DMA中断</span></span><br><span class="line">    MAP_DMA_enableChannel(<span class="number">4</span>);   <span class="comment">// 使能DMA发送</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>至于中断程序为什么是这个名字，可以打开<code>start_msp432p401r_ccs.c</code>文件，这是CCS创建工程时系统自己生成的，在里面定义了中断向量表，每个中断对应的实际IRQ函数名字都可以查到</p>
+</blockquote>
+<p>此时注意删除原本<code>main</code>程序中的串口发送API调用，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;BSP.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">uint32_t</span> i;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">uint32_t</span> b =<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 系统时钟初始化</span></span><br><span class="line">    sysClock_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 外设初始化</span></span><br><span class="line">    GPIO_init();</span><br><span class="line">    Uart4OpenMV_init();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// Toggle P1.0 output</span></span><br><span class="line">        GPIO_toggleOutputOnPin(</span><br><span class="line">            GPIO_PORT_P1,</span><br><span class="line">			GPIO_PIN0</span><br><span class="line">			);</span><br><span class="line"></span><br><span class="line">        GPIO_toggleOutputOnPin(</span><br><span class="line">                GPIO_PORT_P2,</span><br><span class="line">                GPIO_PIN1</span><br><span class="line">                );</span><br><span class="line">        <span class="keyword">if</span>(b)</span><br><span class="line">        &#123;</span><br><span class="line">            GPIO_toggleOutputOnPin(</span><br><span class="line">                    GPIO_PORT_P2,</span><br><span class="line">                    GPIO_PIN2</span><br><span class="line">                    );</span><br><span class="line">            b=<span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            b=<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Delay</span></span><br><span class="line">        <span class="keyword">for</span>(i=<span class="number">4000000</span>; i&gt;<span class="number">0</span>; i--);</span><br><span class="line"><span class="comment">//        UART_transmitData(EUSCI_A2_BASE,&#x27;c&#x27;);</span></span><br><span class="line"><span class="comment">//        UART_transmitData(EUSCI_A2_BASE,&#x27;\n&#x27;);</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>BSP.h</code>文件内容不变：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> _BSP_H_</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;ti/devices/msp432p4xx/driverlib/driverlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   初始化时钟类外设</span></span><br><span class="line"><span class="comment"> * @note    无</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param   None</span></span><br><span class="line"><span class="comment"> * @retn    None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">sysClock_init</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   初始化GPIO外设</span></span><br><span class="line"><span class="comment"> * @note    无</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param   None</span></span><br><span class="line"><span class="comment"> * @retn    None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">GPIO_init</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   初始化UART外设</span></span><br><span class="line"><span class="comment"> * @note    服务于OpenMV通信</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param   None</span></span><br><span class="line"><span class="comment"> * @retn    None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Uart4OpenMV_init</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>将上工程烧录进开发板，就可以体验一波DMA传输的快感了。</p>
+<blockquote>
+<p>从上代码中，我们可以体验到DMA传输到来的性能优势。由于DMA传输请求是硬件产生的，所以在等待接收过程中，CPU可以完全不管UART实例，等数据来了CPU也不用管，直到配置接收的数据量完全到达后，在中断中CPU对数据进行处理；在发送数据时，DMA的优势更加明显了，让我们计算使用轮询方法发送一个“helloWorld”字符串，采用115200的波特率，总共传输80个bit，也就是需要694us，对于48MHz的主频就是浪费了约3万条指令，而采用DMA传输时，CPU完全是在做别的计算。</p>
+<blockquote>
+<p>上述性能提升只能证明程序性能得到了优化，但并不是绝对计算结果提升量，因为我们观察到在系统框图中CPU和DMA在和外设通信时使用的是同一对数据总线！</p>
+</blockquote>
+</blockquote>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li>TI官方<a target="_blank" rel="noopener" href="https://www.ti.com.cn/cn/lit/ds/symlink/msp432p401r.pdf?ts=1619350997400&ref_url=https%253A%252F%252Fwww.ti.com.cn%252Fproduct%252Fcn%252FMSP432P401R">MSP432参数手册</a>：主要讲电气参数等</li>
+<li>TI官方<a target="_blank" rel="noopener" href="https://www.ti.com.cn/cn/lit/ug/slau356i/slau356i.pdf?ts=1619351091844&ref_url=https%253A%252F%252Fwww.ti.com.cn%252Fproduct%252Fcn%252FMSP432P401R">MSP432技术参考手册</a>：有各个功能&#x2F;模块的详细框图和寄存器说明</li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2021/04/25/quicklyStartMSP432/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DMA/" rel="tag">DMA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IOT/" rel="tag">IOT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSP432/" rel="tag">MSP432</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UART/" rel="tag">UART</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag">嵌入式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/" rel="tag">驱动程序</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/05/06/IIC4OLED/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            硬件IIC控制OLED屏幕
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/03/29/fuzzyPID/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">模糊PID控制器</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

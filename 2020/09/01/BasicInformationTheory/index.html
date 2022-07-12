@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>基础信息论知识汇总 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-BasicInformationTheory"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  基础信息论知识汇总
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/01/BasicInformationTheory/" class="article-date">
+  <time datetime="2020-09-01T15:50:03.000Z" itemprop="datePublished">2020-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/My%E5%A4%A7%E5%AD%A6/">My大学</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">4.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">21 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这是一篇笔者的《信息论与编码》课内学习笔记，最近刚考完信息论，分享下自己的笔记吧😀希望能出个好成绩</p>
+<blockquote>
+<p>个人感觉这门课最有用的就是香农三大定理了，尤其是香农公式给出了信噪比和带宽的需求关系</p>
+</blockquote>
+</blockquote>
+<h2 id="离散单符号信源"><a href="#离散单符号信源" class="headerlink" title="离散单符号信源"></a>离散单符号信源</h2><h3 id="基础概率表示"><a href="#基础概率表示" class="headerlink" title="基础概率表示"></a>基础概率表示</h3><ul>
+<li>无条件概率（先验概率）<br>  $$<br>  p(a_i)<br>  $$</li>
+<li>条件概率(后验概率)<br>  $$<br>  p(a_i&#x2F;b_j)<br>  $$</li>
+<li>联合概率<br>  $$<br>  p(a_ib_j)&#x3D;p(b_j)p(a_i&#x2F;b_j)&#x3D;p(a_i)p(b_j&#x2F;a_i)<br>  $$<h3 id="信息量"><a href="#信息量" class="headerlink" title="信息量"></a>信息量</h3></li>
+<li>概率的降函数</li>
+<li>度量<br>  $$<br>  自信息量I(x_i)&#x3D;\log \frac 1{p(x_i)} &#x3D; -\log p(x_i) \\<br>  联合自信息量 I(a_ib_j)&#x3D;-\log_2p(a_ib_j) \\<br>  条件自信息量 I(a_i&#x2F;b_j)&#x3D;-\log_2p(a_i&#x2F;b_j) \\<br>  互信息量I(x_i;y_i) &#x3D; \log_2 \frac {p(x_i|y_i)} {p(x_i)}&#x3D; I(x_i)-I(x_i&#x2F;y_i) \\<br>  条件互信息量 I(a_i;b_j&#x2F;c_k)&#x3D;\log _2\frac {p(a_i&#x2F;b_jc_k)}{p(a_i&#x2F;c_k)}<br>  $$<ul>
+<li>bit：2底</li>
+<li>nat：e底</li>
+<li>hart：10底</li>
+</ul>
+</li>
+<li>互信息量性质<ul>
+<li>互易性<br>  $$<br>  I(a_i;b_j) &#x3D; I(b_j;a_i)<br>  $$</li>
+<li>统计独立时，互信息量为0</li>
+<li>只有互信息量可为负,此时表示信道受到干扰或者错误</li>
+</ul>
+</li>
+<li>联合互信息量<br>  $$<br>  I(a_i;b_jc_k)&#x3D;I(a_i;c_k)+I(a_i;b_j|c_k)<br>  $$</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="信息熵"><a href="#信息熵" class="headerlink" title="信息熵"></a>信息熵</h3><p>$$<br>信源熵H(X)&#x3D;E[I(x_i)]&#x3D;E[-\log p(x_i)] \\<br>条件熵H(X|Y)&#x3D; E[I(a_i|b_j)]&#x3D;\sum^m_{j&#x3D;1}\sum^n_{i&#x3D;1} p(a_ib_j)I(a_i|b_j) \\<br>联合熵H(X,Y)&#x3D;\sum^n_{i&#x3D;1}\sum^m_{j&#x3D;1} p(a_ib_j)I(a_ib_j)<br>$$<br>注意<br>$$<br>H_r(x)&#x3D;\frac {H(x)}{\log_2r}<br>$$</p>
+<ul>
+<li>可加性<br>  $$<br>  H(XY)&#x3D;H(X)+H(Y&#x2F;X)&#x3D;H(Y)+H(X&#x2F;Y)<br>  $$<ul>
+<li>各熵之间关系<br>  $$<br>  H(X,Y)&#x3D;H(X)+H(Y|X)&#x3D;H(Y)+H(X|Y) \\<br>  H(X)-H(X|Y)&#x3D;H(Y)-H(Y|X) \\<br>  H(X_1,X_2,\cdots,X_N)&#x3D;H(X_1)+H(X_2|X_1)+\cdots+H(X_N|X_1X_2\cdots X_N)<br>  $$</li>
+</ul>
+</li>
+<li>联合熵也叫共熵</li>
+<li>意义<ul>
+<li>信源输出后，每个消息的平均信息量</li>
+<li>信源输出前，平均不确定度</li>
+</ul>
+</li>
+<li>条件熵<ul>
+<li>损失熵&#x3D;信道疑义度：在获得输出的情况下对<strong>信源的不确定度</strong><br>  $$<br>  H(X|Y)<br>  $$</li>
+<li>噪声熵：在已知<strong>输入</strong>的情况下，由于噪声造成对<strong>输出不确定</strong><br>  $$<br>  H(Y|X)<br>  $$</li>
+</ul>
+</li>
+<li>最大熵定理<br>  $$<br>  H(p_1,p_2,\cdots,p_n)\le H(\frac 1n,\frac 1n,\cdots,\frac 1n)&#x3D;\log n<br>  $$</li>
+<li>极值定理<br>  $$<br>  \because X和Y消息个数相同 \\ \therefore<br>  H_n[p(a_1),p(a_2),\cdots,p(a_n)]\le -\sum^n_{i&#x3D;1}p(a_i)\log_2p(b_i) \\<br>  H(X&#x2F;Y) \le H(X)<br>  $$<br>  注意：条件熵小于信源熵</li>
+<li>扩展性<br>  $$<br>  \lim_{\epsilon\to0}H_{n+1} [p(a_1),p(a_2),\cdots,p(a_n)-\epsilon,p(a_{n+1})&#x3D;\epsilon] \\ &#x3D; H_{n} [p(a_1),p(a_2),\cdots,p(a_n)]<br>  $$</li>
+<li>熵函数是严格上凸函数<ul>
+<li>凸函数定义：<br>  $$<br>  f[\alpha X_1+(1-\alpha)X_2]\ge \alpha f(X_1)+(1-\alpha)f(X_2)<br>  $$</li>
+</ul>
+</li>
+<li>确定性：只要一个概率为1，熵为0</li>
+<li>加权熵<ul>
+<li>各信息量带权求熵</li>
+<li>同有非负性</li>
+<li>连续性</li>
+<li>对称性</li>
+<li>均匀性<br>  $$<br>  H_\omega(\omega_1,\cdots,\omega_n;\frac1n,\frac1n,\cdots,\frac1n)&#x3D;\frac {\omega_1+\omega_2+\cdots+\omega_n}n \log_2n<br>  $$</li>
+<li>确定性</li>
+<li>扩展性</li>
+<li>线性叠加性</li>
+<li>加权熵最大值<br>  $$<br>  p(a_i)&#x3D;e^{\frac \lambda {\omega_i}-1} \\<br>  H_{max}&#x3D;\sum^n_{i&#x3D;1}\omega_i p(a_i)-\lambda<br>  $$<h3 id="平均互信息量"><a href="#平均互信息量" class="headerlink" title="平均互信息量"></a>平均互信息量</h3></li>
+</ul>
+</li>
+</ul>
+<p>$$<br>I(X;Y)&#x3D;\sum^n_{i&#x3D;1}\sum^m_{j&#x3D;1} p(a_ib_j)I(a_i;b_j)<br>$$</p>
+<ul>
+<li>意义1<br>  $$<br>  I(X;Y)&#x3D;H(X)-H(X&#x2F;Y)<br>  $$<br>  收到Y前、后关于X的不确定度的减少量</li>
+<li>意义2<br>  $$<br>  I(Y;X)&#x3D;H(Y)-H(Y&#x2F;X)<br>  $$<br>  发送X前后关于Y的不确定度的减少量</li>
+<li>意义3<br>  $$<br>  I(X;Y)&#x3D;H(X)+H(Y)-H(XY)<br>  $$<br>  平均互信息量等于通信前后整个系统不确定度的减少量</li>
+<li>互易性：即从任意一个方向获得的信息量是一样多的</li>
+<li>非负性</li>
+<li>极值性<br>  $$<br>  I(X;Y)\le H(X)<br>  $$</li>
+<li>凸函数<ul>
+<li>平均互信息是信源概率分布的上凸函数</li>
+<li>平均互信息是信道传递概率的下凸函数</li>
+</ul>
+</li>
+<li>平均互信息量与各熵关系</li>
+</ul>
+<h3 id="多符号（离散平稳）"><a href="#多符号（离散平稳）" class="headerlink" title="多符号（离散平稳）"></a>多符号（离散平稳）</h3><ul>
+<li>N次扩展<strong>无记忆</strong>信源的熵就是原离散信源的熵的N倍<br>  $$<br>  H(X^N)&#x3D;NH(X)<br>  $$</li>
+<li>一维平稳信源<br>  $$<br>  P(X_i&#x3D;x_1)&#x3D;P(X_j&#x3D;x_1)&#x3D;P(x_1) \\<br>  P(X_i&#x3D;x_2)&#x3D;P(X_j&#x3D;x_2)&#x3D;P(x_2) \\<br>  \cdots<br>  $$</li>
+<li>二维离散平稳信源<br>  $$<br>  P(X_iX_{i+1})&#x3D;P(X_jX_{j+1}),i&#x3D;\not j<br>  $$<br>  性质<br>  $$<br>  X&#x3D;X_1X_2 \Rightarrow<br>  H(X)&#x3D;H(X_1)+H(X_2|X_1) \\<br>  \because H(X_2|X_1)\le H(X_2) \\<br>  \therefore H(X_1X_2)\le H(X_1)+H(X_2)<br>  $$</li>
+<li>若各维联合概率均与时间无关，则为完全平稳信源，即<strong>离散平稳信源</strong><ul>
+<li>一般是有记忆信源</li>
+</ul>
+</li>
+<li>N维推广<br>  $$<br>  H(X)&#x3D;H(X_1)+H(X_2|X_1)+H(X_3|X_2X_1)+\cdots+H(X_N|X_1\cdots X_{N-1})<br>  $$</li>
+<li>平均符号熵<br>  $$<br>  H_N&#x3D;\frac 1N H(X_1X_2\cdots X_N)\\<br>  $$<ul>
+<li>极限（信息）熵<br>  $$<br>  H_\infty&#x3D;\lim_{N\to\infty}\frac 1N H(X_1X_2\cdots X_N)\\<br>  $$</li>
+<li>对于平稳信源，极限熵存在<br>  $$<br>  H_\infty&#x3D;\lim_{N\to\infty} H(X_N|X_1X_2\cdots X_{N-1})<br>  $$</li>
+</ul>
+</li>
+</ul>
+<h4 id="马尔可夫信源"><a href="#马尔可夫信源" class="headerlink" title="马尔可夫信源"></a>马尔可夫信源</h4><ul>
+<li>m阶马尔可夫信源极限熵<br>  $$<br>  H_\infty&#x3D;H(X_{m+1}|X_1X_2\cdots X_m) \\<br>  &#x3D;H_{m+1}&#x3D;-\sum_{i&#x3D;1}^{n^m}\sum_{j&#x3D;1}^{n^m}p(s_i)p(s_j|s_i)\log_2p(s_j|s_i)<br>  $$<br>  注意：马尔可夫链状态极限<br>  $$<br>  p(s_j)&#x3D;\sum_{i&#x3D;1}^{n^m}p(s_i)p(s_j|s_i)<br>  $$<ul>
+<li>极限概率<br>  $$<br>  p(s_j)&#x3D;\sum_{i&#x3D;1}^{n^m}p(e_i)p(e_j|e_i)<br>  $$</li>
+</ul>
+</li>
+<li>信源熵相对率<br>  $$<br>  \eta &#x3D; \frac {H_\infty} {H_0}&#x3D;\frac {I_{0\infty}}{H_0}<br>  $$<ul>
+<li>信源剩余度<br>  $$<br>  R &#x3D; 1-\eta<br>  $$<ul>
+<li>意义：信源可压缩的程度</li>
+<li>但是为了提高抗干扰能力，希望增加冗余度</li>
+</ul>
+</li>
+<li>信息变差<br>  $$<br>  I_{0\infty}&#x3D;H_0-H_\infty<br>  $$<h2 id="连续信源"><a href="#连续信源" class="headerlink" title="连续信源"></a>连续信源</h2></li>
+</ul>
+</li>
+<li>相对熵<br>  $$<br>  H_c(X)&#x3D;-\int_R p(x)\log_2p(x)dx \\<br>  联合熵H_c(XY)&#x3D;-\iint_{R^2} p(xy)\log_2p(xy)dxdy \\<br>  条件熵H_c(Y|X)&#x3D; -\iint_{R^2}p(xy)\log_2p(y|x)dxdy<br>  $$<ul>
+<li>不具有非负性</li>
+<li>可加性<br>  $$<br>  H_c(XY)&#x3D;H_c(X)+H_c(Y|X)<br>  $$<br>  可推广到n维</li>
+<li>平均互信息<br>  $$<br>  I_c(X;Y) &#x3D; \lim \log \frac{p(x|y)\Delta x}{p(x)\Delta x} &#x3D; \log \frac{p(xy)}{p(x)p(y)}<br>  \\&#x3D;H_c(X)-H_c(X|Y)\ge0 \\<br>  I_c(X;Y)&#x3D;I_c(Y;X)<br>  $$</li>
+<li>注意：连续信源考虑的是相对熵，和离散信源的熵不同；实际上连续信源的不确定性应该为无穷大</li>
+</ul>
+</li>
+<li>最大连续熵定理：若无限制条件，连续情况是没有最大熵的<ul>
+<li>在信号幅度受限的情况下：服从均匀分布的随机变量，具有最大输出熵</li>
+<li>平均功率受限的条件下：高斯分布具有最大输出熵</li>
+</ul>
+</li>
+<li>熵功率<br>  $$<br>  \overline P&#x3D; \frac 1{2\pi e} e^{2H(X)}<br>  $$</li>
+<li>互信息量（连续）<br>  $$<br>  I(x;y)&#x3D;\log \frac {p(xy)}{p(x)p(y)}<br>  $$</li>
+</ul>
+<h4 id="高斯分布信源"><a href="#高斯分布信源" class="headerlink" title="高斯分布信源"></a>高斯分布信源</h4><p>$$<br>H_c(X)&#x3D;\frac 12\ln(2\pi e\sigma^2)&#x3D;\frac 12\ln (2\pi eP)<br>$$<br>注意：只与方差有关</p>
+<h4 id="指数分布"><a href="#指数分布" class="headerlink" title="指数分布"></a>指数分布</h4><p>$$<br>H_c(X)&#x3D;\log_2 (me)<br>$$</p>
+<h2 id="信道容量"><a href="#信道容量" class="headerlink" title="信道容量"></a>信道容量</h2><ul>
+<li>平均互信息：原始信源熵与信道疑义度之差<br>  $$<br>  I(X;Y)&#x3D;H(X)-H(X|Y)&#x3D;H(Y)-H(Y|X)<br>  $$</li>
+<li>信道矩阵：随机过程的随机矩阵</li>
+<li>信道容量：平均互信息的最大值<br>  $$<br>  C\stackrel {def} &#x3D;\max_{p(x)}{I(X;Y)}<br>  $$</li>
+<li>信息传输速率<br>  $$<br>  R_t&#x3D; \frac 1t I(X;Y) \\<br>  C_t&#x3D;\frac 1t \max_{p(x)}{I(X;Y)}<br>  $$</li>
+<li>无损信道<br>  $$<br>  H(X|Y)&#x3D;0 \\<br>  I(X;Y)&#x3D;H(X)&lt;H(Y) \\<br>  C&#x3D;\max_{p(x)}{I(X;Y)}&#x3D;\max_{p(x)}H(X)&#x3D;\log n<br>  $$</li>
+<li>无噪信道<br>  $$<br>  H(Y|X)&#x3D;0 \\<br>  I(X;Y)&#x3D;H(Y)&lt;H(X) \\<br>  C&#x3D;\max_{p(x)}{I(X;Y)}&#x3D;\max_{p(x)}H(Y)&#x3D;\log m<br>  $$</li>
+<li>无损无噪信道<br>  $$<br>  H(X|Y)&#x3D;0&#x3D;H(Y|X) \\<br>  I(X;Y)&#x3D;H(X)&#x3D;H(Y) \\<br>  C&#x3D;\max_{p(x)}{I(X;Y)}&#x3D;\max_{p(x)}H(X)&#x3D;\log n&#x3D;\log m<br>  $$</li>
+<li>m个输出符号对称信道的信道容量(当输出为等概分布)<br>  $$<br>  C&#x3D;\log m-H(q_1q_2\cdots q_m)<br>  $$<br>  引理：对于对称信道，只有当信道输入分布为等概分布时，输出分布才能为等概分布</li>
+<li>均匀信道（强对称信道）<br>  $$<br>  C&#x3D;\log n-p\log(n-1)-H(p)<br>  $$</li>
+<li>二元对称信道<br>  $$<br>  I(X;Y)&#x3D;H(w\overline p+\overline wp)-H(p) \\<br>  $$</li>
+</ul>
+<h3 id="离散信道容量计算方法"><a href="#离散信道容量计算方法" class="headerlink" title="离散信道容量计算方法"></a>离散信道容量计算方法</h3><ul>
+<li>拉格朗日乘子法<br>  $$<br>  F&#x3D;I(X;Y)-\lambda[\sum^n_{i&#x3D;1}p(x_i)-1]\\ \Rightarrow<br>  \frac {\partial F}{\partial p(x_i)}&#x3D;0 \\ \Rightarrow<br>  I(X;Y)&#x3D;\log e+\lambda&#x3D;C<br>  $$</li>
+<li>条件互信息定理<br>  $$<br>  I(x_i;Y)&#x3D;\sum^m_{j&#x3D;1}p(y_j|x_i)\log\frac {p(y_j|x_i)} {p(y_j)} &#x3D;\log e+\lambda&#x3D;C<br>  $$<br>  对于一般离散信道<br>  $$<br>  I(x_i;Y)&#x3D;C,p(x_i)&#x3D;\not0 \\<br>  I(x_i;Y)\le C,p(x_i)&#x3D;0 \\ \Rightarrow<br>  I(X;Y)达到极大值C<br>  $$</li>
+<li>离散信道容量计算<br>  $$<br>  \sum^m_{j&#x3D;1} p(y_j|x_i) \beta_j &#x3D; \sum^m_{j&#x3D;1} p(y_j|x_i)\log p(y_j|x_i) \Rightarrow \beta_j \\<br>  C&#x3D;\log(\sum^m_{j&#x3D;1} 2^{\beta_j}) \Rightarrow C \\<br>  p(y_j)&#x3D;2^{\beta_j-C} \Rightarrow p(y_j) \\<br>  p(y_j)&#x3D; \sum^n_{i&#x3D;1} p(x_i)p(y_j|x_i) \Rightarrow p(x_i)<br>  $$</li>
+</ul>
+<h3 id="多符号离散信道"><a href="#多符号离散信道" class="headerlink" title="多符号离散信道"></a>多符号离散信道</h3><ul>
+<li>无记忆信道<br>  $$<br>  P(\mathbf Y|\mathbf X)&#x3D;\prod^N_{i&#x3D;1} P(Y_i|X_i) \\<br>  p(b_j|a_i)&#x3D;\prod^N_{i&#x3D;1} p(y_{jk}|x_{ik}) \\ \Rightarrow<br>  I(\mathbf X;\mathbf Y)\le \sum^N_{i&#x3D;1} I(X_i;Y_i)<br>  $$</li>
+<li>无记忆信源<br>  $$<br>  I(\mathbf X;\mathbf Y) \ge \sum^N_{i&#x3D;1} I(X_i;Y_i)<br>  $$</li>
+<li>无记忆信源信道<br>  $$<br>  I(\mathbf X;\mathbf Y) &#x3D; \sum^N_{i&#x3D;1} I(X_i;Y_i)<br>  $$</li>
+</ul>
+<h3 id="连续信道"><a href="#连续信道" class="headerlink" title="连续信道"></a>连续信道</h3><ul>
+<li><p>无记忆连续信道<br>  $$<br>  p(\mathbf y|\mathbf x)&#x3D;p(y_1|x_1)p(y_2|x_2)\cdots p(y_n|x_n)<br>  \\ \Rightarrow<br>  I(\mathbf X;\mathbf Y)\le \sum^N_{i&#x3D;1} I(X_i;Y_i) \le nC<br>  $$</p>
+</li>
+<li><p>加性噪声信道<br>  $$<br>  p(y|x)&#x3D;p_N(y-x)&#x3D;p_N(z) \\ \Rightarrow<br>  H(Y|X)&#x3D;H(N) \\ \therefore<br>  I(X;Y)&#x3D;H(Y)-H(Y|X)&#x3D;H(Y)-H(N)<br>  $$</p>
+<ul>
+<li>若信源和噪声源都是服从高斯分布的<br>  $$<br>  I(X;Y)&#x3D;H(Y)-H(N) \\ &#x3D;\frac 12\log[2\pi e(\sigma^2_X+\sigma^2_N)] -\frac12 \log[2\pi e\sigma^2_N] \\ &#x3D;\frac12 \log(1+\frac {\sigma^2_X}{\sigma^2_N})<br>  $$</li>
+<li>非高斯型加性噪声信道<br>  $$<br>  \because P_X &lt; \sigma^2_X,P_N&#x3D;\sigma^2_N \\ \therefore<br>  \frac12\log(1+\frac {\sigma^2_X}{\sigma^2}) \le C\le \frac12\log(\frac {\sigma^2_X+\sigma^2_N}{\sigma^2})<br>  $$<blockquote>
+<p>同样的噪声功率下，高斯干扰是最坏的干扰</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>连续信道容量<br>  $$<br>  C&#x3D;\max_{p(x_i)} \sum^N_{i&#x3D;1} I(X_i;Y_i)<br>  $$</p>
+<ul>
+<li>若信道为高斯信道(均值0，且变量相互独立)<br>  $$<br>  C&#x3D;\frac n2 \log(1+\frac {\sigma^2_X}{\sigma^2_N})<br>  $$</li>
+</ul>
+</li>
+</ul>
+<h4 id="窄带高斯信道"><a href="#窄带高斯信道" class="headerlink" title="窄带高斯信道"></a>窄带高斯信道</h4><p>零均值，信道带宽为B，时间范围为[0,T]</p>
+<blockquote>
+<p>注意：乃归斯特采样定理</p>
+</blockquote>
+<ul>
+<li>信道容量<br>  $$<br>  n&#x3D;2BT \\<br>  C&#x3D;BT\log(1+\frac {\sigma^2_X}{\sigma^2_N})<br>  $$</li>
+<li>单位时间信道容量<br>  $$<br>  C_t&#x3D;B\log(1+\frac {\sigma^2_X}{\sigma^2_N})&#x3D; B\log(1+\frac {P_X}{P_N})<br>  $$</li>
+<li>香农公式<br>  $$<br>  N_0&#x2F;2为功率谱密度\\<br>  C_t&#x3D; B\log(1+\frac {\sigma^2_X}{N_0 B})<br>  $$<br>  注意：<ul>
+<li>适用于加性高斯白噪声信道</li>
+<li>可用于确定非高斯信道的容量下限</li>
+<li>意义：给出了理想通信系统的极限传输率</li>
+</ul>
+</li>
+<li>无限带宽香农式<br>  $$<br>  C_t&#x3D;1.44\frac {\sigma_X^2}{N_0}<br>  $$</li>
+</ul>
+<h2 id="有失真传输"><a href="#有失真传输" class="headerlink" title="有失真传输"></a>有失真传输</h2><h3 id="单符号失真"><a href="#单符号失真" class="headerlink" title="单符号失真"></a>单符号失真</h3><ul>
+<li>失真函数：用来定量描述失真度<br>  $$<br>  d(x_i,y_j)<br>  $$<br>  将这些失真函数放到矩阵里，就变成了失真矩阵<ul>
+<li>汉明失真<br>  $$<br>  d(x_i,y_j)&#x3D;\begin{cases}<br>  0 &amp;i&#x3D;j \\<br>  1 &amp; i&#x3D;\not j<br>  \end{cases}<br>  $$</li>
+<li>平方误差失真<br>  $$<br>  d(x_i,y_j)&#x3D;(y_j-x_i)^2<br>  $$</li>
+</ul>
+</li>
+<li>平均失真<br>  $$<br>  \overline D&#x3D;E[d(x_i,y_j)]&#x3D;\sum^n_{i&#x3D;1}\sum^m_{j&#x3D;1} p(x_iy_j)d(x_i,y_j)<br>  $$</li>
+</ul>
+<h3 id="N次扩展的失真函数"><a href="#N次扩展的失真函数" class="headerlink" title="N次扩展的失真函数"></a>N次扩展的失真函数</h3><p>$$<br>d_N(X,Y)&#x3D;\sum^n_{i&#x3D;1} d(X_i,Y_i) \\<br>\overline {D_N}&#x3D;\sum^N_{i&#x3D;1} E[d(X_i,X_j)] &#x3D;\sum^n_{i&#x3D;1} \overline {D_i} &#x3D; N \overline {D_i}<br>$$</p>
+<h3 id="保真度允许信道"><a href="#保真度允许信道" class="headerlink" title="保真度允许信道"></a>保真度允许信道</h3><blockquote>
+<p>失真度D许可信道</p>
+</blockquote>
+<p>$$<br>P_D&#x3D;{p(y|x):\overline D\le D}<br>$$</p>
+<h3 id="信息率失真函数"><a href="#信息率失真函数" class="headerlink" title="信息率失真函数"></a>信息率失真函数</h3><p>$$<br>R(D)&#x3D;\min_{p(y|x)\in P_D} I(X;Y)<br>$$</p>
+<blockquote>
+<p>给定的信源，在允许的保真度下，信息率允许压缩的最小值</p>
+</blockquote>
+<ul>
+<li><p>离散无记忆信道<br>  $$<br>  R(D)&#x3D;\min_{p(y_j|x_i)\in P_D} \sum^n_{i&#x3D;1} \sum^m_{j&#x3D;1} p(x_i)p(y_j|x_i)\log \frac {p(y_j|x_i)}{p(y_j)}<br>  $$</p>
+</li>
+<li><p>性质</p>
+<ul>
+<li><p>R(D)是关于D的下凸函数,且严格递减</p>
+</li>
+<li><p>定义域</p>
+<p>  最小值<br>  $$<br>  D_{min}&#x3D;0 \Rightarrow R(0)&#x3D;H(X) \\<br>  D_{min}&#x3D; \sum^n_{i&#x3D;1} p(x_i) \min_j d (x_i,y_j)<br>  $$<br>  最大值<br>  $$<br>  D_{max}&#x3D;\min { D:R(D)&#x3D;0} \\ \Rightarrow<br>  D_{max}&#x3D;\min_{p(y|x)\in P_D} E[d(x,y)],P_D是使I(X,Y)&#x3D;0的集合 \\<br>  \because I(X;Y)&#x3D;0 \Rightarrow p(y_j|x_i)&#x3D;p(y_j) \\<br>  \therefore D_{max}&#x3D;\min_{p(y_j)} \sum_j p(y_j) \sum_i p(x_i)d(x_i,y_j) &#x3D;\min_{p(y_j)} \sum_j p(y_j)D_j<br>  \\ \Rightarrow D_{\max} &#x3D; \min D_j, D_j &#x3D; \sum_i p(x_i)d(x_i,y_j)<br>  $$<br>  若在最大值外<br>  $$<br>  D&gt;D_{max}\Rightarrow R(D)&#x3D;0<br>  $$</p>
+</li>
+<li><p>值域<br>  $$<br>  0@D&#x3D;0 到 H(X)@D&#x3D;D_{max}<br>  $$</p>
+</li>
+</ul>
+</li>
+<li><p>n元等概率信源信息率失真函数（汉明失真矩阵）</p>
+<p>  $$<br>  R(D) &#x3D; \ln n + \frac D \alpha \ln \frac { \frac D \alpha}{n-1} + (1-\frac D \alpha)\ln (1-\frac D \alpha)<br>  \\ \alpha 为汉明失真矩阵系数<br>  $$</p>
+</li>
+</ul>
+<h3 id="参量表示法"><a href="#参量表示法" class="headerlink" title="参量表示法"></a>参量表示法</h3><ol>
+<li>首先建立输出m个数联立的如下形式方程<br> $$<br> 1&#x3D;\sum^n_{i&#x3D;1} \lambda_iP(x_i)e^{Sd(x_i,y_j)}<br> $$</li>
+<li>将求出的m个参数代入下式，计算输出分布概率<br> $$<br> 1&#x3D;\lambda_i\sum^m_{j&#x3D;1} P(y_j)e^{Sd(x_i,y_j)}<br> $$</li>
+<li>由下式得传输概率<br> $$<br> P(y_j|x_i)&#x3D;\lambda_iP(y_j)e^{Sd(x_i,y_j)}<br> $$</li>
+<li>则可得到以S为参量的平均失真函数和失真函数<br> $$<br> D(s)&#x3D;\sum^n_{i&#x3D;1} \sum^m_{j&#x3D;1} P(x_i)\lambda_iP(y_j) e^{Sd(x_i,y_i)}d(x_i,y_i) \\<br> R(s) &#x3D; \sum^n_{i&#x3D;1} \sum^m_{j&#x3D;1} P(x_i)\lambda_iP(y_j) e^{Sd(x_i,y_i)} \ln \frac {\lambda_iP(y_j) e^{Sd(x_i,y_i)}}{P(Y_j)} &#x3D; sD(s)\sum^n_{i&#x3D;1}  P(x_i) \ln \lambda_i<br> $$</li>
+</ol>
+<h3 id="连续情况失真函数"><a href="#连续情况失真函数" class="headerlink" title="连续情况失真函数"></a>连续情况失真函数</h3><p>$$<br>D&#x3D;E{ d(X,Y) }&#x3D; \int^\infty_{-\infty}\int^\infty_{-\infty} p(xy)d(x,y)dxdy \\<br>R(D)&#x3D;\inf_{p(y|x)\in B_D} I(X,Y)<br>$$</p>
+<ul>
+<li>高斯信源<br>  $$<br>  \because 均值m_X，方差\sigma_X^2，d(x,y)&#x3D;(x-y)^2 \\<br>  \therefore \begin{cases}<br>  D&#x3D;\iint p(xy)(x-y)^2dxdy \\<br>  \int^\infty_{-\infty} p(y|x)dy &#x3D;1<br>  \end{cases} \Rightarrow R(D) \\<br>  \Rightarrow R(D)&#x3D;\begin{cases}<br>  \frac12\log \frac {\sigma^2_X}D &amp; D\le \sigma_X^2 \\<br>  0 &amp; D&gt; \sigma_X^2<br>  \end{cases}<br>  $$</li>
+</ul>
+<h2 id="无失真离散信源编码"><a href="#无失真离散信源编码" class="headerlink" title="无失真离散信源编码"></a>无失真离散信源编码</h2><ul>
+<li>编码信息率：编码后平均每个符号带的最大信息量<br>  $$<br>  R’&#x3D;\frac {K\times \log m}L &#x3D; \overline K \times \log m<br>  $$</li>
+<li>信息传输率：平均每个码元带的信息量<br>  $$<br>  R &#x3D; \frac {H(X)} {\overline K}<br>  $$</li>
+</ul>
+<h3 id="定长编码定理"><a href="#定长编码定理" class="headerlink" title="定长编码定理"></a>定长编码定理</h3><p>$$<br>\because X_1\cdots X_L有H(X) \\<br>用K个符号Y_1\cdots Y_K编码，Y_k有m种可能取值<br>\\ \forall \epsilon&gt;0,\delta&gt;0 \\ \therefore<br>\frac KL\log_2m \ge H(X)+\epsilon，当L足够大时译码差错小于\delta \\<br>\frac KL\log_2m \le H(X)-2\epsilon，L足够大时译码失真一定大于\delta<br>$$</p>
+<ul>
+<li>无失真译码<br>  $$<br>  译码差错率小于\delta \\<br>  \Rightarrow<br>  L\ge \frac{\sigma^2(x)}{\epsilon^2\delta} \\<br>  \sigma^2(x) &#x3D; D[I(a_i)]&#x3D; \sum^n_{i&#x3D;1} p(x_i)[\log p(x_i)]^2-[H(X)]^2<br>  $$</li>
+<li>编码效率<br>  $$<br>  \eta &#x3D; \frac {H(X)}{R’} &#x3D; \frac {H(X)} {H(X)+\epsilon}<br>  $$</li>
+</ul>
+<h3 id="变长编码"><a href="#变长编码" class="headerlink" title="变长编码"></a>变长编码</h3><ul>
+<li><p>变长无失真编码</p>
+<p>  $$<br>  对L次扩展信源H(X)使用m元码元进行变长编码 \\<br>  \exist 码平均长度\overline K的无失真编码方法 \\<br>  \Rightarrow 1 +\frac {LH(x)}{\log_2m} &gt; \overline K\ge \frac {LH(X)}{\log_2m} \\<br>  $$<br>  也就是变长编码之后的信息量只要大于原本信息量，就存在唯一可译编码。若推广到一般或马尔可夫信源<br>  $$<br>  \lim_{L\to\infty}\frac {\overline {K_L}}L &#x3D; \frac {H_\infty}{\log m}<br>  $$</p>
+</li>
+<li><p>香农第一定理</p>
+<p>  $$<br>  H(X)\le R &lt; H(X)+ \epsilon<br>  $$<br>  存在唯一可译变长编码</p>
+</li>
+<li><p>信息率<br>  $$<br>  \Rightarrow<br>  \eta&#x3D;\frac{H(X)}{\overline K} &gt; \frac{H(X)}{H(X)+\frac {\log_2m}L}<br>  $$</p>
+</li>
+<li><p>平均码长<br>  $$<br>  \overline K &#x3D; \sum^n_{i&#x3D;1}p(x_i)k_i<br>  $$</p>
+</li>
+</ul>
+<h3 id="码字唯一可译条件"><a href="#码字唯一可译条件" class="headerlink" title="码字唯一可译条件"></a>码字唯一可译条件</h3><ul>
+<li>克拉夫特不等式：即时码存在充要条件<br>  $$<br>  \sum^n_{i&#x3D;1}m^{-k_i} \le 1<br>  $$</li>
+</ul>
+<h3 id="香农第三定理"><a href="#香农第三定理" class="headerlink" title="香农第三定理"></a>香农第三定理</h3><p>$$<br>\forall D \ge 0,\epsilon &gt; 0 \\<br>R’ &gt; R(D) \\<br>L够长<br>\Rightarrow \exist \overline D(C) \le D + \epsilon<br>$$</p>
+<h3 id="香农编码"><a href="#香农编码" class="headerlink" title="香农编码"></a>香农编码</h3><ol>
+<li>将信源排序<br> $$<br> p(a_1)\ge p(a_2)\ge \cdots \ge p(a_n)<br> $$</li>
+<li>累加概率<br> $$<br> \because p(a_0)&#x3D;0 \\ \therefore<br> p_a(a_j)&#x3D;\sum^{j-1}_{i&#x3D;0}p(a_i),j&#x3D;i+1<br> $$</li>
+<li>确定码长<br> $$<br> -\log_2p(a_i) \le k_i &lt; 1-\log_2p(a_i)<br> $$</li>
+<li>取累加概率小数点后相应码长编码</li>
+</ol>
+<h3 id="Fano编码"><a href="#Fano编码" class="headerlink" title="Fano编码"></a>Fano编码</h3><ol>
+<li>将信源排序</li>
+<li>按编码进制数（m）将概率分组，使每组概率总和尽可能接近or相等</li>
+<li>给每组分配一位码元</li>
+<li>对分配后的每分组，按同样原理编码（回到步骤2）</li>
+</ol>
+<h3 id="Huffman编码"><a href="#Huffman编码" class="headerlink" title="Huffman编码"></a>Huffman编码</h3><blockquote>
+<p>编码过程略</p>
+</blockquote>
+<ul>
+<li><p>码长方差<br>  $$<br>  \sigma^2&#x3D;E[(k_i-\overline K)^2]<br>  $$<br>  选取方差小的</p>
+</li>
+<li><p>m进制全树，码字数为<br>  m+k(m-1)</p>
+</li>
+</ul>
+<h2 id="信道编码"><a href="#信道编码" class="headerlink" title="信道编码"></a>信道编码</h2><ul>
+<li><p>正确译码概率</p>
+<p>  $$<br>  p(F(y_j)|y_j) &#x3D; p(x_i|y_j)<br>  $$</p>
+</li>
+<li><p>错误译码概率</p>
+<p>  $$<br>  p(e|y_j) &#x3D; 1-p(F(y_j)|y_j) &#x3D; 1 - p(x_i|y_j)<br>  $$</p>
+</li>
+<li><p>译码平均错误概率</p>
+<p>  $$<br>  P_e &#x3D; E[p(e|y_j)] &#x3D; \sum^m_{i&#x3D;1} p(y_j) p(e|y_j) \\<br>  &#x3D; 1-\sum_Yp[F(y_j),y_j] &#x3D; \sum_{Y,X-x^*} p(xy)<br>  $$</p>
+<p>  平均正确概率</p>
+<p>  $$<br>  \overline P_e  &#x3D; \sum_Y p[F(y_j),y_j]&#x3D;\sum _Y p(x^*y_j)<br>  $$</p>
+</li>
+<li><p>菲诺不等式<br>  $$<br>  H(X|Y) \le H(p_E)+p_E\log(n-1)<br>  $$</p>
+</li>
+<li><p>信息传输率：平均每个码符号携带的信息量</p>
+<p>  $$<br>  R&#x3D; \frac {H(X)}{\overline L}<br>  $$</p>
+</li>
+</ul>
+<h3 id="最大后验概率译码准则"><a href="#最大后验概率译码准则" class="headerlink" title="最大后验概率译码准则"></a>最大后验概率译码准则</h3><p>选取所有后验概率中最大的一个作为译码输出<br>$$<br>F(y_j)&#x3D;x^* \\<br>\Rightarrow \forall i, p(x^*|y_j) \ge p(x_i|y_j)<br>$$<br>则译码平均错误概率最小</p>
+<h3 id="极大似然译码规则"><a href="#极大似然译码规则" class="headerlink" title="极大似然译码规则"></a>极大似然译码规则</h3><p>$$<br>\Rightarrow \frac {p(y_j|x^*)p(x^*)}{p(y_j)} \ge \frac {p(y_j|x_i)p(x_i)}{p(y_j)}<br>$$</p>
+<p>当<strong>输入为等概分布时</strong>，则有：</p>
+<p>$$<br>p(y_j|x^*) \ge p(y_j|x_i)<br>$$</p>
+<h3 id="汉明距离"><a href="#汉明距离" class="headerlink" title="汉明距离"></a>汉明距离</h3><p>对于二元n长码<br>$$<br>X&#x3D;(x_1,x_2,\cdots,x_n),Y&#x3D;(y_1,y_2,\cdots,y_n)<br>\\ \Rightarrow<br>D(X,Y)&#x3D;\sum^n_{k&#x3D;1}x_k \bigoplus y_k<br>$$</p>
+<ul>
+<li>最小码距<br>  $$<br>  D_{\min} &#x3D; \min [D(C_i,C_j)],i&#x3D;\not j<br>  $$<br>  <strong>最小码矩越大，平均错误概率越低</strong></li>
+<li>最小距离译码准则<br>  $$<br>  F(y_j) &#x3D; x^* \\<br>  D(x^*,y_j) &#x3D; D_{\min}(x_i,y_j)<br>  $$</li>
+</ul>
+<h4 id="检纠错能力"><a href="#检纠错能力" class="headerlink" title="检纠错能力"></a>检纠错能力</h4><ul>
+<li>纠正u个错误<br>  $$<br>  d_{min} &#x3D; 2u+1<br>  $$</li>
+<li>检查l个错误<br>  $$<br>  d_{min} &#x3D; l+1<br>  $$</li>
+<li>同时纠正u个错误和检测出l个错误<br>  $$<br>  d_{min} &#x3D; u+l+1, l&gt;t<br>  $$</li>
+</ul>
+<h3 id="线性码编码方式"><a href="#线性码编码方式" class="headerlink" title="线性码编码方式"></a>线性码编码方式</h3><p>$$<br>\alpha_{i1} &#x3D; \alpha_{i1} \\<br>\alpha_{i2} &#x3D; \alpha_{i2} \\<br>\alpha_{i3} &#x3D; \alpha_{i1} \bigoplus \alpha_{i2} \\<br>\alpha_{i4} &#x3D; \alpha_{i1} \\<br>\alpha_{i5} &#x3D; \alpha_{i1} \bigoplus \alpha_{i2}<br>$$</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/09/01/BasicInformationTheory/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/09/04/developPythonWithCppModule/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            为Python扩展C/C++接口
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/08/01/mshCommandWithArguments/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">MSH控制台添加带参命令</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

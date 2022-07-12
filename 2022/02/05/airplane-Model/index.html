@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>固定翼飞行器动力学分析 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-airplane-Model"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  固定翼飞行器动力学分析
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/02/05/airplane-Model/" class="article-date">
+  <time datetime="2022-02-05T10:04:16.000Z" itemprop="datePublished">2022-02-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E7%B3%BB%E7%BB%9F/">动力学系统</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">3.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">11 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：固定翼飞行器相对多旋翼飞行器具有载荷大、航程远等特性，在B端、C端、M端皆占大半江山。此次新年之际，笔者亲手搭建了一台性价比较高的“冲浪者”，并且尝试一下午就成功使用日本手首飞成功，有些玩航模的朋友夸俺天赋好😆但这其实离不开笔者在上手之前学习的固定翼相关空气动力学，所以个人认为很有必要记录一下，以便日后其他小伙伴借鉴快速入门</p>
+<blockquote>
+<p>本次飞行视频已上次至<strong>BiliBili</strong>视频平台，欢迎点击<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1rS4y1y7YG/">传送门</a>观看</p>
+</blockquote>
+</blockquote>
+<h2 id="机翼的空气动力特性"><a href="#机翼的空气动力特性" class="headerlink" title="机翼的空气动力特性"></a>机翼的空气动力特性</h2><p>为了方便分析，一般取机翼的切面形状进行空气动力学计算，即翼型。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-1.png" alt="翼型概念"></p>
+<p>下图为几种常见的翼型，在不同用途的飞行器上有着各自的优势，具体我们留到下方<strong>常见翼型特性</strong>一节讲解分析。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-2.png" alt="各种翼型"></p>
+<p>笔者玩的<em><strong>冲浪者</strong></em>主机翼显然采用的是超临界型翼型设计，下图展示的为将机翼拆下后翅根处的截面。（都这么努力了😁是不是要扫描文末的二维码请咖啡呀☕）</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-3.jpg" alt="冲浪者翼型"></p>
+<p>接下来，对翼型进行理论分析，介绍各项重要参数以及升力计算方法。图中，贯穿中央的水平<strong>实</strong>直线名为<code>展弦</code>；还有一根从前缘到后缘，贯穿内切圆圆心的<strong>虚</strong>线名为<code>中弧线</code>；翼型的上包实线名为<code>上弧线</code>；翼型的下包实线名为<code>下弧线</code>；其他关键机械设计参数皆标于图上。</p>
+<span id="more"></span>
+
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-4.png" alt="机翼参数"></p>
+<p>设计参数可引出以下参数：</p>
+<ul>
+<li>相对弯度：表示翼型的不对称程度，现代飞机的相对弯度为<code>0~2%</code><br>  $$<br>  \overline{f} &#x3D; \frac{f_{\max}}{c_w} \times 100%<br>  $$</li>
+<li>最大弯度位置<br>  $$<br>  \overline{x_f} &#x3D; \frac{x_f}{c_w} \times 100 %<br>  $$</li>
+<li>厚弦比：翼型的最大厚度与翼弦的比值，现代飞机参数范围一般<code>3~16%</code>，超声速采用厚弦比较小的薄翼，低速飞机用参数较大的厚翼<br>  $$<br>  \overline{c} &#x3D; \frac{c_{\max}}{c_w} \times 100%<br>  $$</li>
+<li>最大厚度位置：该参数同采用相对翼弦的表示法，现代飞机参数范围一般<code>30~50%</code>，亚声速<code>25~30</code>，超声速<code>40~50%</code><br>  $$<br>  \overline{x_c} &#x3D; \frac{x_c}{c_w} \times 100 %<br>  $$</li>
+</ul>
+<p>还有一个重要的实时参数名为<em><strong>迎角</strong></em>，如下图所示为吹来的气流与机翼的夹角，该参数有正负，一般取翼弦方向为<code>0</code>。正如接下来的计算过程展现的，该参数将极大地影响飞机的升力，并且飞行时大多数工作于正迎角状态。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-5.png" alt="迎角"></p>
+<p>我们将使用到最简单的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E4%BC%AF%E5%8A%AA%E5%88%A9%E5%8E%9F%E7%90%86">伯努利原理</a>：</p>
+<p>$$<br>p_1+\frac{1}{2} \rho v_1^2 + \rho gh_1 &#x3D; p_2+\frac{1}{2} \rho v_2^2 + \rho gh_2<br>$$</p>
+<blockquote>
+<p>NOTE⚠：伯努利方程只能用在粘度忽略、不可压缩的理想流体，所以基于此的分析只能用在低速飞行，超声速飞行后面专门讲解</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-6.png" alt="升力原理"></p>
+<p>由于机翼一般较薄，所以如上图所示的流管，在远处来流与翼上切面有关系：<br>$$<br>p_\infty + \frac{1}{2} \rho_\infty v^2_\infty &#x3D; p +\frac{1}{2} \rho v^2<br>$$</p>
+<p>整理：</p>
+<p>$$<br>p-p_\infty &#x3D; \frac 12 \rho_\infty v^2_\infty - \frac{1}{2} \rho v^2<br>\\<br>\frac{p-p_\infty}{\frac 12 \rho_\infty v^2_\infty} &#x3D; 1-\frac{\rho v^2}{\rho_\infty v^2_\infty}<br>$$</p>
+<p>低速飞行时，密度变化不明显；且根据连续性方程。得到压力系数表示：<br>$$<br>\because \rho \simeq \rho_\infty , v_\infty \cdot S_\infty &#x3D; v \cdot S<br>\\<br>\therefore \overline{p} &#x3D; \frac{p-p_\infty}{\frac 12 \rho_\infty v^2_\infty} \simeq 1-\frac{v^2}{v^2_\infty} &#x3D; 1-(\frac{S_\infty}{S})^2<br>$$</p>
+<p><strong>重要结论</strong>：压力系数只与流管切面积有关，而流管的情况可以通过<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E7%83%9F%E9%A3%8E%E6%B4%9E">烟线风洞实验</a>获知。</p>
+<p>则此时可以将机翼上表面需要求解的点的压力表示为：</p>
+<p>$$<br>p_{上} &#x3D; p_\infty + \frac12 \rho v^2_\infty\overline{p}_{上}<br>$$</p>
+<p>下表面表示为：</p>
+<p>$$<br>p_{下} &#x3D; p_\infty + \frac12 \rho v^2_\infty\overline{p}_{下}<br>$$</p>
+<p>则某个翼型受升力为：</p>
+<p>$$<br>L(b) &#x3D; \int_0^{c_w} ( p_{下} - p_{上}) \cdot dx<br>&#x3D; \int_0^{c_w} \frac12 \rho v^2_\infty ( \overline{p} _{下} - \overline{p} _{上} ) \cdot dx<br>$$</p>
+<p>那么想要得到<strong>整个机翼受到的升力</strong>，在沿翼展方向（垂直于翼型）作积分即可：</p>
+<p>$$<br>F &#x3D; \int_0^{b_w} L(b) \cdot dy &#x3D; \int_0^{b_w} \int_0^{c_w} \frac12 \rho v^2_\infty ( \overline{p} _{下} - \overline{p} _{上}) \cdot dx \cdot dy<br>$$</p>
+<blockquote>
+<p>总结一下：要设计出一个好的机翼，首先要先搞到每个点的压力系数，然后作二维积分；还有：</p>
+<ol>
+<li>若飞行器在太空中，没有介质（密度0），无法获得升力；</li>
+<li>若飞行器相对介质（空气）速度为0，也无法获得升力；</li>
+<li>机翼越大（面积越大），获得的升力越大，所以滑翔机等最求续航的飞行器一般机翼很大；</li>
+<li>机翼获得的不一定就是朝机翼向上力！非常显然迎角不同时，力的方向可能是升力也是压力。一般正迎角是升力，但还有特殊情况，比如下面将讲到的失速以及飞机倒飞（压力变升力）</li>
+</ol>
+</blockquote>
+<h3 id="机翼平面形状"><a href="#机翼平面形状" class="headerlink" title="机翼平面形状"></a>机翼平面形状</h3><p>上面算的升力公式要作二维积分，对下图所示的各种奇怪形状的机翼来说简直是计算灾难。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-7.png" alt="机翼平面形状"></p>
+<p>在简化计算之前，先介绍几个用来定义机翼平面形状的参数：</p>
+<ul>
+<li>机翼面积$S$：机翼垂直投影面积大小</li>
+<li>翼展$b_w$：机翼最左翼尖到最右翼尖之间距离</li>
+<li>平均翼弦<br>  $$<br>  c_w &#x3D; \frac{S}{b_w}<br>  $$</li>
+<li>展弦比$\lambda$：翼展$b_w$与平均翼弦$c_w$之比，现代歼击机范围<code>2~5</code>，轰炸机、运输机<code>7~12</code>，滑翔机<code>12~16</code></li>
+<li>根尖比$\eta$：机翼根部（靠近机身）的翼弦$c_g$于位于翼尖处翼弦$c_s$之比</li>
+<li>后掠角$\chi$：这个参数常见于讨论一些外型炫酷的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%90%8E%E6%8E%A0%E7%BF%BC/7960782">后掠翼现代飞机</a>，具体吧又有很多种后掠角，比如下图中标有的前缘后掠角$\chi_0$，1&#x2F;4弦线后掠角$\chi_{0.25}$，后缘后掠角$\chi_1$</li>
+<li><strong>平均空气动力弦</strong>$c_A$：对后掠翼这种从翼根到翼尖一直在变化的形状计算升力，简直是灾难，所以人们定义了该参数，假设存在一个等效的矩形机翼（等效要求：面积相同、俯仰力矩相同、气动力合力相同）。这样呢，一次设计，多次使用，不然风洞一吹多贵啊，超算一开更贵</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-8.png" alt="机翼形状参数"></p>
+<h3 id="升力系数"><a href="#升力系数" class="headerlink" title="升力系数"></a>升力系数</h3><p>有了平均空气动力弦，原本升力公式就可以简化为：</p>
+<p>$$<br>F &#x3D; \frac12 \rho v^2_\infty c_A \int_0^{c_w} ( \overline{p} _{下} - \overline{p} _{上}) \cdot dx<br>\\<br>\overset{\overline{x}&#x3D;\frac{x}{c_w}}{&#x3D;}<br>\frac12 \rho v^2_\infty c_A c_w \int_0^{1} ( \overline{p} _{下} - \overline{p} _{上}) \cdot d\overline{x}<br>$$</p>
+<p>所以我们提出升力系数：</p>
+<p>$$<br>C_L &#x3D; \int_0^{1} ( \overline{p} _{下} - \overline{p} _{上}) \cdot d\overline{x}<br>$$</p>
+<p>再用等效机翼面积替换$c_A c_w$，得到：</p>
+<p>$$<br>F &#x3D; C_L \cdot \frac{1}{2} \rho v^2_\infty S<br>$$</p>
+<p>这样嘞，就可以为移植机翼提供一个参考了。比如同一款机翼，缩放后升力系数是一样的。并且，我们可以测定绘制出下图所示的升力系数随迎角变化的规律，$\delta$是襟翼角度。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-9.png" alt="升力系数曲线"></p>
+<p>这里注意几个一般性原则：</p>
+<ul>
+<li>迎角不大时，升力系数与迎角成线性关系<br>  $$<br>  C_L &#x3D; k(\alpha - \alpha_0)<br>  $$</li>
+<li>迎角较大时，升力系数导数随迎角增大开始减小</li>
+<li>迎角越过某个<strong>临界迎角</strong>时，升力系数导数开始变为负</li>
+</ul>
+<p>还有几个关键的参数：</p>
+<ul>
+<li>零升力迎角$\alpha_0$：不同翼型该参数不同，与相对弯度参数相关性很大，对称翼型的$\alpha_0 &#x3D; 0$</li>
+<li>临界迎角$\alpha_{临}$与对应的$C_{L-\max}$：主要与相对弯度、最大弯度位置、厚弦比、前缘半径有关</li>
+</ul>
+<h3 id="失速"><a href="#失速" class="headerlink" title="失速"></a>失速</h3><ol>
+<li>小迎角时：机翼上表面最低压力点靠后，涡流区小</li>
+<li>逐渐增大迎角：最低压力点前移，涡流区扩大</li>
+<li>迎角增大至临界迎角：分离点急速前移，涡流区急剧扩大，气流贴着机翼表面稳定流动被破坏</li>
+<li>继续增大迎角：升力降低+阻力急剧增大，飞机剧烈抖动，高度快速下降，前进速度锐减（特别离谱的会坠入螺旋）</li>
+</ol>
+<p>所以，失速迎角就是临界迎角。</p>
+<h3 id="翼尖涡流"><a href="#翼尖涡流" class="headerlink" title="翼尖涡流"></a>翼尖涡流</h3><p>如下图所示，机翼正常工作时，下表面的压力大于上表面的压力，所以气流会绕过翼尖流到上表面，形成了翼尖涡流。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-10.png" alt="涡流产生原理"></p>
+<p>下图所示，是大型客机降落时产生的涡流。所以机场的飞机起飞和降落时，机与机之间需要等待一段时间，直至上一架产生的涡流衰减至不影响安全飞行。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-11.png" alt="大型客机涡流"></p>
+<p>同样的，冲浪者的机翼设计也是充分考虑到了翼尖涡流，做成两边翘起的形状，这样可以较好地减小涡流作用带来的诱导阻力。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-12.jpg" alt="冲浪者翼尾"></p>
+<h3 id="副翼与襟翼"><a href="#副翼与襟翼" class="headerlink" title="副翼与襟翼"></a>副翼与襟翼</h3><p>冲浪者的主机翼控制较为简单，只有靠近翅膀端点处的副翼（提供横滚控制）。而复杂的现代飞行器，如下图一般由副翼、襟翼、扰流板等构成。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-13.png" alt="机翼构成"></p>
+<p>为了提供较大的横滚力矩（$\vec T &#x3D; \vec F\times \vec l$），所以副翼一般设置在靠近主机翼外侧；而襟翼（下图所示各种常见结构）是为了在降落或起飞时提供大的升力，而又不产生影响稳定性的力矩，所以一般靠近内部；扰流板从结构上来看，方向与襟翼相反，所以在降落的时候打开，可以抵消大量升力，同时又提供了大量阻力，使得减速更快。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-14.png" alt="各种襟翼"></p>
+<h3 id="常见翼型特性"><a href="#常见翼型特性" class="headerlink" title="常见翼型特性"></a>常见翼型特性</h3><blockquote>
+<p>推荐一个软件：<code>profili</code>，这里面有很多大组织开源的翼型参考设计。</p>
+</blockquote>
+<p>这玩意我也还在琢磨中，因为论文上说<strong>超临界翼型</strong>超声速性能更好（激波少），但是冲浪者是属于滑翔机类型，所以笔者后续边玩边学，搞清楚了再写哈😄</p>
+<h2 id="固定翼飞行控制原理"><a href="#固定翼飞行控制原理" class="headerlink" title="固定翼飞行控制原理"></a>固定翼飞行控制原理</h2><p>在开始之前，我们先补充一下常规飞机的尾部控制结构，如下图分别是：</p>
+<ol>
+<li>方向舵：位于垂直尾翼（对称翼型）上，控制飞行器的左右偏转</li>
+<li>升降舵：位于水平尾翼（不一定是对称翼型）上，控制飞行器抬头和低头</li>
+</ol>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-20.jpeg" alt="机尾结构"></p>
+<p>如下图所示，当升降舵<strong>向下</strong>偏转时，产生向上的升力，此时相对飞机的重心来说提供的力矩使飞机<strong>低头</strong>；当升降舵<strong>向上</strong>时，同理受力，飞机<strong>抬头</strong>。这里注意，左右升降舵是同向运动的（如果左右平尾升力不同，会给飞机一个横滚力矩，并且是多少会出现的）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-21.gif" alt="升降舵"></p>
+<p>下图所示是方向舵工作原理，舵面<strong>左偏</strong>（从机身后向前看）则垂尾压力向右，到飞机的重心产生的力矩使飞机整体向<strong>左转</strong>；同理，舵面<strong>右偏</strong>，飞机<strong>右转</strong>。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-22.gif" alt="方向舵"></p>
+<p>横滚舵，就是主机翼的副翼，之前已经说过原理不再赘述。需要值得一提的是，根据网友经验以及笔者亲测，对于冲浪者这类飞行器来说，打方向舵效果在低速的时候转向效果不明显，如果需要大幅度地回旋，建议采用：</p>
+<ol>
+<li>往预偏转方向横滚机身，使原本朝上的升力倾斜（可分解为水平的向心力和垂直的部分升力）</li>
+<li>理论上此时升力必定比原本小，所以操作升降舵抬高机头，获得更多的升力；或者适当加大油门</li>
+</ol>
+<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-23.gif" alt="横滚舵"></p>
+<h2 id="高速飞行特性"><a href="#高速飞行特性" class="headerlink" title="高速飞行特性"></a>高速飞行特性</h2><p>为了不误人子弟，研究透了再补充这一部分。并且玩航模一般也玩不到声速吧</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li>李国辉. 飞行原理与仿真建模.北京理工大学出版社.</li>
+<li>刘子敬. 超临界翼型优化设计关键技术研究[D].南京航空航天大学,2018.DOI:10.27239&#x2F;d.cnki.gnhhu.2018.000265.</li>
+<li>陆超. 翼型改型对超临界翼型气动性能影响的研究[D].沈阳航空工业学院,2009.</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2022/02/05/airplane-Model/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/" rel="tag">动力学分析</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BA%E5%AE%9A%E7%BF%BC/" rel="tag">固定翼</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/03/10/AXI4BusType/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            AXI4总线
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/01/17/DigitalPLL/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">PLL&amp;数字PLL</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

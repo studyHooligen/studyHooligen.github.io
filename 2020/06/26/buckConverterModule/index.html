@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Simulink设计同步Buck电路 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-buckConverterModule"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Simulink设计同步Buck电路
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/06/26/buckConverterModule/" class="article-date">
+  <time datetime="2020-06-26T00:23:00.000Z" itemprop="datePublished">2020-06-26</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%BB%BA%E6%A8%A1%E4%BB%BF%E7%9C%9F/">建模仿真</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">5 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：笔者最近在做的项目中，要自制大功率数字Buck电源，但是笔者并不是专业做电源，所以！笔者今天就要试试用Simulink来建模、仿真、设计一个同步数字Buck</p>
+</blockquote>
+<h2 id="建立模型"><a href="#建立模型" class="headerlink" title="建立模型"></a>建立模型</h2><p>先展示一下建好的模型</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-1.png" alt="wholeModule"></p>
+<blockquote>
+<p>Buck的一些经验公式、关系公式可见上一篇文章<a href="/2020/06/05/DCDC/">DC-DC</a></p>
+</blockquote>
+<p>以及模型建立好之后的工作效果</p>
+<span id="more"></span>
+
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-2.png" alt="output"></p>
+<p>显然在什么工作都不做的情况下，这个电路的工作效果是很差的。纹波大、还震荡、阶跃响应慢…</p>
+<blockquote>
+<p>该模型已经上传至笔者的Github仓库：<a target="_blank" rel="noopener" href="https://github.com/studyHooligen/SimulinkModel">simulinkModel</a></p>
+</blockquote>
+<h2 id="参数设定"><a href="#参数设定" class="headerlink" title="参数设定"></a>参数设定</h2><blockquote>
+<p>首先，将实际物理元件的参数写入模型，这才是使仿真有意义的一步！🎈当然在此之前你得有一定的基础知识，知道各个参数分别起什么作用</p>
+</blockquote>
+<h3 id="MOSfet参数"><a href="#MOSfet参数" class="headerlink" title="MOSfet参数"></a>MOSfet参数</h3><p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-3.png" alt="MOS"></p>
+<p>对于大功率MOS开关管子，重要的决定性参数：</p>
+<ol>
+<li>导通电阻（Drain-Source on resistance）</li>
+<li>工作电流（Drain current）</li>
+<li>开启电压（Gate-source voltage）</li>
+<li>阈值电压（Gate-source threshold voltage）</li>
+<li>结电容（Junction Capacitance）<ol>
+<li>输入电容（input capacitance）</li>
+<li>反向转移电容（reverse transfer capacitance）</li>
+<li>输出电容（output capacitance）</li>
+</ol>
+</li>
+</ol>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-4.png" alt="JunctionCap"></p>
+<blockquote>
+<p>各个参数的大小按照挑选购买的MOS数据手册上的抄就行</p>
+</blockquote>
+<h3 id="LC滤波"><a href="#LC滤波" class="headerlink" title="LC滤波"></a>LC滤波</h3><p>电感参数调整</p>
+<ol>
+<li>电感量（inductance）</li>
+<li>等效串联电阻（ESR，series resistance）</li>
+</ol>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-5.png" alt="Inductor"></p>
+<p>电容参数调整</p>
+<ol>
+<li>电容量（Capacitance）</li>
+<li>等效串联电阻（ESR，series resistance）</li>
+</ol>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-6.png" alt="Capacity"></p>
+<blockquote>
+<p>友情提示：对于滤波电容电感，理论上来说越大越好，但是要注意考虑无源元件是有储能的噢！而且ESR参数是很致命的，一般来说电容一般都采用阵列并联形式来减小ESR！</p>
+</blockquote>
+<h3 id="半桥驱动器"><a href="#半桥驱动器" class="headerlink" title="半桥驱动器"></a>半桥驱动器</h3><p>半桥驱动器需要调整的参数注意要和MOS相互匹配👁‍🗨当然在实际设计中，选择半桥驱动芯片也确实是要和MOS相匹配的</p>
+<ol>
+<li><p>输出驱动电压</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-7.png" alt="Output"></p>
+<p> 该参数和MOS的开启电压有关，也可以理解为实际驱动器芯片的供电电压</p>
+</li>
+<li><p>死区定时</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-8.png" alt="timing"></p>
+<p> 该参数对驱动器来说是非常重要的！🚀所有的半桥开关都必然存在死区时间，也就是开关管的开关边沿，设想上管关闭还没完成，下管就开始开启，那么两个MOS直接等效成阻性负载接在电源上！☢⚡PANG！建议死区时间将电路搭建出来实际测量</p>
+</li>
+</ol>
+<h3 id="PWM发生器"><a href="#PWM发生器" class="headerlink" title="PWM发生器"></a>PWM发生器</h3><p>笔者自制的数字电源必须要强势啊！🌋这边使用了1M的驱动频率</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-9.png" alt="PWM"></p>
+<p>注意，采样时间（sample time）这个参数将会影响仿真的时间粒度，笔者在此设计为周期的100倍，这样相当于PWM只有100个可调等级。读者若电脑性能Nice建议调整1000~10000个周期的时间粒度以达到更好的效果</p>
+<blockquote>
+<p>实际中设计数字控制器时，比如采用STM32作为主控芯片，PWM发生器可以直接按照实际配置的发生器参数调整</p>
+</blockquote>
+<h2 id="PID参数整定"><a href="#PID参数整定" class="headerlink" title="PID参数整定"></a>PID参数整定</h2><blockquote>
+<p>由于该系统是一个复杂条件系统（非线性系统），所有PID自动整定无法使用。主要是因为没办法做线性模型建模（当然，你打开PID TUNER系统也会告诉你这个错误），毕竟PID控制器是基于线性模型分析诞生的</p>
+</blockquote>
+<p>首先，打开PID TUNER（双击”PID”模块，往下拉，在”Automated tuning”区点击”Tune…”按钮）</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-10.png" alt="PIDtuner"></p>
+<p>显然这个系统不能自动整定😱好在官方提供了几个在线性化模型失效时使用的解决方案。在此，使用“Identify New Plant”</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-11.png" alt="identifyNewPlant"></p>
+<p>在“Plant Identification”面板下，选择“Get I&#x2F;O Data”下的“Simulate Data”</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-12.png" alt="simulateData"></p>
+<blockquote>
+<p>工作原理：将PID控制器取下，将指定信号作为原PID控制器的输出注入到相应信号端口，再测量原PID输入端的信号；再由得到的输入、输出信号，拟合出（近似）线性系统，然后再做PID参数整定</p>
+</blockquote>
+<p>所以，要对输入的测试信号进行参数设定（假设使用的是阶跃信号）</p>
+<ul>
+<li>采样时间（仿真时间粒度）Sample Time</li>
+<li>偏置Offset</li>
+<li>阶跃延迟Onset Lag</li>
+<li>仿真结束时间Stop Time</li>
+<li>阶跃幅度Amplitude（这个要双击边上的设置键弹出）</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-13.png" alt="pulseSet"></p>
+<p>接着把“VIEW”栏中的“show input response”、”show offset response”和“show identification data”都选上，然后点击“Run simulation”开启仿真和数据采集（电脑的风扇开始哗啦啦转~🌀建议出去看看远景吹吹风relax myself，笔者的i5-Laptop跑了8分钟)</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-14.png" alt="run"></p>
+<blockquote>
+<p>tips:开启matlab的“Parral pool”可以大幅度提高电脑资源利用率，当然，matlab会吞下电脑能用的所有资源，所以这时候会超级卡！但是计算会（并行）加速</p>
+<blockquote>
+<p>这个功能就在Matlab主面板的左下角，读者有兴趣可以自己玩玩</p>
+</blockquote>
+</blockquote>
+<p>接着点击“Apply”然后点击“Close”，回到“Plant Identification”页面，此时，图像上已经有了可视化的阶跃响应数据</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-15.png" alt="plant"></p>
+<p>由响应曲线的形式，需要更改拟合函数为：二阶复数对极点系统</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-16.png" alt="2pole"></p>
+<p>再使用自动参数拟合计算</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-17.png" alt="autoEstimate"></p>
+<p>显然，二阶复数极点系统的拟合效果和matlab仿真得到的曲线可以完美贴合。点击“Apply”，将拟合出来的系统传递给PID Tuner。调整鲁棒性和响应时间参数，就能调整PID控制效果了</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-18.png" alt="Tuner"></p>
+<p>再回到模型中，对系统仿真</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-Buck-19.png" alt="resault"></p>
+<p>上电瞬间，输出电压超调峰值达到了16.4V；静态电压纹波小于0.1V；相对来说还是不错吧👌等实际制作的时候再调整具体参数，开局过充可以考虑用钳位管解决</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a target="_blank" rel="noopener" href="https://www.mathworks.com/help/slcontrol/ug/design-a-pid-controller-using-simulated-i-o-data.html">Matlab官方文档：PID控制器非线性整定</a></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/06/26/buckConverterModule/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Buck/" rel="tag">Buck</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DC-DC/" rel="tag">DC-DC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PID/" rel="tag">PID</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E6%BA%90%E5%8F%98%E6%8D%A2/" rel="tag">电源变换</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/07/01/DigitalizeContrl/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            数字控制
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/06/20/controlSysType/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">控制系统类型</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

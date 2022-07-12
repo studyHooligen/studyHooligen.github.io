@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>阻抗匹配和枝节匹配器 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-阻抗匹配和枝节匹配"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  阻抗匹配和枝节匹配器
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/" class="article-date">
+  <time datetime="2021-06-23T09:03:06.000Z" itemprop="datePublished">2021-06-23</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%B0%83%E8%B0%90-%E6%BB%A4%E6%B3%A2/">调谐&滤波</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">3.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">15 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：笔者这学期在课内学习了《微波技术》，本以为射频相关是永远不可能涉及的工作，直至前几日帮好兄弟解决了一个阻抗匹配的玄学通信案例，才意识到做硬件一定逃不开传输线的知识，以及阻抗匹配的重要性</p>
+</blockquote>
+<h2 id="匹配实战案例"><a href="#匹配实战案例" class="headerlink" title="匹配实战案例"></a>匹配实战案例</h2><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-1.jpg" alt="开路同轴线匹配"></p>
+<p>事情的起因是这样的，前几天我的一个好兄弟联系说有一个机械臂的STM32主控板有点问题，其他功能都正常，但是不能使用<code>SW</code>接口烧录调试只能用普通串口烧录代码。🤯“不会是假片子吧？”在片慌的2021年，这是笔者的第一感觉…</p>
+<blockquote>
+<p>“一切玄学本质上都是无知”——王贞炎（HUST-STI）</p>
+</blockquote>
+<p>拿到板子后，笔者用ST-LINK和CMSIS-DAP调试器分别试了一下，确实都识别不到芯片；看了一下Layout，板子上<code>SWCLK</code>和<code>SWD</code>没有做等长，所以怀疑是时钟对齐问题，把调试器的时钟降至最低的5kHz居然还是不行？！（建议读者记下这个常规调试方式）</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-2.png" alt="layout"></p>
+<p>这里不得不感谢一下华科电信院的微波考试的心理阴影，让笔者考完几天后还久久不能忘怀哈哈哈🐶我突然想到了阻抗匹配这个东西，怀疑有可能是阻抗匹配没做，实时证明也确实如此，如图中笔者使用了期末考的枝节匹配器</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-3.png" alt="支线匹配"></p>
+<p>DETAIL：在SWCLK引脚和地焊盘之间并联了一条终端开路的同轴传输线，单枝节匹配器理论上是只对一个频点（窄带）匹配，但是由于本例中总线时钟较低（5k~4M），所以获得了宽带匹配效果。</p>
+<span id="more"></span>
+
+<p>对于没有微波概念的读者来说，这非常难以理解，为什么并联一个开路的线能起作用呢？？？所以接下来笔者将分别讨论：</p>
+<ol>
+<li>高频分布参数电路及传输线方程</li>
+<li>阻抗匹配</li>
+<li>枝节匹配器</li>
+</ol>
+<p>并且在文末将会给出重要公式汇总，如果读者们不喜欢推导可以直接快进</p>
+<h2 id="真正的传输线"><a href="#真正的传输线" class="headerlink" title="真正的传输线"></a>真正的传输线</h2><h3 id="传输线方程及解"><a href="#传输线方程及解" class="headerlink" title="传输线方程及解"></a>传输线方程及解</h3><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-4.png" alt="普通传输线"></p>
+<p>上图是你以为的传输线，Right？但实际上的传输线是由无数段如下结构所示的分布参数微元电路组成的，但是平时我们电路频率低长度短所以不考虑分布参数也可以正常使用。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-5.jpg" alt="分布参数电路"></p>
+<blockquote>
+<p>当信号的波长可以和电路尺寸相比拟时就要使用分布参数电路，所以这个知识在电网和高频中使用最多。举例：我们一般100k数量级频率信号，电磁波长在3000m数量级，比我们常规电路板（再大大不过10m）大很多，可以不考虑；但是1G频率的电路，电磁波长在0.3m数量级，这时候就必须要使用分布参数电路了</p>
+</blockquote>
+<p>上图中，各个参数意义如下：</p>
+<ul>
+<li>R：单位长度传输线分布电阻，物理单位是<code>Ω/m</code>，由导体材料决定</li>
+<li>G：单位长度传输线分布并联电导，物理单位是<code>S/m</code>，由导体周围介质材料决定</li>
+<li>L：单位长度传输线分布电感，物理单位是<code>L/m</code>，由导线截面尺寸、磁导率、线间距等决定</li>
+<li>C：单位长度传输线间分布电容，物理单位是<code>F/m</code>，由导线截面尺寸、介电常数、线间距等决定</li>
+</ul>
+<p>首先我们分析上面的分布参数微元电路，有：</p>
+<p>$$<br>u(z+\Delta z,t) &#x3D; u(z,t)+d u<br>\\<br>i(z+\Delta z,t) &#x3D; i(z,t)+d i<br>\\<br>-du(z,t)&#x3D;Rdz\cdot i(z,t)+Ldz\cdot \frac{\partial i(z,t)}{\partial t}<br>\\<br>-di(z,t)&#x3D;Gdz\cdot u(z,t)+Cdz\cdot \frac{\partial u(z,t)}{\partial t}<br>$$</p>
+<p>由于所有信号都可以做Fourier分解，而且我们也常常传输的是三角信号，所以将电压电流设置为简谐量讨论，即：</p>
+<p>$$<br>u(z,t)&#x3D;\text{Re}[U(z)e^{j\omega t}]<br>\\<br>i(z,t)&#x3D;\text{Re}[I(z)e^{j\omega t}]<br>\\ \therefore<br>\frac{\partial u(z,t)}{\partial t} &#x3D; \text{Re}[U(z)e^{j\omega t}j\omega]<br>\\<br>\frac{\partial i(z,t)}{\partial t} &#x3D; \text{Re}[I(z)e^{j\omega t}j\omega]<br>$$</p>
+<p>所以，将上面的简谐形式带入微分电路关系式可得简谐振幅U和I关系：</p>
+<p>$$<br>\frac{dU(z)}{dz}&#x3D;-(R+j\omega L)I(z)<br>\\<br>\frac{dI(z)}{dz}&#x3D;-(G+j\omega C)U(z)<br>$$</p>
+<p>注意这里可以定义：</p>
+<ul>
+<li>传输线单位长度串联阻抗<br>  $$<br>  Z &#x3D; R +j\omega L<br>  $$</li>
+<li>传输线单位长度并联导纳<br>  $$<br>  Y &#x3D; G +j\omega C<br>  $$</li>
+</ul>
+<p>我们现在可以用更加简单直观的方法重写上微分式：</p>
+<p>$$<br>\frac{dU(z)}{dz}&#x3D;-Z\cdot I(z)<br>\\<br>\frac{dI(z)}{dz}&#x3D;-Y\cdot U(z)<br>\\ \therefore<br>\frac{d^2U(z)}{dz^2}&#x3D;-Z\cdot \frac{dI(z)}{dz}&#x3D;ZY\cdot U(z)<br>\\<br>\frac{dI(z)}{dz}&#x3D;-Y\cdot \frac{dU(z)}{dz}&#x3D;ZY\cdot I(z)<br>$$</p>
+<p>注意这里我们又引入一个重要的定义——传播常数</p>
+<p>$$<br>\gamma &#x3D; \sqrt{ZY} &#x3D; \alpha + j\beta<br>$$</p>
+<blockquote>
+<p>这里把传播常数分解为衰减常数和相位常数（后面会解释为什么叫这个）</p>
+</blockquote>
+<p>则我们可以得到一个漂亮的二阶齐次微分方程——传输线方程：</p>
+<p>$$<br>\frac{d^2U(z)}{dz^2}-\gamma^2\cdot U(z)&#x3D;0<br>\\<br>\frac{dI(z)}{dz}-\gamma^2\cdot I(z)&#x3D;0<br>$$</p>
+<p>以及传输线通解：</p>
+<p>$$<br>U(z)&#x3D;Ae^{-\gamma z}+Be^{\gamma z}<br>\\<br>I(z) &#x3D; \frac{1}{Z_0}(Ae^{-\gamma z}-Be^{\gamma z})<br>$$</p>
+<p>其中，特征阻抗：</p>
+<p>$$<br>Z_0&#x3D;\sqrt{\frac{R +j\omega L}{G +j\omega C}}<br>$$</p>
+<blockquote>
+<p>从上面的通解形式，可以看到有两个简谐量，一个波面相当于往<code>-z</code>方向移动，一个波面相当于往<code>+z</code>方向移动，这就解释了上面传播常数的物理意义命令由来</p>
+</blockquote>
+<h3 id="传输线上的行波"><a href="#传输线上的行波" class="headerlink" title="传输线上的行波"></a>传输线上的行波</h3><p>先把传播常数拆开带入，解疑上面的衰减常数和相位常数定义：</p>
+<p>$$<br>U(z)&#x3D;Ae^{-\gamma z}+Be^{\gamma z} &#x3D; Ae^{-(\alpha + j\beta) z}+Be^{(\alpha + j\beta) z}<br>\\<br>I(z) &#x3D; \frac{1}{Z_0}(Ae^{-\gamma z}-Be^{\gamma z})&#x3D; \frac{1}{Z_0}(Ae^{-(\alpha + j\beta) z}-Be^{(\alpha + j\beta) z})<br>\\ \Rightarrow<br>U(z) &#x3D; e^{-\alpha z} [Ae^{-j\beta z}+Be^{j\beta z}]<br>\\<br>I(z) &#x3D; e^{-\alpha z} \frac{1}{Z_0} [Ae^{-j\beta z}-Be^{j\beta z}]<br>$$</p>
+<p>这时，参数的含义就很明显很自然了，显然第一个指数项是随着信号传播带来幅度衰减的效果，而第二个指数项为相角随距离周期变化。</p>
+<p>一般来说，我们使用的传输线损耗都特别小（起码也是个铜材），在频率较高的场合显然有：</p>
+<p>$$<br>R \ll j\omega L,G \ll j\omega C<br>$$</p>
+<p>则我们提出无耗传输线，并基于“无耗”分析其他所有传输线特性：</p>
+<p>$$<br>R &#x3D; 0,G &#x3D; 0<br>\\ \therefore<br>Z_0 &#x3D;\sqrt{ \frac{L}{C}}<br>\\<br>\gamma &#x3D; j\omega\sqrt{LC} &#x3D; j\beta<br>\\<br>\Rightarrow \alpha &#x3D;0,\beta &#x3D; \omega\sqrt{LC}<br>$$</p>
+<p>无耗传输线通解：</p>
+<p>$$<br>U(z) &#x3D; Ae^{-j\beta z}+Be^{j\beta z} &#x3D; U^+(z) + U^-(z)<br>\\<br>I(z) &#x3D;\frac{1}{Z_0} [Ae^{-j\beta z}-Be^{j\beta z}]<br>$$</p>
+<p>注意这个时候的两个参数是由<strong>传输线边界条件决定</strong>的复参数，即：</p>
+<p>$$<br>A &#x3D; |A| e^{j\phi_1}, B &#x3D; |B| e^{j\phi_2}<br>$$</p>
+<p>则由上面电压、流信号的简谐定义可知：</p>
+<p>$$<br>u(z,t) &#x3D; \text{Re}[U(z)e^{j\omega t}]&#x3D;|<br>A| \cos(\omega t -\beta z +\phi_1) + |<br>B| \cos(\omega t +\beta z +\phi_2)<br>\\<br>i(z,t) &#x3D; \text{Re}[I(z)e^{j\omega t}]&#x3D;\frac{|A|}{Z_0} \cos(\omega t -\beta z +\phi_1) - \frac{|B|}{Z_0} \cos(\omega t +\beta z +\phi_2)<br>$$</p>
+<p>基于上式，我们可以获得参数：</p>
+<ul>
+<li>相速：等相位面移动速度<br>  $$<br>  v_p &#x3D; \frac{\omega}{\beta}&#x3D;\frac{1}{\sqrt{LC}}<br>  $$<blockquote>
+<p>注意式中的频率相关参数，代表相速随频率变化，即：色散现象</p>
+</blockquote>
+</li>
+<li>相波长：传输线上等相位点距离<br>  $$<br>  \lambda_p &#x3D; \frac{2\pi}{\beta} &#x3D; \frac{v_p}{f} &#x3D; v_p T &#x3D; \frac{\lambda_0}{\sqrt{\epsilon_r}}<br>  $$</li>
+</ul>
+<h3 id="传输线终端带载与输入阻抗"><a href="#传输线终端带载与输入阻抗" class="headerlink" title="传输线终端带载与输入阻抗"></a>传输线终端带载与输入阻抗</h3><p>现在，在传输线的终端带有一个负载：</p>
+<p>$$<br>Z_L<br>$$</p>
+<p>并知道负载上的电流和电压，则可以作为边界条件带入传输线通解得到系数解。在带入前，我们将上面推导得到的以<strong>源端为原点</strong>的通解改写为以<strong>负载端为原点</strong>的形式：</p>
+<p>$$<br>U(z) &#x3D; A \cdot e^{j\beta t } + B \cdot e^{-j\beta t}<br>\\<br>I(z) &#x3D; \frac{1}{Z_0} [A\cdot e^{j\beta t } - B \cdot e^{-j\beta t}]<br>$$</p>
+<p>带入负载端电压电流条件得：</p>
+<p>$$<br>U_L&#x3D;U(0) &#x3D; A+B<br>\\<br>I_L&#x3D;I(0) &#x3D; \frac{1}{Z_0}(A-B)<br>$$</p>
+<p>解方程组得：</p>
+<p>$$<br>A &#x3D; \frac{U_L+I_LZ_0}{2}<br>\\<br>B &#x3D; \frac{U_L-I_LZ_0}{2}<br>$$</p>
+<p>则有电流电压：</p>
+<p>$$<br>U(z)&#x3D;U^+(z)+U^-(z)&#x3D;U^+(0)e^{j\beta z} + U^-(0)e^{-j\beta z} ,\\<br>U^+(0) &#x3D; \frac{U_L+I_LZ_0}{2},U^-(0)&#x3D;\frac{U_L-I_LZ_0}{2}, \\<br>I(z) &#x3D; I^+(z)+I^-(z) &#x3D; I^+(0)e^{j\beta z} + I^-(0)e^{-j\beta z} ,\\<br>I^+(0) &#x3D; \frac{U_L+I_LZ_0}{2Z_0},I^-(0)&#x3D;-\frac{U_L-I_LZ_0}{2Z_0}, \\<br>$$</p>
+<p>根据上面的结果，我们提出如下概念参数：</p>
+<ul>
+<li>输入阻抗：带负载的传输线在任一点向负载侧看去的等效阻抗<br>  $$<br>  Z_{in}(z) &#x3D; \frac{U(z)}{I(z)} &#x3D; Z_0\frac{Z_L\cdot \cos(\beta z)+jZ_0\cdot \sin(\beta z)}{Z_0 \cdot \cos(\beta z) + jZ_L \cdot \sin(\beta z)}<br>  $$</li>
+<li>输入导纳：显然就是输入阻抗的倒数</li>
+<li>电压反射系数：入射波与反射波之比<br>  $$<br>  \Gamma_u &#x3D; \frac{U^-(z)}{U^+(z)} &#x3D; \frac{Z_L - Z_0}{Z_0 + Z_L} e^{-j2\beta z}<br>  $$</li>
+<li>电流反射系数<br>  $$<br>  \Gamma_i &#x3D; \frac{I^-(z)}{I^+(z)} &#x3D; \frac{Z_0 - Z_L}{Z_0 + Z_L} e^{-j2\beta z}<br>  $$</li>
+<li>驻波比：电压振幅最大值比最小值<br>  $$<br>  \rho &#x3D; \frac{|U(z)|_{\max}}{|U(z)|_{\min}} &#x3D; \frac{1+|\Gamma|}{1-|\Gamma|}<br>  $$</li>
+</ul>
+<h2 id="阻抗匹配"><a href="#阻抗匹配" class="headerlink" title="阻抗匹配"></a>阻抗匹配</h2><p>这里我们观察输入阻抗关系：</p>
+<p>$$<br>Z_{in}(z) &#x3D; Z_0\frac{Z_L\cdot \cos(\beta z)+jZ_0\cdot \sin(\beta z)}{Z_0 \cdot \cos(\beta z) + jZ_L \cdot \sin(\beta z)}<br>$$</p>
+<p>如果此时负载阻抗和传输线的特性阻抗一致时：</p>
+<p>$$<br>Z_L &#x3D; Z_0<br>\\ \Rightarrow<br>Z_{in}(z) &#x3D; Z_0<br>$$</p>
+<p>右边分式的分子和分母是一样的，直接去掉！也就是此时传输线上处处输入阻抗都是相同的。再观察此时的反射系数：</p>
+<p>$$<br>\Gamma_u (z)&#x3D; \frac{Z_L - Z_0}{Z_L+Z_0} e^{-j2\beta z} &#x3D; 0<br>$$</p>
+<p>反射系数为0！🏹也就是说此时没有反射波，即：</p>
+<p>$$<br>U(z) &#x3D; U^+(z)[1+\Gamma_u(z)] &#x3D; U^+(z) &#x3D; U_L e^{j\beta z}<br>$$</p>
+<p>此时系统工作于行波状态，那么为什么叫这个时候为“负载匹配”或“阻抗匹配”呢？因为此时系统向负载传输能量的传输功率最大！可由电磁场知识推导传输线上任意点传输功率：</p>
+<p>$$<br>P(z) &#x3D; \frac{1}{2}\text{Re}[U(z)I^*(z)] &#x3D; \frac{|U^+(z)|^2}{2Z_0} [1-|\Gamma(z)|^2]<br>$$</p>
+<p>则显然当反射系数为0时，传输线传输功率最大。</p>
+<blockquote>
+<p>阻抗匹配 &#x3D; 反射系统为0 &#x3D; 传输功率最大 &#x3D; 驻波比为1</p>
+</blockquote>
+<p>那么要做到阻抗匹配，有几种方案：</p>
+<ul>
+<li>调整负载阻抗与传输线阻抗一致<blockquote>
+<p>一般来说，我们的负载是有固定参数对象（比如天线），不能改变。所以这个用的少</p>
+</blockquote>
+</li>
+<li>调整传输线阻抗<blockquote>
+<p>简单点说，换线；但如果是PCB上的微带线和带状线，就设计的时候按照目标参数去设计</p>
+</blockquote>
+</li>
+<li>在负载与传输线之间加入阻抗变换器</li>
+<li>在传输线上并联枝节匹配器</li>
+</ul>
+<h2 id="阻抗变换器"><a href="#阻抗变换器" class="headerlink" title="阻抗变换器"></a>阻抗变换器</h2><p>这个思想吧非常简单，就是加个能变换阻抗的东西，把负载阻抗变换成和传输线一样。方案也挺多，变压器啥的笔者也没试过，书上教的是一种比较简单的——四分之波长变换器。还是回忆上面的输入阻抗公式：</p>
+<p>$$<br>Z_{in}(z) &#x3D; Z_0\frac{Z_L\cdot \cos(\beta z)+jZ_0\cdot \sin(\beta z)}{Z_0 \cdot \cos(\beta z) + jZ_L \cdot \sin(\beta z)}<br>$$</p>
+<p>在终端接负载四分之波长位置处有：</p>
+<p>$$<br>z &#x3D; \frac{\lambda}{4}<br>\\ \Rightarrow<br>\beta z &#x3D; \frac{\pi}{2}<br>\\ \Rightarrow<br>Z_{in}(\frac{\lambda}{4}) &#x3D; Z \frac{Z}{Z_L}<br>$$</p>
+<p>所以，如果我们在负载和传输线之间加入一段匹配线长度四分之波长特征阻抗为：</p>
+<p>$$<br>Z &#x3D; \sqrt{Z_0Z_L}<br>$$</p>
+<p>则即可使得整个系统获得阻抗匹配。</p>
+<h2 id="枝节匹配器"><a href="#枝节匹配器" class="headerlink" title="枝节匹配器"></a>枝节匹配器</h2><p><img src="http://imgjry.fangyikuan.xyz/20210625/20210625-IM-6.png" alt="枝节匹配"></p>
+<p>枝节匹配器的结构如上图所示，就是在传输线上的某个位置并联一段终端开路（短路也行）的传输线，来调节系统匹配。</p>
+<blockquote>
+<p>接下来的分析是笔者的个人推导结果，后续有空再写写教科书上的“史密斯”圆图法</p>
+</blockquote>
+<p>教科书上推荐使用终端短路线（笔者也不知道为什么），但是根据这次的实际案例，如果使用短路线，TTL电平电路有大量直流分量会导致调试器损坏。所以笔者接下来讨论的是本次使用的终端开路线，首先我们先导出终端开路线的输入导纳（阻抗倒数）：</p>
+<p>$$<br>Y_{in}(z) &#x3D; Y_0 \frac{Y_L+jY_0 \tan(\beta z)}{Y_0+jY_L \tan(\beta z)} &#x3D; jY_0\tan(\beta z)<br>$$</p>
+<p>为了防止下面推导的时候符号歧义，我们把上式用终端开路枝节匹配器的特征导纳符号重写：</p>
+<p>$$<br>Y_{in-1}(z) &#x3D; jY_1\tan(\beta z)<br>$$</p>
+<p>那么，根据上面的枝节匹配器电路结构图和阻抗匹配原理，我们知道在枝节插入位置有插入后等效导纳和左端传输线导纳相等的要求，即：</p>
+<p>$$<br>Y_0 &#x3D; Y_{in-1}(l_3) + Y_{in-L}(l_2)<br>$$</p>
+<p>考虑上面的终端开路枝节能提供的导纳，只有虚部没有实部，所以显然插入后的实部部分只能由不同插入位置决定，而虚部可以用插入枝节的长度进行调节。为了方便分析，我们对上式以传输线特征导纳作归一化处理：</p>
+<p>$$<br>1 &#x3D; \frac{Y_0}{Y_0} &#x3D; \frac{ Y_{in-1}(l_3)}{Y_0} + \frac{ Y_{in-L}(l_2)}{Y_0} &#x3D; j\frac{Y_1}{Y_0}tan(\beta l_3) + \tilde{Y}_{in-L}(l_2)<br>$$</p>
+<p>其中</p>
+<p>$$<br>\tilde{Y}_{in-L}(l_2) &#x3D; \frac{Y_L+jY_0 \tan(\beta l_2)}{Y_0+jY_L \tan(\beta l_2)}  &#x3D; \tilde{G}+ j \tilde{B}<br>$$</p>
+<p>即显然有：</p>
+<p>$$<br>1&#x3D; j\frac{Y_1}{Y_0}tan(\beta l_3) + \tilde{G}+ j \tilde{B}<br>\\<br>\tilde{G} &#x3D; \frac{Y_LY_0+Y_LY_0\tan^2(\beta l_2)}{Y_0^2 + Y_L^2\tan^2(\beta l_2)} &#x3D; 1<br>\\<br>\tilde{B} &#x3D; \frac{Y_0^2 \tan(\beta l_2)-Y_L^2\tan(\beta l_2)}{Y_0^2+Y_L^2\tan^2(\beta l_2)} &#x3D; -\frac{Y_1}{Y_0}tan(\beta l_3)<br>$$</p>
+<p>即可解得：</p>
+<p>$$<br>l_2 &#x3D; \frac{1}{\beta}\arctan(\sqrt{\frac{Y_0}{Y_L}})<br>\\<br>l_3 &#x3D;  \frac{1}{\beta} \arctan(\frac{Y_L-Y_0}{Y_1}\sqrt{\frac{Y_0}{Y_L}})<br>$$</p>
+<h2 id="工程实用公式"><a href="#工程实用公式" class="headerlink" title="工程实用公式"></a>工程实用公式</h2><ul>
+<li>带载传输线的输入阻抗<br>  $$<br>  Z_{in}(z) &#x3D; \frac{U(z)}{I(z)} &#x3D; Z_0\frac{Z_L\cdot \cos(\beta z)+jZ_0\cdot \sin(\beta z)}{Z_0 \cdot \cos(\beta z) + jZ_L \cdot \sin(\beta z)}<br>  $$</li>
+<li>反射系数<br>  $$<br>  \Gamma_u &#x3D; \frac{U^-(z)}{U^+(z)} &#x3D; \frac{Z_L - Z_0}{Z_0 + Z_L} e^{-j2\beta z}<br>  $$</li>
+<li>四分之波长匹配器特征阻抗<br>  $$<br>  Z &#x3D; \sqrt{Z_0Z_L}<br>  $$</li>
+<li>枝节匹配器<br>  $$<br>  插入点l_2 &#x3D; \frac{1}{\beta}\arctan(\sqrt{\frac{Y_0}{Y_L}})<br>  \\<br>  支线长度l_3 &#x3D;  \frac{1}{\beta} \arctan(\frac{Y_L-Y_0}{Y_1}\sqrt{\frac{Y_0}{Y_L}})<br>  $$</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D/" rel="tag">阻抗匹配</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/08/07/antenna/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            天线
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/05/06/IIC4OLED/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">硬件IIC控制OLED屏幕</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

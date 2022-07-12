@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>卡尔曼滤波器 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-KalmanFilter"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  卡尔曼滤波器
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/06/09/KalmanFilter/" class="article-date">
+  <time datetime="2020-06-09T03:07:12.000Z" itemprop="datePublished">2020-06-09</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/">控制技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">6 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="什么是卡尔曼滤波器（Kalman-Filter）"><a href="#什么是卡尔曼滤波器（Kalman-Filter）" class="headerlink" title="什么是卡尔曼滤波器（Kalman Filter）"></a>什么是卡尔曼滤波器（Kalman Filter）</h2><p>虽然名字里带了“滤波”，但其实卡尔曼滤波器是一种状态优化估算算法（optimal estimation algorithm）。</p>
+<h2 id="为什么使用KF"><a href="#为什么使用KF" class="headerlink" title="为什么使用KF"></a>为什么使用KF</h2><ul>
+<li><p>当我们有很多种数据来源时，使用KF进行多数据融合</p>
+<blockquote>
+<p>比如汽车：陀螺仪积分得到位移、里程计、GPS，那么通过KF就可以结合这3个数据，得到最大概率位置</p>
+</blockquote>
+</li>
+<li><p>当需要测量无法测量物理量时，使用KF估计状态</p>
+<blockquote>
+<p>比如火箭发动机内温：可以测量火箭发动机外壳温度，再利用导热定律求解内温；也可以通过燃料的使用量和燃料的燃烧热计算出内温。这都是间接计算内温，那么真正的内温是多少？还是使用KF得出最终温度（这好像还是多数据融合）</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="KF原理"><a href="#KF原理" class="headerlink" title="KF原理"></a>KF原理</h2><span id="more"></span>
+
+<h3 id="状态观测器"><a href="#状态观测器" class="headerlink" title="状态观测器"></a>状态观测器</h3><blockquote>
+<p>可以将下图理解为：y是火箭发动机外壳温（可直接测量数据），x为火箭发动机内温（不可测量物理量），u为火箭燃料流量（系统输入值）</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/202006/202006-KF-1.jpg" alt="状态观测器"></p>
+<p>假设有一个线性系统(使用<a href="/2020/05/29/ModernControlModel/">状态方程</a>表示)</p>
+<p>$$<br>\dot x &#x3D; Ax+Bu \\<br>y&#x3D;Cx+Du<br>$$</p>
+<p>所以，我们对该系统建立一个数学上相同的预测模型(可以理解为运行在控制器里)</p>
+<p>$$<br>\dot {\hat x} &#x3D; A\hat x+Bu \\<br>\hat y&#x3D;C\hat x+Du<br>$$</p>
+<p>那么如图所示，由于采用误差反馈的方式，则预测模型变为：</p>
+<p>$$<br>\dot {\hat x} &#x3D; A\hat x+Bu+K(y-\hat{y}) \\<br>\hat y&#x3D;C\hat x+Du<br>$$</p>
+<p>将原系统和该模型联立（相减）可求：</p>
+<p>$$<br>e&#x3D;x-\hat{x} \\<br>\begin{cases}<br>    \dot x-\dot {\hat x}&#x3D;A(x-\hat x)-K(y-\hat{y}) \\<br>    y-\hat{y}&#x3D;C \cdot e<br>\end{cases} \\ \Rightarrow<br>\dot e&#x3D;(A-KC)e \\<br>\therefore e &#x3D; \exp[(A-KC)t]\cdot e(0)<br>$$</p>
+<blockquote>
+<p>那么通过调整K的值，就能调整误差收敛的速度，也就是模型预测值接近实际值的速度</p>
+</blockquote>
+<h3 id="最佳状态估计器（KF）"><a href="#最佳状态估计器（KF）" class="headerlink" title="最佳状态估计器（KF）"></a>最佳状态估计器（KF）</h3><blockquote>
+<p>上面讨论的状态观察器中，调整K就能调整误差收敛速度，那么K如何选取呢？通过数据的概率统计优劣，也就是数据的方差，来选择更加可信的数据，也就是K（数据选择比）</p>
+<blockquote>
+<p>对于第一个状态观察模型，是没有考虑概率误差（噪声）的，而现实生活中往往存在噪声（大自然最常见的：高斯白噪声）！如果没有噪声，似乎K的选择只要加速逼近速度就好了，那么K越大不是就越好了？</p>
+</blockquote>
+</blockquote>
+<p>类上，此处建立了一个离散线性状态方程，且是伴随噪声的系统：</p>
+<p>$$<br>x_k &#x3D; A\cdot x_{k-1}+B\cdot u_k+w_k \\<br>y_k &#x3D; C\cdot x_k + v_k<br>$$</p>
+<p>可以很放心的把噪声假设为高斯白噪声：</p>
+<p>$$<br>w_k \sim N(0,Q) \\<br>v_k \sim N(0,R)<br>$$</p>
+<p>那么同样的，可以对该系统建立预测模型（数理知识真是太重要了）</p>
+<p>$$<br>\hat x_k &#x3D; A\cdot \hat x_{k-1}+ B\cdot u_k \\<br>\hat y_k &#x3D; C\cdot \hat x_k<br>$$</p>
+<p>也同样再引入误差反馈</p>
+<p>$$<br>e_k &#x3D; y_k - \hat y_k &#x3D; y_k - C \cdot (A \cdot \hat x_{k-1}+ B\cdot u_k) \\<br>\hat x_k &#x3D; A \cdot \hat x_{k-1}+ B \cdot u_k + K_k \cdot e_k<br>$$<br>则有<br>$$<br>{\hat x}^-_k&#x3D; A \cdot \hat{x} _{k-1}+ B \cdot u_k \\<br>\hat x_k &#x3D; \hat x^-_k + K_k(y_k - C \hat x^-_k)<br>$$</p>
+<p>将概率特性（协方差矩阵）带入可得：</p>
+<p>$$<br>P_k &#x3D; (I-K_kC)P^- _k \\<br>P^-_k &#x3D; AP_{k-1}A^T +Q<br>$$</p>
+<p>增益</p>
+<p>$$<br>K_k&#x3D;\frac{P^-_k C^T}{CP^-_k C^T + R} \\<br>$$</p>
+<h4 id="增益理解"><a href="#增益理解" class="headerlink" title="增益理解"></a>增益理解</h4><ul>
+<li><p>当输出方程方差无穷小时</p>
+<p>  $$<br>  \lim_{R\to 0} K_k &#x3D;\frac{1}{C} \\<br>  \hat{x}_k &#x3D; y_k<br>  $$</p>
+<blockquote>
+<p>也就是说当输出方程方差趋近0时，显然测量值更加可靠，那么KF的输出值就应该更加依赖测量值</p>
+</blockquote>
+</li>
+<li><p>当迭代方程方差无穷小时</p>
+<p>  $$<br>  \lim_{P^-_k \to 0} K_k &#x3D;0 \\<br>  \hat{x}_k &#x3D; \hat{x}_k^-<br>  $$</p>
+<blockquote>
+<p>也就是状态迭代方程误差趋近于0，显然预测模型计算的结果更加可靠，那么KF的输出就应该更加依赖预测值</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="KF计算方法"><a href="#KF计算方法" class="headerlink" title="KF计算方法"></a>KF计算方法</h3><p>上面的论述已经非常详细给出了KF的原理，此处给出工程中（比如在微控制器上）实际计算KF的迭代顺序：</p>
+<p>预测部分</p>
+<ul>
+<li><p>根据预测模型计算预测的（先验）结果值</p>
+<p>  $$<br>  \hat{x} _k^-&#x3D; A\cdot \hat{x} _{k-1}+ B\cdot u_k<br>  $$</p>
+</li>
+<li><p>计算出预测结果值的协方差矩阵</p>
+<p>  $$<br>  P^- _k &#x3D; AP _{k-1}A^T +Q<br>  $$</p>
+</li>
+</ul>
+<p>更新部分</p>
+<ul>
+<li><p>根据统计特性（方差&#x3D;可信度）计算K值</p>
+<p>  $$<br>  K_k&#x3D;\frac{P^-_k C^T}{CP^-_k C^T + R}<br>  $$</p>
+</li>
+<li><p>根据确定的K值，计算（后验）结果值</p>
+<p>  $$<br>  \hat{x}_k &#x3D; \hat{x}_k^- + K_k(y_k-C\hat{x}_k^-)<br>  $$</p>
+</li>
+<li><p>计算（后验）协方差矩阵</p>
+<p>  $$<br>  P_k &#x3D; (I-K_kC)P^-_k<br>  $$</p>
+</li>
+</ul>
+<blockquote>
+<p>不停重复交替，迭代计算以上两个部分，就是KF的工作原理了</p>
+</blockquote>
+<h2 id="非线性KF"><a href="#非线性KF" class="headerlink" title="非线性KF"></a>非线性KF</h2><blockquote>
+<p>上面对KF的讨论中，使用的都是状态方程，而显然状态方程是表示线性系统的！对于非线性系统，KF就是另一个故事了，但是我们可以观察KF方程形式，其中被非线性系统影响到的系统矩阵A、B、C，相当于导数</p>
+<blockquote>
+<p>考虑泰勒展开来近似曲线，同理可以使用Jacobian矩阵来替代这里的A、B、C矩阵</p>
+</blockquote>
+</blockquote>
+<h3 id="扩展卡尔曼滤波器-Extended-Kalman-Filter"><a href="#扩展卡尔曼滤波器-Extended-Kalman-Filter" class="headerlink" title="扩展卡尔曼滤波器(Extended Kalman Filter)"></a>扩展卡尔曼滤波器(Extended Kalman Filter)</h3><p>有非线性系统：<br>$$<br>x_k &#x3D; f(x_{k-1},u_k)+w_k \\<br>y_k &#x3D; g(x_k)+v_k<br>$$</p>
+<p>该系统的Jacobian：</p>
+<p>$$<br>F&#x3D;\frac{\partial f}{\partial x}|_{\hat{x}_{k-1},u_k} \\<br>G&#x3D;\frac{\partial g}{\partial x}|_{\hat{x}}<br>$$</p>
+<p>做线性近似（一阶泰勒）<br>$$<br>\Delta x_k \simeq F\Delta x_{k-1} + w_k \\<br>\Delta y_k \simeq G\Delta x_k +v_k<br>$$</p>
+<blockquote>
+<p>所以，一阶泰勒近似的缺点，也就是EKF的缺点：不连续点处无效、极度非线性区域无效…</p>
+</blockquote>
+<h3 id="无迹卡尔曼滤波器（Unscented-Kalman-Filter）"><a href="#无迹卡尔曼滤波器（Unscented-Kalman-Filter）" class="headerlink" title="无迹卡尔曼滤波器（Unscented Kalman Filter）"></a>无迹卡尔曼滤波器（Unscented Kalman Filter）</h3><p>选取符合原统计特性的数个样点，将样点通过非线性系统，得到的新统计特性作为计算时使用的统计特性</p>
+<h3 id="粒子滤波器（Particle-Filter）"><a href="#粒子滤波器（Particle-Filter）" class="headerlink" title="粒子滤波器（Particle Filter）"></a>粒子滤波器（Particle Filter）</h3><p>样点非常多，以符合你想要的所有的概率统计特性，然后就是类似于UKF的工作</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>知乎: <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/23971601">如何通俗并尽可能详细地解释卡尔曼滤波？</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/06/09/KalmanFilter/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/KalmanFilter/" rel="tag">KalmanFilter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%A7%E5%88%B6%E5%8E%9F%E7%90%86/" rel="tag">控制原理</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%8A%B6%E6%80%81%E7%A9%BA%E9%97%B4%E6%A8%A1%E5%9E%8B/" rel="tag">状态空间模型</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/06/09/ESP8266ConnectServer/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            ESP8266连接服务器
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/06/07/SVNmanageAltiumDesignerPrj/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">SVN管理AD工程</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

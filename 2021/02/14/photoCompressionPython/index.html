@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Python开发图片压缩小工具 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-photoCompressionPython"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Python开发图片压缩小工具
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/02/14/photoCompressionPython/" class="article-date">
+  <time datetime="2021-02-14T10:13:44.000Z" itemprop="datePublished">2021-02-14</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">5 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这个小工具非常简单，就是把图像以最小的损失量压缩。网络上的工具要么是要钱，要么一张张图片导入导出实在是太麻烦啦🙃笔者博客的图片全部都托管在gitee上，有1MB的大小限制，所以就搞个小工具来批量压缩图片啦大家有需要自取</p>
+</blockquote>
+<h2 id="图像存储原理"><a href="#图像存储原理" class="headerlink" title="图像存储原理"></a>图像存储原理</h2><p>首先区别两个知识点：图片格式&amp;颜色模式</p>
+<ul>
+<li>图片格式：文件存储的时候文件编码的数据结构，比如常见的.jpg和.png是两种图片存储格式</li>
+<li>颜色模式：指的是颜色表示的方式，常见的有RGB和YUV</li>
+</ul>
+<p>一般来说，咱们常见的.jpg图片，使用手机拍的、电脑截图的如果没有经过特殊转码处理，一般采用RGB颜色模式。</p>
+<p>一张数字图片，可以理解为一个二维数组，每一个元素就是常说的像素点，每个像素点就是一个颜色方块，当这些方块非常非常小时，就组成了一张图片（微分思想）。我们知道使用三基色可以合成所有颜色，这也就是RGB颜色模式的由来。由红R+绿G+蓝B三个颜色分量合成一个像素点，目前一般采样RGB24也就是一个分量一个字节（1Byte&#x3D;8bits），那么一个像素点就是3Bytes（24bits）。计算一张采用RGB24颜色模式的分辨率A×B的图片大小：</p>
+<p>$$<br>\text{Size} &#x3D; A\cdot B \cdot 3Bytes<br>$$</p>
+<blockquote>
+<p>当然还有更节省存储的RGB8和RGB16，也有色板精度更高的RGB32</p>
+</blockquote>
+<h2 id="图像压缩实例代码"><a href="#图像压缩实例代码" class="headerlink" title="图像压缩实例代码"></a>图像压缩实例代码</h2><span id="more"></span>
+
+<p>所以根据图像存储原理及得到的图像存储大小计算方法就可以编写我们的最优抽样压缩代码了。在开始操作前，要先意识到有两个坑：</p>
+<ul>
+<li>由分辨率计算得到的图像大小会和实际图片大小偏差很大，这个常常是因为图片带有其他辅助信息。比如笔者用手机拍照得到的图片，放在电脑上用属性查看器是可以看到拍摄时间、拍摄地点经纬度以及相机光圈等属性</li>
+<li>存储时，电脑磁盘不是以字节为最小单位！操作过格式化磁盘的小伙伴应该都知道有一个可调选项是单元分配大小，笔者电脑为了提高速度选择了较大的单元大小（4096B），那么存储2000B大小文件时还是会使用4096B的空间噢！就像一个很大的柜子里放了一颗小戒指！</li>
+</ul>
+<blockquote>
+<p>所以这个图像压缩算法也可以用来剥离平时照片里的敏感信息噢！</p>
+</blockquote>
+<p>那么接下来让我们开始设计代码吧😜</p>
+<ol>
+<li>找出目标图片：笔者这边做了后缀筛选</li>
+<li>文件大小超标检查</li>
+<li>若超标，首先剥离图像的拍摄辅助信息</li>
+<li>若还超标，则做抽样压缩</li>
+</ol>
+<p>根据图像存储大小公式，我们可计算压缩比为：</p>
+<p>$$<br>C &#x3D; \sqrt{\frac{Size}{MaxSize}}<br>$$</p>
+<p>然后计算抽样后的像素数组长宽数量：</p>
+<p>$$<br>W’ &#x3D; \frac{W}{C},H’&#x3D;\frac{H}{C}<br>$$</p>
+<p>最后，进行图像抽样并保存就可以啦！图像抽样时，可以选择不同的滤波方式，滤波的用途比如在长度为5的数组抽样4个则理论上最佳抽样点位置不在数据点上，那么就可以滤波得到逻辑抽样点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Created on Wed Feb 10 18:46:53 2021</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">@author: 江榕煜</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">@brief: 图片压缩工具</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;辅助模块导入&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> glob</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">在你使用之前</span></span><br><span class="line"><span class="string">请务必适配该部分</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">DIR = <span class="string">r&#x27;./&#x27;</span>; <span class="comment"># 要进行压缩处理的图像路径，现在默认文件运行路径</span></span><br><span class="line">saveDIR = <span class="string">r&#x27;./&#x27;</span> <span class="comment"># 压缩处理后图像存储路径</span></span><br><span class="line">MaxSizeOfImg = <span class="number">1e6</span>; <span class="comment">#限制压缩后最大图像大小，单位：Byte</span></span><br><span class="line"></span><br><span class="line">condense_JPG = <span class="literal">True</span>;    <span class="comment"># 若压缩 .jpg 后缀文件请使能该项。若不用，请设置为False</span></span><br><span class="line">condense_PNG = <span class="literal">True</span>;    <span class="comment"># 若压缩 .png 后缀文件请使能该项</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;图片文件匹配&#x27;&#x27;&#x27;</span></span><br><span class="line">fileList_JPG = glob.glob(<span class="string">&#x27;%s%s%s&#x27;</span> % (DIR, <span class="string">&#x27;*&#x27;</span>, <span class="string">&#x27;.jpg&#x27;</span>));</span><br><span class="line">fileList_PNG = glob.glob(<span class="string">&#x27;%s%s%s&#x27;</span> % (DIR, <span class="string">&#x27;*&#x27;</span>, <span class="string">&#x27;.png&#x27;</span>));</span><br><span class="line"></span><br><span class="line">fileList = [];</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> condense_JPG:</span><br><span class="line">    fileList += fileList_JPG;</span><br><span class="line"><span class="keyword">if</span> condense_PNG:</span><br><span class="line">    fileList += fileList_PNG;</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;存储路径存在性检查&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(saveDIR):</span><br><span class="line">    os.mkdir(saveDIR);</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;创建文件夹:&quot;</span>+saveDIR)</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;开始压缩处理&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> imgFile <span class="keyword">in</span> fileList:</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;文件大小检查&#x27;&#x27;&#x27;</span></span><br><span class="line">    thisFileSize = os.path.getsize(imgFile)</span><br><span class="line">    <span class="keyword">if</span> thisFileSize &lt; MaxSizeOfImg:   <span class="comment"># 符合要求跳过不处理</span></span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;用户提示&#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;----------&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;压缩图像&quot;</span>+<span class="built_in">str</span>(imgFile)+<span class="string">&quot;（大小：&quot;</span>+<span class="built_in">str</span>(thisFileSize)+<span class="string">&quot;Bytes）&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;计算存储路径&#x27;&#x27;&#x27;</span></span><br><span class="line">        nameRout = imgFile.split(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line">        nameRout = nameRout[-<span class="number">1</span>].split(<span class="string">&#x27;\\&#x27;</span>)</span><br><span class="line">        nameRout = nameRout[-<span class="number">1</span>]</span><br><span class="line">        saveDir = <span class="string">&#x27;%s%s&#x27;</span> % (saveDIR,nameRout)</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;先剥离图像原本的辅助数据&#x27;&#x27;&#x27;</span></span><br><span class="line">        thisImg = Image.<span class="built_in">open</span>(imgFile) <span class="comment"># 打开图像源文件</span></span><br><span class="line">        cleanImg = thisImg.resize(thisImg.size)</span><br><span class="line">        thisImg.close()</span><br><span class="line">        cleanImg.save(saveDir)</span><br><span class="line">        cleanImg.close()</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;图像抽样压缩&#x27;&#x27;&#x27;</span></span><br><span class="line">        thisFileSize = os.path.getsize(saveDir)</span><br><span class="line">        <span class="keyword">if</span> thisFileSize &lt; MaxSizeOfImg:</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            condenseCoe = math.sqrt( <span class="built_in">float</span>(thisFileSize)/MaxSizeOfImg);  <span class="comment"># 计算压缩比</span></span><br><span class="line">            </span><br><span class="line">            thisImg = Image.<span class="built_in">open</span>(saveDir) <span class="comment"># 打开源图像文件</span></span><br><span class="line">            </span><br><span class="line">            thisImgHeight = thisImg.height; <span class="comment"># 获取图像像素个数</span></span><br><span class="line">            thisImgWidth = thisImg.width;</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;压缩比为：&quot;</span>+<span class="built_in">str</span>(condenseCoe))</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;源图像分辨率：%d，%d&quot;</span> % (thisImgWidth,thisImgHeight))</span><br><span class="line">            </span><br><span class="line">            thisImgHeight = <span class="built_in">int</span>(<span class="built_in">float</span>(thisImgHeight)/condenseCoe);  <span class="comment"># 计算压缩后像素个数</span></span><br><span class="line">            thisImgWidth = <span class="built_in">int</span>(<span class="built_in">float</span>(thisImgWidth)/condenseCoe);</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;压缩图像分辨率：%d，%d&quot;</span> % (thisImgWidth,thisImgHeight))</span><br><span class="line">            </span><br><span class="line">            <span class="string">&#x27;&#x27;&#x27;像素抽样&#x27;&#x27;&#x27;</span></span><br><span class="line">            condenseImg = thisImg.resize((thisImgWidth,thisImgHeight)</span><br><span class="line">                                          <span class="comment">#,Image.ANTIALIAS   # 滤波方法</span></span><br><span class="line">                                          )</span><br><span class="line">            </span><br><span class="line">            <span class="string">&#x27;&#x27;&#x27;存储压缩后的图像&#x27;&#x27;&#x27;</span></span><br><span class="line">            thisImg.close()</span><br><span class="line">            condenseImg.save(saveDir)</span><br><span class="line">            condenseImg.close()</span><br><span class="line">            </span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2021/02/14/photoCompressionPython/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">数字图像处理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/03/21/SlidingModeControl/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            滑膜控制器
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/02/09/xbotPark2021/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">2021年松山湖智能C端科创训练营</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

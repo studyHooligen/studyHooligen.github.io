@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title> Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      
+<section class="cover">
+    
+  <div class="cover-frame">
+    <div class="bg-box">
+      <img src="/images/cover5.jpg" alt="image frame" />
+    </div>
+    <div class="cover-inner text-center text-white">
+      <h1><a href="/">Singularity-blog</a></h1>
+      <div id="subtitle-box">
+        
+        <span id="subtitle"></span>
+        
+      </div>
+      <div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="cover-learn-more">
+    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
+  </div>
+</section>
+
+
+
+<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
+
+
+<!-- Subtitle -->
+
+  <script>
+    try {
+      var typed = new Typed("#subtitle", {
+        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        startDelay: 0,
+        typeSpeed: 200,
+        loop: true,
+        backSpeed: 100,
+        showCursor: true
+      });
+    } catch (err) {
+      console.log(err)
+    }
+  </script>
+  
+<div id="main">
+  <section class="outer">
+  
+  <ul class="ads">
+    
+        <li>
+            <a target="_blank" rel="noopener" href="https://curl.qcloud.com/kvO7hb43">
+                <img src="https://pic.imgdb.cn/item/62174b452ab3f51d912a5ccc.jpg" width="60" alt="云服务器限时秒杀">
+            </a>
+        </li>
+    
+        <li>
+            <a target="_blank" rel="noopener" href="https://www.vultr.com/?ref=8630075">
+                <img src="https://pic.imgdb.cn/item/62174b452ab3f51d912a5cd7.png" width="60" alt="vultr优惠vps">
+            </a>
+        </li>
+    
+</ul>
+  
+  
+  
+<div class="notice" style="margin-top:50px">
+    <i class="ri-heart-fill"></i>
+    <div class="notice-content">目前在做GD32替代STM32作为主控的各种飞行器研究，欢迎感兴趣的朋友联系我。</div>
+</div>
+
+
+<style>
+    .notice {
+        padding: 20px;
+        border: 1px dashed #e6e6e6;
+        color: #969696;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        background: #fbfbfb50;
+        border-radius: 10px;
+    }
+
+    .notice i {
+        float: left;
+        color: #999;
+        font-size: 16px;
+        padding-right: 10px;
+        vertical-align: middle;
+        margin-top: -2px;
+    }
+
+    .notice-content {
+        display: initial;
+        vertical-align: middle;
+    }
+</style>
+  
+  <article class="articles">
+    
+    
+    
+    
+    <article
+  id="post-webSpider-QuickStart"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/01/12/webSpider-QuickStart/"
+    >网络爬虫48H快速入门</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/01/12/webSpider-QuickStart/" class="article-date">
+  <time datetime="2021-01-12T07:01:05.000Z" itemprop="datePublished">2021-01-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/">网站技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">6.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">29 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这是一篇货真价实的48H快速入门爬虫+实战的博文☣今年笔者的大学软件课设题目就是做一个豆瓣电影数据爬虫，所以我将以一个网络爬虫小白快速入门后的视角来讲解</p>
+</blockquote>
+<h2 id="开始前准备"><a href="#开始前准备" class="headerlink" title="开始前准备"></a>开始前准备</h2><p>当然小白指的还是有一定基础的，在开始前你需要：</p>
+<ul>
+<li>具有基础的编程能力和思维，如：循环、条件判断、编码转换等</li>
+<li>基本的数据结构和算法能力：队列（FIFO）、哈希表等</li>
+<li>掌握一门你的工具编程语言，爬虫一般推荐Python（优美好调试and<a target="_blank" rel="noopener" href="https://www.runoob.com/python3/python3-tutorial.html">菜鸟教程传送门</a>）</li>
+<li>有HTTP、URL等WEB传输的基本概念（比如404、200和500是否能让你想起什么？）</li>
+<li>能看懂HTML文件的格式（附<a target="_blank" rel="noopener" href="https://www.runoob.com/html/html-tutorial.html">菜鸟教程传送门</a>）</li>
+<li>有数据库的概念</li>
+</ul>
+<h2 id="什么是爬虫？"><a href="#什么是爬虫？" class="headerlink" title="什么是爬虫？"></a>什么是爬虫？</h2><p>概况成一句话：爬虫就是按照你指定的规律不断循环提取页面里你需要的信息（包括下一步要爬取的网页链接）。因为互联网就是一个通信“网”🕸，所以我们的数据寻找程序就像是一只在“网”上的各个“节点”（有URL的页面）间“爬来爬去”（跳转），这就是爬虫名字的由来。下图是爬虫的工作原理：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210112/20210112-WebSpyder-1.png" alt="爬虫原理简图"></p>
+<p>比如说，这次（笔者的软件课设）要爬取豆瓣电影网的电影数据。让我们先缕一缕要求：</p> 
+      <a class="article-more-link" href="/2021/01/12/webSpider-QuickStart/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Neo4J/" rel="tag">Neo4J</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB/" rel="tag">网络爬虫</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-NodeJS-Express-Vue-MongoDB-Nginx"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/"
+    >NodeJS+Express+Vue+MongoDB+Nginx环境搭建</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/" class="article-date">
+  <time datetime="2021-01-02T09:00:53.000Z" itemprop="datePublished">2021-01-02</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/">网站技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这一套环境算是目前（2021年）主流的网站建设框架了吧，最近刚好需要部署学院里的一套网站（前端&amp;后端），所以就简要记录一下配置安装的步骤防止自己后面遗忘😘</p>
+<blockquote>
+<p>Attention：服务器系统为CentOS7</p>
+</blockquote>
+</blockquote>
+<h2 id="安装nodeJS"><a href="#安装nodeJS" class="headerlink" title="安装nodeJS"></a>安装nodeJS</h2><p>打开官网<a target="_blank" rel="noopener" href="https://nodejs.org/en/download/">下载地址</a>，选择想要的版本并copy链接，在终端使用wget下载</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget https://nodejs.org/dist/v14.15.3/node-v14.15.3-linux-x64.tar.xz</span></span><br></pre></td></tr></table></figure>
+
+<p>解压文件并移动到安装目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">tar -zxvf node-v14.15.3-linux-x64.tar.xz</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mv</span> node-v14.15.3-linux-x64 /usr/local/</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mv</span> node-v14.15.3-linux-x64 nodejs</span></span><br></pre></td></tr></table></figure>
+
+<p>创建程序引导链接（Method.1）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ln</span> -s /usr/local/nodejs/bin/node /usr/local/bin</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ln</span> -s /usr/local/nodejs/bin/npm /usr/local/bin</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>创建链接的方法可能略有繁琐，也可以把整个bin可执行文件目录添加到系统环境变量（Method.2）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">vim /etc/profile</span></span><br></pre></td></tr></table></figure>
+
+<p>在文末添加</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PATH = $PATH:/usr/local/nodejs/bin</span><br><span class="line">export PATH</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>查看版本号测试一下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">node -v</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm -v</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="安装cnpm"><a href="#安装cnpm" class="headerlink" title="安装cnpm"></a>安装cnpm</h3> 
+      <a class="article-more-link" href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/" rel="tag">MongoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodeJS/" rel="tag">nodeJS</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
+  id="post-SCons"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/12/24/SCons/"
+    >SCons</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/12/24/SCons/" class="article-date">
+  <time datetime="2020-12-24T03:42:35.000Z" itemprop="datePublished">2020-12-24</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="Why-SCons"><a href="#Why-SCons" class="headerlink" title="Why SCons?"></a>Why SCons?</h2><blockquote>
+<p>让我引用一段官网的说法</p>
+<blockquote>
+<p>SCons is an Open Source software construction tool—that is, a next-generation build tool. Think of SCons as an improved, cross-platform substitute for the classic Make utility with integrated functionality similar to autoconf&#x2F;automake and compiler caches such as ccache. In short, SCons is an easier, more reliable and faster way to build software.</p>
+</blockquote>
+</blockquote>
+<p>SCons是新一代的开源程序构建工具。相对于传统的Make构建工具，SCons具有优越的跨平台特性（得益于采用Python为开发语言）和更加易于使用（集成了自动配置和自动生成）的特性😘从下面的例子中就会知道SCons真的太香了！</p>
+<h3 id="SCons具体好在哪？"><a href="#SCons具体好在哪？" class="headerlink" title="SCons具体好在哪？"></a>SCons具体好在哪？</h3><ul>
+<li>配置文件就是py脚本</li>
+<li>自动分析依赖文件</li>
+<li>内置支持语言有：C, C++, D, Java, Fortran, Yacc, Lex, Qt和SWIG</li>
+<li>你也可以很容易得自行开发对其他语言的支持（毕竟是Python对象）</li>
+<li>内置支持从SCCS, RCS, CVS, BitKeeper和Perforce获取源文件</li>
+<li>内置对Microsoft Visual Studio .Net和过去的Visual Studio版本的支持，包括生成。dsp、。dsw、。sln和。vcproj文件。(笔者在Windows平台下超爱VS的😘)</li>
+<li>改进了对并行构建的支持——比如make -j，但不管目录层次结构如何，都会使N个作业同时运行</li>
+<li>集成了类似autoconf的查找#include文件、库、函数和类型定义的支持（这真的太香了！🎈）</li>
+<li>所有依赖项的全局视图——不再需要多次构建或重新排序目标来构建所有内容</li>
+<li>能够在缓存中共享构建文件以加速多个构建——比如ccache，但适用于任何类型的目标文件，而不仅仅是C&#x2F; c++编译</li>
+<li>从一开始就为跨平台构建而设计，并且已知可以在Linux、其他POSIX系统(包括AIX、BSD系统、HP&#x2F;UX、IRIX和Solaris)、Windows NT、Mac OS X和OS&#x2F;2上工作</li>
+</ul>
+<h2 id="安装SCons"><a href="#安装SCons" class="headerlink" title="安装SCons"></a>安装SCons</h2><blockquote>
+<p>官网传送门：<a target="_blank" rel="noopener" href="https://scons.org/pages/download.html">SCons Download</a></p>
+<blockquote>
+<p>截至目前（2020年12月24号），官网最新版本为4.0.1，官方提供的安装方式有两种：方便的pip和完整的工程（python源码）压缩包</p>
+</blockquote>
+</blockquote>
+<ol>
+<li><p>首推使用pip安装</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pip install scons</span><br></pre></td></tr></table></figure>
+
+<p> 这个法子是最棒的了，无视任何平台小九九，一步到位。</p>
+</li>
+<li><p>也可以在官网下载工程包手动安装</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://udomain.dl.sourceforge.net/project/scons/scons/4.0.1/scons-4.0.1.tar.gz</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>是的🙃官网不提供直接下载服务，而是托管到了sourceforge这个网站上</p>
+<blockquote>
+<p>不一定要用wget下载，笔者亲测在windows上用迅雷下更香❤（迅雷下载的时候可以加速到3M&#x2F;s，而wget只有几十k&#x2F;s）</p>
+</blockquote>
+</blockquote>
+<p> 然后解压</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ tar -zxvf scons-4.0.1.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p> 进入目录后，允许安装脚本就行了</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> SCons-4.0.1</span><br><span class="line">$ python3 setup.py build</span><br><span class="line">$ sudo python3 setup.py install</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="开始爱上SCons"><a href="#开始爱上SCons" class="headerlink" title="开始爱上SCons"></a>开始爱上SCons</h2><p>在此之前先试试看你的SCons装好了没</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ scons --version</span><br></pre></td></tr></table></figure>
+
+<p>让我们编写一套最简单的C艹，创建一个“main.cpp”文件，内容如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;www.singularity-blog.top&quot;</span>&lt;&lt;std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>想要编译它，我们需要在目录下创建一个“Makefile”文件，内容为：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">buildMain : main.cpp</span><br><span class="line">	g++ -o main main.cpp</span><br></pre></td></tr></table></figure>
+
+<p>那么如果用SCons呢？创建“<strong>Sconstruct</strong>”文件，内容为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Program(&quot;main.cpp&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>对！只有一句话并且非常好理解！看看构建时的输出是啥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">scons: Reading SConscript files ...</span><br><span class="line">scons: <span class="keyword">done</span> reading SConscript files.</span><br><span class="line">scons: Building targets ...</span><br><span class="line">cl /Fomain.obj /c main.cpp /TP /nologo</span><br><span class="line">main.cpp</span><br><span class="line">E:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.28.29333\include\ostream(746): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc</span><br><span class="line">main.cpp(5): note: 查看对正在编译的函数 模板 实例化“std::basic_ostream&lt;char,std::char_traits&lt;char&gt;&gt; &amp;std::operator &lt;&lt;&lt;<span class="string">std::char_traits&lt;char&gt;&gt;(std</span>::basic_ostream&lt;char,std::char_traits&lt;char&gt;&gt; &amp;,const char *)”的</span><br><span class="line">引用</span><br><span class="line"><span class="built_in">link</span> /nologo /OUT:main.exe main.obj</span><br><span class="line">scons: <span class="keyword">done</span> building targets.</span><br></pre></td></tr></table></figure>
+
+<p>因为笔者是在Windows上跑的，所以SCons很聪明地自动找到了VS的编译器！而不是g++</p>
+<blockquote>
+<p>也许上面的例子还不能够非常体现出SCons强大的优势，你可以试着给这个工程多加一些头文件和源文件</p>
+</blockquote>
+<h2 id="SCons语法"><a href="#SCons语法" class="headerlink" title="SCons语法"></a>SCons语法</h2><p>先来一条比较长的例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Program(&#x27;helloscons2&#x27;, </span><br><span class="line">        [&#x27;helloscons2.c&#x27;, &#x27;file1.c&#x27;, &#x27;file2.c&#x27;],</span><br><span class="line">        LIBS = &#x27;m&#x27;, </span><br><span class="line">        LIBPATH = [&#x27;/usr/lib&#x27;, &#x27;/usr/local/lib&#x27;], </span><br><span class="line">        CPPPATH = [&#x27;./include&#x27;],</span><br><span class="line">        CCFLAGS = &#x27;-DHELLOSCONS&#x27;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Program ： 表示编译</li>
+<li>helloscons2 ： 目标文件</li>
+<li>[‘helloscons2.c’, ‘file1.c’, ‘file2.c’] ： 当有多个源文件时，采用（python的）列表形式</li>
+<li>LIBS &#x3D; ‘m’ : 使用的库文件</li>
+<li>LIBPATH &#x3D; [‘&#x2F;usr&#x2F;lib’, ‘&#x2F;usr&#x2F;local&#x2F;lib’] ：使用的库文件路径</li>
+<li>CPPPATH ： 头文件路径</li>
+<li>CCFLAGS &#x3D; ‘-DHELLOSCONS’ ： 其他编译时的选项。这边是宏定义</li>
+</ul>
+<p>所以SCons其实就是python的写法，非常优美</p>
+<blockquote>
+<p>具体可见官网帮助<a target="_blank" rel="noopener" href="https://scons.org/documentation.html">文档</a></p>
+</blockquote>
+<h3 id="编译类型命令"><a href="#编译类型命令" class="headerlink" title="编译类型命令"></a>编译类型命令</h3><ul>
+<li>Program ： 编译可执行文件</li>
+<li>Object ： 编译目标文件</li>
+<li>Library ： 编译库文件（默认静态）</li>
+<li>StaticLibrary ： 编译成静态库文件</li>
+<li>SharedLibrary ： 编译成动态库文件</li>
+</ul>
+<h3 id="指定编译器"><a href="#指定编译器" class="headerlink" title="指定编译器"></a>指定编译器</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import os</span><br><span class="line">env = Environment(ENV=&#123;&#x27;PATH&#x27;: os.environ[&#x27;PATH&#x27;],</span><br><span class="line">                       &#x27;ANDROID_HOME&#x27;: os.environ[&#x27;ANDROID_HOME&#x27;],</span><br><span class="line">                       &#x27;ANDROID_NDK_HOME&#x27;: os.environ[&#x27;ANDROID_NDK_HOME&#x27;]&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Scons命令"><a href="#Scons命令" class="headerlink" title="Scons命令"></a>Scons命令</h3><ul>
+<li><p>多线程并行编译</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ scons -j 4</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>调试信息<br>  将有关派生文件缓存的调试信息写入指定文件。如果file是一个连字符(-)，则将调试信息打印到标准输出。打印的消息描述了在由CacheDir指定的派生文件缓存中查找、检索或写入的签名文件名</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ --cache-debug = file</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>不使用缓存</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--cache-disable,--no-cache</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新方案策略</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--config = [auto,force,cache]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>auto ： scons将使用其正常的依赖机制来决定测试是否必须重新构建。这样就不必在每次调用scons时都运行相同的配置测试，从而节省了时间，但如果不显式指定这些依赖项，则会忽略系统头文件或外部命令(如编译器)中的更改。这是默认行为。</li>
+<li>force ： 如果指定此选项，则将重新运行所有配置测试，而不管缓存的结果是否过期。这可用于显式地强制更新配置测试，以响应系统头文件或编译器中未配置的更改。</li>
+<li>cache ：如果指定此选项，将不重新运行配置测试，并从缓存获取所有结果。如果指定了——config&#x3D;cache并且一个必要的测试在缓存中没有任何结果，则scons将报告一个错误。</li>
+</ul>
+</li>
+<li><p>尽量编译</p>
+<p>  就算遇到了error也会尽量继续编译下去</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-k,--keep-going</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>打印SCons的版本</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-v,--version</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="深入体验SCons"><a href="#深入体验SCons" class="headerlink" title="深入体验SCons"></a>深入体验SCons</h2><p>上面的HelloWorld例子也许没啥意义，所以在本文的最后。笔者决定给出一个比较有价值的DEMO——在windows上开发openCV！</p>
+<blockquote>
+<p>很多小伙伴本来就觉得在Windows上做开发很麻烦，配OpenCV更是劝退💢希望这个例子对你有所帮助</p>
+</blockquote>
+<p>程序实现的就是不断读取本地摄像头的数据，并且显示出来，更新触发条件为用户敲击键盘。上个代码，如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;opencv.hpp&quot;</span>   <span class="comment">//OpenCV（主）头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;    <span class="comment">//引入命名空间</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Mat cap;    <span class="comment">//像素矩阵变量</span></span><br><span class="line">    VideoCapture cam;   <span class="comment">//视频流对象（可以理解为相机）</span></span><br><span class="line">    cam.<span class="built_in">open</span>(<span class="number">0</span>);    <span class="comment">//打开相机，笔记本电脑前置摄像头默认号：0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!cam.<span class="built_in">isOpened</span>()) <span class="comment">//检查是否成功打开相机</span></span><br><span class="line">    &#123;</span><br><span class="line">        std::cout&lt;&lt;<span class="string">&quot;Open Failed!&quot;</span>&lt;&lt;std::endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;open Success!&quot;</span>&lt;&lt;std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        cam &gt;&gt; cap;   <span class="comment">//读取视频流</span></span><br><span class="line">        <span class="built_in">imshow</span>(<span class="string">&quot;camera&quot;</span>,cap);   <span class="comment">//显示图像</span></span><br><span class="line">        <span class="built_in">waitKey</span>(<span class="number">0</span>); <span class="comment">//按键更新</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>想要编译这个程序，需要的SConstruct内容为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Program(<span class="string">&#x27;main&#x27;</span>,</span><br><span class="line">        [<span class="string">&#x27;main.cpp&#x27;</span>],</span><br><span class="line">        LIBS = [<span class="string">&#x27;opencv_world420&#x27;</span>],</span><br><span class="line">        LIBPATH = [<span class="string">&#x27;E:/opencv/build/x64/vc15/lib&#x27;</span>],</span><br><span class="line">        CPPPATH = [<span class="string">&#x27;E:/opencv/build/include/opencv2/&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;E:/opencv/build/include/&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<p>简单解释一下上面路径的由来，在OpenCV官网下载最新版（or你喜欢的版本）开发包，解压到你电脑上喜欢的位置（比如笔者显然直接放在了E盘下）就行。然后把相应库、头文件对应的路径代入就搞定了</p>
+<p>这样就完成了在windows上配置OpenCV和允许Demo的所有配置了🍻是不是非常简单呢？完全不需要配置环境变量以及其他IDE参数</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SCons/" rel="tag">SCons</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+  </article>
+  
+
+  
+  <nav class="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/7/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/9/">下一页</a>
+  </nav>
+  
+</section>
+</div>
+
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

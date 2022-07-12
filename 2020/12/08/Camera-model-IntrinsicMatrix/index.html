@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>相机针孔模型&amp;内参矩阵&amp;标定 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Camera-model-IntrinsicMatrix"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  相机针孔模型&amp;内参矩阵&amp;标定
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/12/08/Camera-model-IntrinsicMatrix/" class="article-date">
+  <time datetime="2020-12-08T03:46:12.000Z" itemprop="datePublished">2020-12-08</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">974</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">4 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本文是笔者的CV处女篇，聊聊最基础的相机（针孔）模型和该模型下对应的<strong>内参数矩阵</strong>，最后分享一下用Matlab标定内参矩阵的工具</p>
+</blockquote>
+<h2 id="针孔相机模型"><a href="#针孔相机模型" class="headerlink" title="针孔相机模型"></a>针孔相机模型</h2><p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-1.png" alt="针孔模型"></p>
+<p>对！就是初中生都知道的小孔成像原理，如上图所示：可以把相机内部的感光面抽象为像素平面，镜头抽象为光心和对应的焦距。坐标轴的标准定义如上图，z轴为相机正向，y向下，xyz满足右手螺旋。</p>
+<p>那么根据三角相似原理，有：</p>
+<p>$$<br>\frac Z f &#x3D; -\frac{X}{X’}&#x3D; -\frac{Y}{Y’}<br>$$</p>
+<p>图中负号对应于物理上的倒像。那么为了简化模型，我们可以作如下对称等效处理及归一化处理</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-2.png" alt="归一化成像面"></p>
+<p>那么，去掉负号并且整理：</p>
+<span id="more"></span>
+
+<p>$$<br>X’ &#x3D; f \frac{X}{Z}<br>\<br>Y’ &#x3D; f \frac{Y}{Z}<br>$$</p>
+<h2 id="内参数矩阵"><a href="#内参数矩阵" class="headerlink" title="内参数矩阵"></a>内参数矩阵</h2><p>在最后读取相机（感光面）数据的时候，得到的相当于是一个（存储像素数据的）二维数组，那么就建立一个面——像素平面，如下图</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-3.png" alt="归一化成像面"></p>
+<p>显然像素平面坐标系和物理成像平面有线性变换关系</p>
+<p>$$<br>x &#x3D; \alpha \cdot X’ + Cx<br>\<br>y &#x3D; \beta \cdot Y’ + Cy<br>$$</p>
+<p>则把上面的针孔模型方程带进来有：</p>
+<p>$$<br>x &#x3D; \alpha \cdot f \frac{X}{Z} + Cx &#x3D; f_x \frac{X}{Z} + Cx<br>\<br>y &#x3D; \beta \cdot f \frac{Y}{Z} + Cy &#x3D; f_y \frac{Y}{Z} + Cy<br>$$</p>
+<p>让我们用矩阵表示来美化上面的方程：</p>
+<p>$$<br>\begin{bmatrix}<br>    x \\ y \\ 1<br>\end{bmatrix}<br>&#x3D;<br>\frac{1}{Z}<br>\begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
+<p>上面各个矩阵的物理意义：</p>
+<p>$$<br>齐次像素坐标<br>\begin{bmatrix}<br>    x \\ y \\ 1<br>\end{bmatrix}<br>\\<br>物距Z<br>\\<br>相机内参数矩阵<br>\mathbf{K} &#x3D; \begin{bmatrix}<br>    f_x &amp; 0 &amp; c_x \\<br>    0 &amp; f_y &amp; c_y \\<br>    0 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\\<br>相机坐标<br>\mathbf{P} &#x3D;<br>\begin{bmatrix}<br>    X \\ Y \\ Z<br>\end{bmatrix}<br>$$</p>
+<h2 id="Matlab标定相机"><a href="#Matlab标定相机" class="headerlink" title="Matlab标定相机"></a>Matlab标定相机</h2><p>相机的标定，除了上述的<strong>内参矩阵</strong>外，还有<strong>外参矩阵</strong>和<strong>畸变系数</strong>（这两套参数后面讨论）</p>
+<p>Matlab支持“张正友棋盘标定法”，对！🎈这是我国学者发明的算法，只需要打印一张黑白格子交错的纸（如下图，是笔者对mi10手机标定拍的照片）</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-4.jpg" alt="棋盘格"></p>
+<blockquote>
+<p>附：棋盘格图像生成matlab算法<br>    <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">%% 参数设置</span></span><br><span class="line">GridSize = <span class="number">100</span>;  <span class="comment">%格子的宽度，单位:像素</span></span><br><span class="line">row =<span class="number">10</span>;           <span class="comment">%行</span></span><br><span class="line">col = <span class="number">6</span>;          <span class="comment">%列</span></span><br><span class="line">margin = <span class="number">10</span>;    <span class="comment">%四边留白</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%% 预分配内存</span></span><br><span class="line">I = <span class="built_in">ones</span>(row*GridSize+<span class="number">2</span>*margin, col*GridSize+<span class="number">2</span>*margin)*<span class="number">255</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">%% 图像赋值</span></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:row</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">i</span>,<span class="number">2</span>)==<span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">1</span>:col</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">j</span>,<span class="number">2</span>)==<span class="number">1</span></span><br><span class="line">                I(<span class="number">1</span>+(<span class="built_in">i</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">i</span>*GridSize+margin, ...</span><br><span class="line">                <span class="number">1</span>+(<span class="built_in">j</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">j</span>*GridSize+margin) = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">1</span>:col</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">mod</span>(<span class="built_in">j</span>,<span class="number">2</span>)==<span class="number">0</span></span><br><span class="line">            I(<span class="number">1</span>+(<span class="built_in">i</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">i</span>*GridSize+margin,...</span><br><span class="line">                <span class="number">1</span>+(<span class="built_in">j</span><span class="number">-1</span>)*GridSize+margin:<span class="built_in">j</span>*GridSize+margin) = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">%% 显示、保存</span></span><br><span class="line">imshow(I);</span><br><span class="line">imwrite(I,<span class="string">&#x27;chessboard.bmp&#x27;</span>);</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<ol>
+<li><p>打开matlab中的“Camera Calibrator”工具箱</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-5.png" alt="Calibrator"></p>
+</li>
+<li><p>导入相机拍摄图像</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-6.png" alt="import"></p>
+</li>
+<li><p>按照提示输入实际测量的格子宽度</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-7.png" alt="size"></p>
+</li>
+<li><p>让matlab自动标定</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-8.png" alt="Calibrate"></p>
+</li>
+<li><p>导出数据</p>
+<p> <img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-9.png" alt="export"></p>
+</li>
+<li><p>在matlab工作区中可查看标定数据，有：</p>
+<ul>
+<li>camera Intrinsic：内参矩阵</li>
+<li>camera Extrinsic：外参矩阵</li>
+<li>Accuracy of Estimation：估计准确度</li>
+<li>NumRadialDistortionCoefficients：径向畸变系数</li>
+<li>EstimateTangentialDistortion：切向畸变估计</li>
+</ul>
+<p> <img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-10.png" alt="check"></p>
+</li>
+</ol>
+<h2 id="OpenCV相机矫正"><a href="#OpenCV相机矫正" class="headerlink" title="OpenCV相机矫正"></a>OpenCV相机矫正</h2><blockquote>
+<p>根据上法得到的相机参数矩阵，则实际项目使用可以在OpenCV中对相机读取到的照片进行非线性矫正。</p>
+</blockquote>
+<p>下附<code>C++</code>版本的图像矫正，如果是python也是<code>undistort</code>接口。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义相机矩阵，畸变矩阵</span></span><br><span class="line">Mat cameraMatrix;</span><br><span class="line">Mat distCoeffs;</span><br><span class="line"><span class="comment">// 直接手打输入标定参数即可；也可以OpenCV自己计算标定求解</span></span><br><span class="line"><span class="comment">// 当然，笔者个人比较推荐用操作JSON文件的方法自动化导入参数</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 输入图像，矫正后图像，相机矩阵，畸变矩阵</span></span><br><span class="line"><span class="built_in">undistort</span>(source_image, resault_image, cameraMatrix, distCoeffs)</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li>《视觉SLAM十四讲——从理论到实践》——高翔</li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/12/08/Camera-model-IntrinsicMatrix/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9B%B8%E6%9C%BA/" rel="tag">相机</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/12/13/LC-oscillator/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            LC振荡器
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/11/24/design-digitalFilter-With-Matlab/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">数字滤波器设计</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

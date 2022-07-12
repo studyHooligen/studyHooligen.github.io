@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>深刻理解神经网络计算原理 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-NeuralNetwork-UnderlyingCalculate"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  深刻理解神经网络计算原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/10/19/NeuralNetwork-UnderlyingCalculate/" class="article-date">
+  <time datetime="2021-10-19T12:44:47.000Z" itemprop="datePublished">2021-10-19</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">5.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">25 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>笔者初入<strong>深度学习</strong>先是使用TensorFlow后转PyTorch，但都是在框架上进行开发，只能理解各种网络结构的“头口”原理。在学习的中后期或者是要做落地的时候，就会困扰一个非常常见的问题——我们的网络到底需要多少的计算资源？我们暂且将计算资源在两方面考虑：显存和浮点计算次数。这就需要对网络计算过程的底层有透彻直接的认识，也就是本文的重点</p>
+<blockquote>
+<p>很多厉害的大佬可以根据经验、直觉直接判断哪些网络可以在嵌入式平台上跑，但是笔者还是偏爱将过程量化</p>
+</blockquote>
+</blockquote>
+<h2 id="全连接网络"><a href="#全连接网络" class="headerlink" title="全连接网络"></a>全连接网络</h2><p><img src="http://imgjry.fangyikuan.xyz/20211019/20211019-NNC-1.png" alt="梯度下降"></p>
+<p>为了方便讨论，我们选取单隐藏层的全连接网络进行讨论。首先，声明该网络的输入为：</p>
+<p>$$<br>x_0 &#x3D; \begin{bmatrix}<br>    x_0^{(1)} \\<br>    x_0^{(2)} \\<br>    \vdots \\<br>    x_0^{(m_0)}<br>\end{bmatrix} \sim [m_0,1]<br>$$</p>
+<p>本文中所有公式中<code>~</code>后的为矩阵、向量的维度。然而，在训练过程中，我们通常一次使用几个样本一起训练网络（mini-batch），那么一次输入网络的数据就是：</p>
+<p>$$<br>X_0 &#x3D; \begin{bmatrix}<br>    x_{0,1} ,<br>    x_{0,2} ,<br>    \cdots ,<br>    x_{0,N}<br>\end{bmatrix} \sim [m_0,N]<br>$$</p>
+<span id="more"></span>
+
+<p>现在规定一层全连接的计算参数：</p>
+<p>$$<br>权重W_1 &#x3D; \begin{bmatrix}<br>    w_1^{(0,0)},w_1^{(0,1)},\cdots,w_1^{(0,m_0)} \\<br>    \vdots \\<br>    w_{1}^{(m_1,0)},w_1^{(m_1,1)},\cdots,w_1^{(m_1,m_0)}<br>\end{bmatrix} \sim [m_1,m_0]<br>\\<br>偏置B_1 &#x3D; \begin{bmatrix}<br>    b_1^0, \\<br>    b_1^2, \\<br>    \vdots \\<br>    b_1^{m_1}<br>\end{bmatrix} \sim [m_1,1]<br>$$</p>
+<p>同理其他层的参数维度也是：</p>
+<p>$$<br>W_l \sim [m_l,m_{l-1}],B_l \sim [m_l,1]<br>$$</p>
+<p>则上图中的单层全连接网络，我们可以将正向传播过程表示以线性计算和非线性激活两部分拆分为：</p>
+<p>$$<br>Z_1 &#x3D; W_1\cdot X_0 + B_1<br>\\ \sim [m_1,N] &#x3D; [m_1,m_0]\cdot [m_0,N] + [m_1,1]<br>\\<br>Y_1 &#x3D; f_1(Z_1) \sim [m_1,N]<br>\\<br>X_1 &#x3D; Y_1<br>\\<br>Z_2 &#x3D; W_2\cdot X_1 + B_2 &#x3D; \begin{bmatrix}<br>    z_{2,1} ,<br>    z_{2,2} ,<br>    \cdots ,<br>    z_{2,N}<br>\end{bmatrix}<br>\\ \sim [m_2,N] &#x3D; [m_2,m_1]\cdot [m_1,N] + [m_2,1]<br>\\<br>Y_2 &#x3D; f_2(Z_2) \sim [m_2,N]<br>\\<br>\hat{Y} &#x3D;Y_2 &#x3D; \begin{bmatrix}<br>    \hat{y_0} ,<br>    \hat{y_1} ,<br>    \cdots ,<br>    \hat{y_N}<br>\end{bmatrix},<br>\hat{y_i} &#x3D; \begin{bmatrix}<br>    \hat{y_i}^{(0)} \\<br>    \hat{y_i}^{(1)} \\<br>    \vdots \\<br>    \hat{y_i}^{(m_2)}<br>\end{bmatrix} \sim [m_2,1]<br>$$</p>
+<blockquote>
+<p>上面在线性层计算的时候，读者会发现做加分的时候，维度不匹配。不用担心，在我们代码中计算的时候，矩阵库会自动帮我们扩展（参见Numpy或者TensorFlow的<strong>广播</strong>概念）</p>
+</blockquote>
+<p>那么，现在我们对该网络进行训练，在正向传播后需要作反向传播来计算梯度。首先，要定义一下网络的损失(Loss)函数：</p>
+<p>$$<br>L(W,B) &#x3D; \frac{1}{N} \sum^N_{i&#x3D;1} loss(\hat{y_i},y_i)<br>$$</p>
+<p>我们的目标就是根据梯度不断更新网络参数，使得该函数的结果最小。则对各可训练参数的偏导计算：</p>
+<p>$$<br>\frac{\partial L(W,B)}{\partial Z_2} &#x3D; \frac{\partial L(W,B)}{\partial Y_2} \cdot \frac{\partial Y_2}{\partial Z_2}<br>$$</p>
+<p>$$<br>&#x3D; \frac{1}{N} *<br>\begin{bmatrix}<br>    \frac{\partial loss(\hat{y_1},y_1)}{\partial \hat{y_1}}, \cdots , \frac{\partial loss(\hat{y_N},y_N)}{\partial \hat{y_N}}<br>\end{bmatrix} *<br>\begin{bmatrix}<br>    \frac{\partial \hat{y_1}}{\partial z_{2,1}}, \cdots , \frac{\partial \hat{y_N}}{\partial z_{2,N}}<br>\end{bmatrix}<br>$$</p>
+<p>$$<br>&#x3D; \frac{1}{N} *<br>\begin{bmatrix}<br>    \frac{\partial loss(\hat{y_1},y_1)}{\partial \hat{y_1}} * \frac{\partial \hat{y_1}}{\partial z_{2,1}}<br>    , \cdots,<br>    \frac{\partial loss(\hat{y_N},y_N)}{\partial \hat{y_N}} * \frac{\partial \hat{y_N}}{\partial z_{2,N}}<br>\end{bmatrix} \\ \sim  [m_2,N] * [m_2,N] &#x3D; [m_2,N]<br>$$</p>
+<blockquote>
+<p>注意：上式中两次偏导的结果是通过<strong>数乘</strong><code>*</code>传递的，而不是矩阵乘法。消化这个比较困难，因为角标太多了，笔者第一次尝试理解也失败了，后面看完实例项目（函数都是具体对象）的反向传播可能会恍然大悟</p>
+</blockquote>
+<p>从上面的式子中，我们可以知道，使用mini-Batch的方式一批批样本进去，最后反向传播的时候，其实可以分成每个单独样本求导，最后作平均求和。所以，我们接下来把其他参数的偏导都先以单个样本的形式求解，最后以Batch进行归纳：</p>
+<p>$$<br>\frac{\partial L}{\partial W_2} &#x3D; \frac{\partial L}{\partial Z_2} \cdot \frac{\partial Z_{2}}{\partial W_2} &#x3D;  \frac{\partial L}{\partial Z_2} \cdot X_1^T<br>\\ &#x3D; \frac{1}{N} \begin{bmatrix}<br>    [\frac{\partial loss(\hat{y_1},y_1)}{\partial \hat{y_1}} * \frac{\partial \hat{y_1}}{\partial z_{2,1}}]\cdot x_{1,1}^T + \cdots + [\frac{\partial loss(\hat{y_N},y_N)}{\partial \hat{y_N}} * \frac{\partial \hat{y_N}}{\partial z_{2,N}}]\cdot x_{1,N}^T<br>\end{bmatrix}<br>\\ \sim [m_2,m_1] &#x3D; [m_2,N] \cdot [m_1,N] ^T<br>$$</p>
+<blockquote>
+<p>这个地方也许会有人觉得很怪，为什么后面的x向量要作转置？这里笔者是从矩阵相乘的规则去理解。</p>
+</blockquote>
+<p>$$<br>\frac{\partial L}{\partial B_2} &#x3D;<br>\frac{\partial L}{\partial Z_{2}} \cdot \frac{\partial Z_{2}}{\partial B_2} &#x3D;\frac{\partial L}{\partial Z_{2}} \cdot 1<br>\\ &#x3D; \frac{1}{N} \begin{bmatrix}<br>    [\frac{\partial loss(\hat{y_1},y_1)}{\partial \hat{y_1}} * \frac{\partial \hat{y_1}}{\partial z_{2,1}}] + \cdots + [\frac{\partial loss(\hat{y_N},y_N)}{\partial \hat{y_N}} * \frac{\partial \hat{y_N}}{\partial z_{2,N}}]<br>\end{bmatrix}<br>\\ \sim [m_2,1]<br>$$</p>
+<p>这样就完成了最后一层的偏导计算，一样的我们继续求前一层偏导。首先是前一层激活输出：</p>
+<p>$$<br>\frac{\partial L}{\partial Y_1} &#x3D; \frac{\partial L}{\partial Z_{2}} \cdot \frac{\partial Z_{2}}{\partial Y_1} &#x3D; [\frac{\partial L}{\partial Z_{2}} ^T \cdot W_2 ]^T<br>\\  &#x3D;<br>\\ \sim [m_1,N] &#x3D; \begin{bmatrix}<br>    [m_2,N]^T \cdot [m2,m_1]<br>\end{bmatrix} ^ T<br>$$</p>
+<p>以及线性输出偏导：</p>
+<p>$$<br>\frac{\partial L}{\partial Z_1} &#x3D; \frac{\partial L}{\partial Y_1}\cdot \frac{\partial Y_1}{\partial Z_1} &#x3D; \frac{\partial L}{\partial Y_1} * f_1’(Z_1)<br>\\ \sim [m_1,N] &#x3D; [m_1,N] * [m_1,N]<br>$$</p>
+<p>则可以得到可训练参数的偏导为：</p>
+<p>$$<br>\frac{\partial L}{\partial W_1} &#x3D; \frac{\partial L}{\partial Z_1}\cdot \frac{\partial Z_1}{\partial W_1} &#x3D; \frac{\partial L}{\partial Z_1}\cdot X_0^T<br>\\ \sim  [m_1,m_0] &#x3D; [m_1,N] \cdot [m_0,N] ^ T<br>$$</p>
+<p>$$<br>\frac{\partial L}{\partial B_1} &#x3D; \frac{\partial L}{\partial Z_1}\cdot \frac{\partial Z_1}{\partial B_1} &#x3D;  \frac{\partial L}{\partial Z_1}\cdot 1<br>\\ \sim [m_1,1]<br>$$</p>
+<h2 id="MNIST分类实战"><a href="#MNIST分类实战" class="headerlink" title="MNIST分类实战"></a>MNIST分类实战</h2><p>根据上面的推导，我们可以抽象地了解（全连接）网络的原理与计算过程，但全都是公式以及概念，接下来，我们实际操作一下用numpy科学计算库搭建单层全连接神经网络识别MNIST数据集中的数字。</p>
+<h3 id="计算过程分析"><a href="#计算过程分析" class="headerlink" title="计算过程分析"></a>计算过程分析</h3><p>首先，我们先把上面分析的网络具体参数化，网络的结构定义：</p>
+<p>$$<br>输入层m_0 &#x3D; 28*28<br>\\<br>隐藏（单）层m_1 &#x3D; 128<br>\\<br>输出层m_2 &#x3D; 10<br>$$</p>
+<p>以及网络的激活函数和损失函数：</p>
+<p>$$<br>f_1(z) &#x3D; ReLU(z) &#x3D;<br>\begin{cases}<br>    z , z&gt;0<br>    \\ 0, z \le 0<br>\end{cases}<br>$$</p>
+<p>$$<br>f_2(Z_2)&#x3D; softmax(Z_2) &#x3D; \frac{e^{Z_2}}{ \sum^{m_2}_{k&#x3D;1} e^{ Z_2^{(k)} } }<br>$$</p>
+<p>$$<br>loss(\hat{y_i},y_i) &#x3D; -\sum^{m_2}_{k&#x3D;1} y_i^{(k)} \ln(\hat{y}_i^{(k)})<br>$$</p>
+<blockquote>
+<p>注意与上面我们推导全连接公式中的符号进行逻辑闭环。第一个激活函数中的变量是小写<code>z</code>，表示实数；第二个激活函数，已经与上面我们推导的输出层符号同步，认真观察，笔者在右上角加的角标在上面推导中是表示第几行，因为这里面的除法其实是一个（BatchSize宽的）矩阵除法！</p>
+</blockquote>
+<h3 id="最困难的第一步，输出层偏导"><a href="#最困难的第一步，输出层偏导" class="headerlink" title="最困难的第一步，输出层偏导"></a>最困难的第一步，输出层偏导</h3><p>现在我们推导一下损失函数（交叉熵）的导数：</p>
+<p>$$<br>\frac{\partial loss(\hat{y_i},y_i)}{\partial \hat{y}_i^{(j)}} &#x3D; y_i^{(j)} \frac{1}{\hat{y}_i^{(j)}}<br>$$</p>
+<p>以及输出层softmax激活函数的导数，但是为了方便理解，我们先推导单个列向量（一个BatchSize宽度）的情况：</p>
+<p>$$<br>f_2( Z_{2,i} ) &#x3D; softmax( Z_{2,i} )<br>&#x3D; \frac{ e^{ Z_{2,i} } }{ \sum^{ m_2 } _ { k&#x3D;1 } e^{ Z _ { 2,i }^{ (k) } } } &#x3D;<br>\begin{bmatrix}<br>    \frac{e^{Z^{(1)} _ {2,i}}}{\sum^{m_2} _ {k&#x3D;1} e^{Z_{2,i}^{(k)}}}<br>    \\<br>    \vdots<br>    \\<br>    \frac{e^{Z^{(m_2)} _ {2,i}}}{\sum^{m_2} _ {k&#x3D;1} e^{Z_{2,i}^{(k)}}}<br>\end{bmatrix}<br>$$</p>
+<p>$$<br>f’ _ 2 &#x3D; \frac{\partial}{\partial Z^{(j)} _ {2,i} } \frac{e^{Z^{(k)} _ {2,i}}}{\sum^{m_2} _ {k&#x3D;1} e^{Z _ {2,i}^{(k)}}} &#x3D;<br>\begin{cases}<br>    \frac{e^{Z_{2,i}^{(j)}} \sum_{k&#x3D;1}^{m_2} e^{Z_{2,i}^{(k)}} - e^{Z_{2,i}^{(j)}}e^{Z_{2,i}^{(j)}}}{ [\sum_{k&#x3D;1}^{m_2} e^{Z_{2,i}^{(k)}}]^2 } &amp;, j&#x3D;k<br>    \\<br>    \frac{- e^{Z_{2,i}^{(j)}}e^{Z_{2,i}^{(k)}}}{ [\sum_{k&#x3D;1}^{m_2} e^{Z_{2,i}^{(k)}}]^2 } &amp;, j \ne k<br>\end{cases} \\&#x3D;<br>\begin{cases}<br>    \frac{e^{Z^{(j)} _ {2,i}}}{ \sum^{m_2}_ {k&#x3D;1} e^{Z_{2,i}^{(k)}} } [1- \frac{e^{Z^{(j)}_ {2,i}}}{ \sum^{m_2}_ {k&#x3D;1} e^{Z_ {2,i}^{(k)}} }] &#x3D; y_ {2,i}^{(j)}[1-y_ {2,i}^{(j)}] &amp;, j&#x3D;k<br>    \\<br>    -\frac{e^{Z^{(j)}_ {2,i}}}{ \sum^{m_2}_ {k&#x3D;1} e^{Z_ {2,i}^{(k)}} } \frac{e^{Z^{(k)}_ {2,i}}}{ \sum^{m_2}_ {k&#x3D;1} e^{Z_ {2,i}^{(k)}} } &#x3D; -y_{2,i}^{(j)}y_{2,i}^{(k)} &amp;, j \ne k<br>\end{cases} \\ &#x3D;<br>\begin{cases}<br>    \hat{y}_i^{(j)}[1-\hat{y}_i^{(j)}] &amp;, j&#x3D;k<br>    \\<br>    -\hat{y}_i^{(j)}\hat{y}_i^{(k)} &amp;, j \ne k<br>\end{cases}<br>$$</p>
+<blockquote>
+<p>Help Notice：角标<code>i</code>为一批样本中的某个样本</p>
+</blockquote>
+<p>把上面两个偏导合体，就得到了：</p>
+<p>$$<br>\frac{\partial loss(\hat{y_i},y_i)}{\partial Z^{(j)} _ {2,i}}<br>&#x3D; -\frac{\partial}{\partial Z^{(j)} _ {2,i}} \sum^{m_2} _ {k&#x3D;1} y_i^{(k)} \ln(\hat{y}_i^{(k)})<br>&#x3D; -\sum^{m_2} _ {k&#x3D;1} y_i^{(k)} \frac{\partial}{\partial Z^{(j)} _ {2,i}} \ln(\hat{y}_i^{(k)})<br>\\<br>&#x3D; -\sum^{m_2} _ {k&#x3D;1} y_i^{(k)} \frac{\partial \ln(\hat{y} _ i^{(k)})}{\partial \hat{y} _ i^{(k)}} \frac{\partial \hat{y} _ i^{(k)}}{\partial Z^{(j)} _ {2,i}}<br>&#x3D; -\sum^{m_2} _ {k&#x3D;1} y_i^{(k)} \frac{1}{\hat{y} _ i^{(k)}} \frac{\partial \hat{y} _ i^{(k)}}{\partial Z^{(j)} _ {2,i}}<br>\\<br>&#x3D; -y_i^{(j)} \frac{1}{\hat{y}_i^{(j)}} \hat{y}_i^{(j)}[1-\hat{y}_i^{(j)}] + \sum^{m_2} _ {k\ne j} y_i^{(k)} \frac{1}{\hat{y}_i^{(k)}} \hat{y}_i^{(j)}\hat{y}_i^{(k)}<br>\\<br>&#x3D; -y_i^{(j)} [1-\hat{y}_i^{(j)}] + \sum^{m_2} _ {k\ne j} y_i^{(k)} \hat{y}_i^{(j)} &#x3D; -y_i^{(j)} + \sum^{m_2} _ {k&#x3D;1} y_i^{(k)} \hat{y}_i^{(j)}<br>$$</p>
+<p>这时候，我们惊喜地发现！分类事件的概率总和一定是<code>1</code>呀！</p>
+<p>$$<br>\because \sum_k y_i^{(k)} &#x3D; 1<br>\\ \therefore<br>\frac{\partial loss(\hat{y_i},y_i)}{\partial Z^{(j)}_{2,i}} &#x3D; \hat{y}_i^{(j)} - y_i^{(j)}<br>$$</p>
+<p>那么，我们把上面这个式子，归纳到一个样本的维度去：</p>
+<p>$$<br>\frac{\partial loss(\hat{y_i},y_i)}{\partial Z_{2,i}}  &#x3D; \hat{y}_i - y_i<br>$$</p>
+<p>过程多么的痛苦！结果多么的美妙！🎉🎊✨🎈</p>
+<p>$$<br>\frac{\partial L(W,B)}{\partial Z_2} &#x3D; \frac{1}{N}(\hat{Y} - Y) \sim [m_2,N]<br>$$</p>
+<h4 id="可训练参数偏导"><a href="#可训练参数偏导" class="headerlink" title="可训练参数偏导"></a>可训练参数偏导</h4><p>最后一层的权重和偏置，我们直接使用之前推导的结果就好：</p>
+<p>$$<br>\frac{\partial L}{\partial W_2} &#x3D; \frac{\partial L}{\partial Z_2} \cdot X_1^T<br>\\<br>\frac{\partial L}{\partial B_2} &#x3D;<br>\frac{\partial L}{\partial Z_{2}} \cdot \frac{\partial Z_{2}}{\partial B_2} &#x3D;\frac{\partial L}{\partial Z_{2}} \cdot 1<br>$$</p>
+<p>隐藏层，我们选用的ReLU激活函数的导数为：</p>
+<p>$$<br>f’_1(z) &#x3D; ReLU’(z) &#x3D; \begin{cases}<br>    1 , z&gt;0<br>    \\ 0, z \le 0<br>\end{cases}<br>$$</p>
+<p>那么隐藏的输出偏导为：</p>
+<p>$$<br>\frac{\partial L}{\partial Y_1} &#x3D; [\frac{\partial L}{\partial Z_{2}} ^T \cdot W_2 ]^T<br>\\<br>\frac{\partial L}{\partial Z_1} &#x3D; \frac{\partial L}{\partial Y_1} * f_1’(Z_1)<br>$$</p>
+<blockquote>
+<p>这个地方导数展开写太繁琐了，在下面代码实现会更简单直观</p>
+</blockquote>
+<p>所以，隐藏层的导数为：</p>
+<p>$$<br>\frac{\partial L}{\partial W_1} &#x3D; \frac{\partial L}{\partial Z_1}\cdot X_0^T<br>\\<br>\frac{\partial L}{\partial B_1} &#x3D; \frac{\partial L}{\partial Z_1} \cdot 1<br>$$</p>
+<h3 id="全连接网络实现"><a href="#全连接网络实现" class="headerlink" title="全连接网络实现"></a>全连接网络实现</h3><p>根据上面的分析，笔者将单层全连接网络实现为一个类：</p>
+<blockquote>
+<p>这个封装做的还是比较菜的，只是为了感受计算过程而不是长远开发</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FC</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,inputS:<span class="built_in">int</span>=<span class="number">64</span>,hidWidth:<span class="built_in">int</span>=<span class="number">64</span>,outputS:<span class="built_in">int</span>=<span class="number">10</span>,active:<span class="built_in">str</span>=<span class="string">&quot;relu&quot;</span>,preCacheSize:<span class="built_in">int</span> = <span class="number">1</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        只支持单隐藏层的全连接网络</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        inputS : int, optional</span></span><br><span class="line"><span class="string">            输入维度. The default is 64.</span></span><br><span class="line"><span class="string">        hidWidth : int, optional</span></span><br><span class="line"><span class="string">            隐藏宽度. The default is 64.</span></span><br><span class="line"><span class="string">        outputS : int, optional</span></span><br><span class="line"><span class="string">            输出维度. The default is 10.</span></span><br><span class="line"><span class="string">        active : string, optional</span></span><br><span class="line"><span class="string">            激活函数. The default is &quot;ReLU&quot;.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.inputCache = np.zeros(shape=inputS)</span><br><span class="line">        </span><br><span class="line">        self.param = [  <span class="comment"># 参数list，每个小list代表一个层的权重和偏置</span></span><br><span class="line">                        [], <span class="comment"># 空列表，用来统一化id序号</span></span><br><span class="line">                        <span class="comment">#&#x27;&#x27;&#x27;第一层&#x27;&#x27;&#x27;</span></span><br><span class="line">                        [ np.random.normal(size=(hidWidth,inputS)),     <span class="comment">#权重</span></span><br><span class="line">                          np.zeros(shape=(hidWidth,<span class="number">1</span>))], <span class="comment">#偏置</span></span><br><span class="line">                        <span class="comment">#&#x27;&#x27;&#x27;输出层/第二层&#x27;&#x27;&#x27;</span></span><br><span class="line">                        [ np.random.normal(size=(outputS,hidWidth)), </span><br><span class="line">                          np.zeros(shape=(outputS,<span class="number">1</span>))],</span><br><span class="line">            ]</span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;随batchSize动态变化，有待优化&#x27;&#x27;&#x27;</span></span><br><span class="line">        self.cache = [  <span class="comment"># 缓存list，每个小list代表一个层的中间变量</span></span><br><span class="line">                        <span class="comment">#&#x27;&#x27;&#x27;输入层&#x27;&#x27;&#x27;</span></span><br><span class="line">                        [np.zeros(shape=(inputS,preCacheSize)),    <span class="comment"># 数据的X</span></span><br><span class="line">                         np.zeros(shape=(outputS,preCacheSize))],  <span class="comment"># 数据的Y</span></span><br><span class="line">                        <span class="comment">#&#x27;&#x27;&#x27;第一层&#x27;&#x27;&#x27;</span></span><br><span class="line">                        [ np.zeros(shape=(hidWidth,preCacheSize)), <span class="comment"># 线性计算结果</span></span><br><span class="line">                         np.zeros(shape=(hidWidth,preCacheSize))], <span class="comment"># 激活（非线性）结果</span></span><br><span class="line">                        <span class="comment">#&#x27;&#x27;&#x27;输出层/第二层&#x27;&#x27;&#x27;</span></span><br><span class="line">                        [ np.zeros(shape=(outputS,preCacheSize)),</span><br><span class="line">                         np.zeros(shape=(outputS,preCacheSize))]</span><br><span class="line">            ]</span><br><span class="line">        self.grad = copy.deepcopy(self.param)   <span class="comment"># 梯度缓存的大小和可训练参数是一样多的</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 统一激活函数</span></span><br><span class="line">        self.activeFunc = active</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;创建全连接网络成功，结构：<span class="subst">&#123;inputS&#125;</span>-&gt;<span class="subst">&#123;hidWidth&#125;</span>-&gt;<span class="subst">&#123;outputS&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__ReLU</span>(<span class="params">self,layerID:<span class="built_in">int</span>,forward:<span class="built_in">bool</span>=<span class="literal">True</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        激活函数，支持正反向</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> forward:        </span><br><span class="line">            self.cache[layerID][<span class="number">1</span>] = np.maximum(<span class="number">0</span>,self.cache[layerID][<span class="number">0</span>]) <span class="comment"># 维度会自动扩张</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">else</span>:   <span class="comment"># 反向传播</span></span><br><span class="line">            <span class="keyword">return</span> (self.cache[layerID][<span class="number">1</span>] &gt; <span class="number">0</span>).astype(dtype=np.int0)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__Sigmoid</span>(<span class="params">self,layerID:<span class="built_in">int</span>,forward:<span class="built_in">bool</span>=<span class="literal">True</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        激活函数，支持正反向</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> forward:</span><br><span class="line">            self.cache[layerID][<span class="number">1</span>] = <span class="number">1</span>/(<span class="number">1</span>+np.exp(np.subtract(<span class="number">0</span>,self.cache[layerID][<span class="number">0</span>])))</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> self.cache[layerID][<span class="number">1</span>]*(<span class="number">1</span>-self.cache[layerID][<span class="number">1</span>])</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__softmax</span>(<span class="params">self,inputD:np.ndarray</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        激活函数，支持正向</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        __DEBUG_SOFTMAX__ = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">if</span> __DEBUG_SOFTMAX__:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;inputD : <span class="subst">&#123;inputD.shape&#125;</span>&quot;</span>)</span><br><span class="line">        inputD = np.exp(inputD) <span class="comment"># ~ [m_2,N]</span></span><br><span class="line">        <span class="keyword">if</span> __DEBUG_SOFTMAX__:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;inputD.exp : <span class="subst">&#123;inputD.shape&#125;</span>&quot;</span>)</span><br><span class="line">        sumD = np.<span class="built_in">sum</span>(inputD,axis=<span class="number">0</span>,keepdims=<span class="literal">True</span>)  <span class="comment"># ~ [1,N]</span></span><br><span class="line">        <span class="keyword">if</span> __DEBUG_SOFTMAX__:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;sumD : <span class="subst">&#123;sumD.shape&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> inputD/sumD  <span class="comment"># ~ [m_2,N]</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self,inputX:np.ndarray,inputY:np.ndarray,Debuging:<span class="built_in">bool</span> = <span class="literal">False</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        前向传播方法</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        inputX : np.ndarray</span></span><br><span class="line"><span class="string">            输入样本数据，支持mini-Batch.（注意维度为：[dataSize,BatchSize]</span></span><br><span class="line"><span class="string">        inputY : np.ndarray</span></span><br><span class="line"><span class="string">            输入标签数据，支持mini-Batch.（注意维度为：[labelSize,BatchSize]</span></span><br><span class="line"><span class="string">        Debuging : bool, optional</span></span><br><span class="line"><span class="string">            调试打印使能，使用时不开启！. The default is False.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        np.ndarray</span></span><br><span class="line"><span class="string">            网络的输出层数据.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.cache[<span class="number">0</span>][<span class="number">0</span>] = inputX   <span class="comment"># 存储数据，用于后续反向传播 ~ [m_0,N]</span></span><br><span class="line">        self.cache[<span class="number">0</span>][<span class="number">1</span>] = inputY   <span class="comment"># ~ [classes,N]</span></span><br><span class="line">        <span class="keyword">if</span> Debuging:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;输入数据大小：<span class="subst">&#123;self.cache[<span class="number">0</span>][<span class="number">0</span>].shape&#125;</span>，输入标签的大小：<span class="subst">&#123;self.cache[<span class="number">0</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 第一个线性层</span></span><br><span class="line">        self.cache[<span class="number">1</span>][<span class="number">0</span>] = self.param[<span class="number">1</span>][<span class="number">0</span>] @ self.cache[<span class="number">0</span>][<span class="number">0</span>] + self.param[<span class="number">1</span>][<span class="number">1</span>]</span><br><span class="line">        <span class="comment"># ~ [m_1,N] = [m_1,m_0] @ [m_0,N] + [m_1,1]</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 激活</span></span><br><span class="line">        <span class="keyword">if</span> self.activeFunc == <span class="string">&quot;relu&quot;</span>:</span><br><span class="line">            self.__ReLU(<span class="number">1</span>,forward=<span class="literal">True</span>) <span class="comment"># ~ [m_1,N]</span></span><br><span class="line">        <span class="keyword">elif</span> self.activeFunc == <span class="string">&quot;sigmoid&quot;</span>:</span><br><span class="line">            self.__Sigmoid(<span class="number">1</span>,forward=<span class="literal">True</span>)  <span class="comment"># ~ [m_1,N]</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;activate error!&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span>    </span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 输出层</span></span><br><span class="line">        self.cache[<span class="number">2</span>][<span class="number">0</span>] = self.param[<span class="number">2</span>][<span class="number">0</span>] @ self.cache[<span class="number">1</span>][<span class="number">1</span>] + self.param[<span class="number">2</span>][<span class="number">1</span>]</span><br><span class="line">        <span class="comment"># ~ [m_2,N] = [m_2,m_1] @ [m_1,N] + [m_2,1]</span></span><br><span class="line">        <span class="comment"># 激活</span></span><br><span class="line">        self.cache[<span class="number">2</span>][<span class="number">1</span>] = self.__softmax(self.cache[<span class="number">2</span>][<span class="number">0</span>])</span><br><span class="line">        <span class="comment"># ~ [m_2,N]</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> self.cache[<span class="number">2</span>][<span class="number">1</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">backward</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        反向传播</span></span><br><span class="line"><span class="string">        求各个参数层的梯度</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="string">&#x27;--- 倒1层（softmax输出层） ---&#x27;</span></span><br><span class="line">        <span class="comment"># 损失函数对 softmax激活前&amp;最后一个线性层后 的偏导</span></span><br><span class="line">        dL_dz = (self.cache[<span class="number">2</span>][<span class="number">1</span>] - self.cache[<span class="number">0</span>][<span class="number">1</span>]) / (self.cache[<span class="number">0</span>][<span class="number">1</span>].shape[<span class="number">1</span>]) <span class="comment"># 预测值向量减去真实值的one-hot向量</span></span><br><span class="line">        <span class="comment"># [m2,N] = ( [m2,N] - [m2,N] ) /N</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 损失函数对第二层（最后）可训练参数偏导</span></span><br><span class="line">        self.grad[<span class="number">2</span>][<span class="number">0</span>] = dL_dz @ self.cache[<span class="number">1</span>][<span class="number">1</span>].T   <span class="comment"># 损失对w偏导</span></span><br><span class="line">        <span class="comment"># ~ [m2,m1] = [m2,N] @ [m1,N]^T</span></span><br><span class="line">        self.grad[<span class="number">2</span>][<span class="number">1</span>] = np.<span class="built_in">sum</span>(dL_dz,axis=<span class="number">1</span>,keepdims=<span class="literal">True</span>) <span class="comment"># 损失对b偏导</span></span><br><span class="line">        <span class="comment"># ~ [m_2,1] = sum([m_2,N])</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;--- 倒2层 ---&#x27;</span></span><br><span class="line">        <span class="comment"># 损失函数对 第一个隐藏层的激活输出 的偏导     </span></span><br><span class="line">        dL_dz = (dL_dz.T @ self.param[<span class="number">2</span>][<span class="number">0</span>]).T </span><br><span class="line">        <span class="comment"># ~ [m1,N] = ([m_2,N]^T @ [m_2,m_1])^T</span></span><br><span class="line">        <span class="comment"># 损失函数对 第一个隐藏层的激活前&amp;线性输出 的偏导</span></span><br><span class="line">        <span class="keyword">if</span> self.activeFunc == <span class="string">&quot;relu&quot;</span>:</span><br><span class="line">            dL_dz = dL_dz * self.__ReLU(<span class="number">1</span>,forward=<span class="literal">False</span>)  <span class="comment"># ~ [m_1,N] * [m_1,N]</span></span><br><span class="line">        <span class="keyword">elif</span> self.activeFunc == <span class="string">&quot;sigmoid&quot;</span>:</span><br><span class="line">            dL_dz = dL_dz * self.__Sigmoid(<span class="number">1</span>,forward=<span class="literal">False</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;active error in backforward&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">        <span class="comment"># 损失函数对第一层可训练参数偏导</span></span><br><span class="line">        self.grad[<span class="number">1</span>][<span class="number">0</span>] =dL_dz @ self.cache[<span class="number">0</span>][<span class="number">0</span>].T   <span class="comment"># 损失对w偏导</span></span><br><span class="line">        self.grad[<span class="number">1</span>][<span class="number">1</span>] = np.<span class="built_in">sum</span>(dL_dz,axis=<span class="number">1</span>,keepdims=<span class="literal">True</span>) <span class="comment"># 损失对b偏导</span></span><br><span class="line">        </span><br><span class="line">        <span class="string">&#x27;--- 结束 ---&#x27;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">SGD</span>(<span class="params">self,lr:<span class="built_in">int</span> = <span class="number">0.001</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        随机梯度下降法，固定学习率更新权重和偏置</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        lr : int, optional</span></span><br><span class="line"><span class="string">            学习率. The default is 0.001.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">for</span> layer <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>):</span><br><span class="line">            <span class="keyword">for</span> typ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>):</span><br><span class="line">                self.param[layer+<span class="number">1</span>][typ] -= lr * self.grad[layer+<span class="number">1</span>][typ]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">print</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        打印网络结构信息</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;---层结构：&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;第一层：权重<span class="subst">&#123;self.param[<span class="number">1</span>][<span class="number">0</span>].shape&#125;</span>，偏置<span class="subst">&#123;self.param[<span class="number">1</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;第二层：权重<span class="subst">&#123;self.param[<span class="number">2</span>][<span class="number">0</span>].shape&#125;</span>，偏置<span class="subst">&#123;self.param[<span class="number">2</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;---梯度结构：&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;第一层：权重<span class="subst">&#123;self.grad[<span class="number">1</span>][<span class="number">0</span>].shape&#125;</span>，偏置<span class="subst">&#123;self.grad[<span class="number">1</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;第二层：权重<span class="subst">&#123;self.grad[<span class="number">2</span>][<span class="number">0</span>].shape&#125;</span>，偏置<span class="subst">&#123;self.grad[<span class="number">2</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;---缓存量：&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;输入层：<span class="subst">&#123;self.cache[<span class="number">0</span>][<span class="number">0</span>].shape&#125;</span>和<span class="subst">&#123;self.cache[<span class="number">0</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;第一层：权重<span class="subst">&#123;self.cache[<span class="number">1</span>][<span class="number">0</span>].shape&#125;</span>，偏置<span class="subst">&#123;self.cache[<span class="number">1</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;第二层：权重<span class="subst">&#123;self.cache[<span class="number">2</span>][<span class="number">0</span>].shape&#125;</span>，偏置<span class="subst">&#123;self.cache[<span class="number">2</span>][<span class="number">1</span>].shape&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>这样，我们就可以在构建一个<code>FC()</code>网络对象后，通过调用3个方法<code>FC.forward()</code>、<code>FC.backward()</code>和<code>FC.SGD()</code>就可以进行网络的训练了。</p>
+<h3 id="网络训练"><a href="#网络训练" class="headerlink" title="网络训练"></a>网络训练</h3><p>这一部分较为简单，实现为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 主程序</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 参数设置</span></span><br><span class="line">    EPOCH = <span class="number">100</span></span><br><span class="line">    BATCHSIZE = <span class="number">32</span></span><br><span class="line">    LEARNRATE = <span class="number">0.001</span></span><br><span class="line">    </span><br><span class="line">    HIDLAYERWIDTH = <span class="number">128</span></span><br><span class="line">    ACTIVATEFUNC = <span class="string">&quot;relu&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 数据记录</span></span><br><span class="line">    writer = tensorboard.SummaryWriter(<span class="string">&#x27;./log/MNIST-FC&#x27;</span>+<span class="built_in">str</span>(HIDLAYERWIDTH)+ACTIVATEFUNC)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 数据集加载</span></span><br><span class="line">    transformer = torchvision.transforms.Compose([</span><br><span class="line">                        torchvision.transforms.ToTensor(),</span><br><span class="line">                        torchvision.transforms.Normalize(</span><br><span class="line">                            (<span class="number">0.1307</span>,), (<span class="number">0.3081</span>,) )</span><br><span class="line">                         ])</span><br><span class="line">    </span><br><span class="line">    trainDataset = torchvision.datasets.MNIST(root=<span class="string">&quot;./Data&quot;</span>,    </span><br><span class="line">                                           train = <span class="literal">True</span>,</span><br><span class="line">                                           download= <span class="literal">True</span>,</span><br><span class="line">                                           transform= transformer</span><br><span class="line">                                           )</span><br><span class="line">    trainLoader = torch.utils.data.DataLoader(trainDataset,</span><br><span class="line">                                              batch_size= BATCHSIZE,    <span class="comment"># Batch Size！</span></span><br><span class="line">                                              shuffle= <span class="literal">True</span>,</span><br><span class="line">                                              num_workers=<span class="number">2</span>)</span><br><span class="line">    </span><br><span class="line">    testDataset = torchvision.datasets.MNIST(root=<span class="string">&quot;./Data&quot;</span>,</span><br><span class="line">                                           train = <span class="literal">False</span>,</span><br><span class="line">                                           download= <span class="literal">True</span>,</span><br><span class="line">                                           transform= transformer)</span><br><span class="line">    </span><br><span class="line">    testLoader = torch.utils.data.DataLoader(testDataset,</span><br><span class="line">                                              batch_size= BATCHSIZE,    <span class="comment"># Batch Size！</span></span><br><span class="line">                                              shuffle= <span class="literal">True</span>,</span><br><span class="line">                                              num_workers=<span class="number">2</span>)</span><br><span class="line">    testIter = <span class="built_in">iter</span>(testLoader)</span><br><span class="line">    </span><br><span class="line">    trainD = trainDataset.data.numpy()</span><br><span class="line">    trainD = trainD.reshape(trainD.shape[<span class="number">0</span>],-<span class="number">1</span>).T</span><br><span class="line">    trainD = trainD / <span class="number">256</span></span><br><span class="line">    trainT = trainDataset.targets.numpy().T</span><br><span class="line">    </span><br><span class="line">    testD = testDataset.data.numpy()</span><br><span class="line">    testD = testD.reshape(testD.shape[<span class="number">0</span>],-<span class="number">1</span>).T</span><br><span class="line">    testD = testD / <span class="number">256</span></span><br><span class="line">    testT = testDataset.targets.numpy().T</span><br><span class="line">    </span><br><span class="line">    samp = <span class="built_in">next</span>(<span class="built_in">iter</span>(trainLoader))</span><br><span class="line">    samp[<span class="number">0</span>] = samp[<span class="number">0</span>].numpy(); samp[<span class="number">1</span>] = samp[<span class="number">1</span>].numpy()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">4</span>):</span><br><span class="line">        plt.figure(i)</span><br><span class="line">        plt.imshow(samp[<span class="number">0</span>][i][<span class="number">0</span>])</span><br><span class="line">        plt.title(<span class="built_in">str</span>(samp[<span class="number">1</span>][i]))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 创建模型</span></span><br><span class="line">    model = FC(inputS=<span class="number">28</span>*<span class="number">28</span>,</span><br><span class="line">               hidWidth=HIDLAYERWIDTH,</span><br><span class="line">               outputS=<span class="number">10</span>,</span><br><span class="line">               active=ACTIVATEFUNC)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 训练模型</span></span><br><span class="line">    Log_id = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> ep <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,EPOCH+<span class="number">1</span>):</span><br><span class="line">        <span class="comment"># 一次训练</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;-------- <span class="subst">&#123;ep&#125;</span>&#x27;th epoch begin --------&quot;</span>)</span><br><span class="line">        <span class="keyword">for</span> idx,(sampX,sampY) <span class="keyword">in</span> <span class="built_in">enumerate</span>(trainLoader):</span><br><span class="line">            <span class="comment"># 数据维度预处理</span></span><br><span class="line">            sampX = sampX.numpy()</span><br><span class="line">            sampX = sampX.reshape(sampX.shape[<span class="number">0</span>],-<span class="number">1</span>).T</span><br><span class="line">            sampX = sampX / <span class="number">256</span></span><br><span class="line">            </span><br><span class="line">            sampY_vector = torch.nn.functional.one_hot(sampY,num_classes = <span class="number">10</span>).numpy().T</span><br><span class="line">            <span class="comment"># 前向传播</span></span><br><span class="line">            pred =  model.forward(sampX, sampY_vector)</span><br><span class="line">            <span class="comment"># 反向传播</span></span><br><span class="line">            model.backward()</span><br><span class="line">            </span><br><span class="line">            </span><br><span class="line">            <span class="comment"># SGD</span></span><br><span class="line">            model.SGD(lr = LEARNRATE)</span><br><span class="line">            </span><br><span class="line">            <span class="comment"># 数据打印</span></span><br><span class="line">            <span class="keyword">if</span> idx %<span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">                </span><br><span class="line">                <span class="comment"># 损失计算</span></span><br><span class="line">                loss = Loss_CrossEntropy(pred,sampY_vector)</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;第<span class="subst">&#123;ep&#125;</span>的<span class="subst">&#123;idx&#125;</span>次Batch交叉熵损失:<span class="subst">&#123;loss&#125;</span>&quot;</span>)</span><br><span class="line">                </span><br><span class="line">                <span class="comment"># 准确度计算</span></span><br><span class="line">                testX,testY = testIter.<span class="built_in">next</span>()</span><br><span class="line">                testX = testX.numpy()</span><br><span class="line">                testX = testX.reshape(testX.shape[<span class="number">0</span>],-<span class="number">1</span>).T</span><br><span class="line">                testX = testX / <span class="number">256</span></span><br><span class="line">                <span class="keyword">if</span> Log_id % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">                    testIter = <span class="built_in">iter</span>(testLoader)</span><br><span class="line">                </span><br><span class="line">                </span><br><span class="line">                acc_train = model_accuracyTest(model, sampX, sampY.numpy())</span><br><span class="line">                acc_test = model_accuracyTest(model, testX, testY.numpy())</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;训练集准确度:<span class="subst">&#123;acc_train*<span class="number">100</span>&#125;</span>%,测试集准确度:<span class="subst">&#123;acc_test*<span class="number">100</span>&#125;</span>%&quot;</span>)</span><br><span class="line">                </span><br><span class="line">                <span class="comment"># 记录数据</span></span><br><span class="line">                writer.add_scalar(<span class="string">&quot;测试集准确度&quot;</span>, acc_test,Log_id)</span><br><span class="line">                writer.add_scalar(<span class="string">&quot;训练集准确度&quot;</span>, acc_train,Log_id)</span><br><span class="line">                writer.add_scalar(<span class="string">&quot;交叉熵损失&quot;</span>, loss,Log_id)</span><br><span class="line">                Log_id +=<span class="number">1</span></span><br><span class="line">        </span><br></pre></td></tr></table></figure>
+
+<p>训练过程中，设计了两个用来评估网络的性能，分别是求损失函数和预测准确度：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">Loss_CrossEntropy</span>(<span class="params">pred:np.ndarray, real:np.ndarray</span>):</span><br><span class="line">    <span class="comment"># pred ~ [classes,N] , real ~ [classes,N]</span></span><br><span class="line">    </span><br><span class="line">    entropy = real * np.log(pred +<span class="number">1e-10</span>)    <span class="comment"># 1e-10防止无穷产生</span></span><br><span class="line">    </span><br><span class="line">    entropy = -np.<span class="built_in">sum</span>(entropy) / real.shape[-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> entropy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_accuracyTest</span>(<span class="params">model:FC, inputD:np.ndarray, target:np.ndarray</span>) -&gt; <span class="built_in">float</span>:</span><br><span class="line">    </span><br><span class="line">    res = model.forward(inputD, target) <span class="comment"># 模型推导</span></span><br><span class="line">    </span><br><span class="line">    res = np.argmax(res,axis=<span class="number">0</span>) <span class="comment"># 选出概率最大的类型</span></span><br><span class="line">    </span><br><span class="line">    acc = np.mean(np.equal(res,target))</span><br></pre></td></tr></table></figure>
+
+<p>在训练过程中，数据的加载和模型效果记录可视化都是借助的<code>PyTorch</code>，所以在文件最开头导入的（所有辅助的）库有：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> torch,torchvision</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch.utils.tensorboard <span class="keyword">as</span> tensorboard</span><br></pre></td></tr></table></figure>
+
+<p>然后把网络训练起来吧！笔者使用的环境为：</p>
+<ul>
+<li>Anaconda 4.10.3</li>
+<li>Python 3.9.7</li>
+<li>Spyder 5.1.2</li>
+<li>PyTorch 1.9.0</li>
+<li>Numpy 1.21.2</li>
+<li>CPU：i5-7300HQ（笔记本哦）</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/20211019/20211019-NNC-2.png" alt="运行程序"></p>
+<p>那么接下来，看一下网络的运行效果如何吧！代码中使用了<code>TensorBoard</code>来记录数据，所以在训练结束后，我们可以在运行目录下运行命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ tensorboard --logdir=./log</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://imgjry.fangyikuan.xyz/20211019/20211019-NNC-3.png" alt="结果"></p>
+<p>100次epoch后的训练效果为：</p>
+<ul>
+<li>训练集准确度：85.36%</li>
+<li>测试集准确度：78.25%</li>
+<li>交叉熵损失：0.8257</li>
+</ul>
+<h2 id="知识总结"><a href="#知识总结" class="headerlink" title="知识总结"></a>知识总结</h2><p>所以，我们总结一下在第<code>L</code>层全连接网络的参数量是：</p>
+<p>$$<br>m_{L}*m_{L-1} + m_{L}<br>$$</p>
+<p>第<code>L</code>层的梯度信息大小和该层的（可训练）参数量是一样的：</p>
+<p>$$<br>m_{L}*m_{L-1} + m_{L}<br>$$</p>
+<p>在训练的过程中，第<code>L</code>层需要缓存的数据量为：</p>
+<p>$$<br>m _ {L} * BatchSize * 2<br>$$</p>
+<p>为了最小化存储，我们可以在网络反向传播时，让偏导计算每更新完一层的梯度信息就去掉不再保留，所以反向传播时，需要为内存大小动态变化的偏导数据预留空间为：</p>
+<p>$$<br>m _ {max} * BatchSize<br>$$</p>
+<p>当然，我们计算出来的空间，不一定就是设备需要的实际空间。比如，在进行矩阵运算的时候，中间变量还是要占用一定的空间，这是科学运算库的内存问题；以及Python对内存的占有可比C++大多了，这是编程语言的内存问题；等等。所以，最后还是要有一定的经验和对开发环境底层的了解</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2021/10/19/NeuralNetwork-UnderlyingCalculate/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NeuralNetwork/" rel="tag">NeuralNetwork</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Numpy/" rel="tag">Numpy</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%A8%E8%BF%9E%E6%8E%A5%E7%BD%91%E7%BB%9C/" rel="tag">全连接网络</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/12/24/MVT-Digitizer-byFPGA/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            FPGA实现脉冲信号MVT量化器
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/09/17/NeuralNetWork-Optimizer/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">神经网络训练优化器及工具</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

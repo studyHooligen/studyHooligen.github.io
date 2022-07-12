@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>AXI4总线 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-AXI4BusType"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  AXI4总线
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/03/10/AXI4BusType/" class="article-date">
+  <time datetime="2022-03-10T07:19:26.000Z" itemprop="datePublished">2022-03-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">7 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>在现代SoC设计或者FPGA中，基本都会和ARM有所关联，而用到ARM的场景基本离不开AXI总线。而AXI-4总线针对不同的用途，分化出了三种不同的类型：AXI-Full（完整版）、AXI-Stream、AXI-Lite，本文中将依次介绍这三种类型的AXI用途和具体技术细节。</p>
+<blockquote>
+<p>Attention：本文中讨论的是ARM公司AMBA4中的AXI-4</p>
+</blockquote>
+</blockquote>
+<h2 id="AXI（Full）"><a href="#AXI（Full）" class="headerlink" title="AXI（Full）"></a>AXI（Full）</h2><blockquote>
+<p>场景：高性能地址映射通信</p>
+</blockquote>
+<p>完整版的AXI-4总线特性：允许最大256轮的数据突发传输，支持多域。与其他大部分总线一样，AXI也分主机端（M：<strong>Manager</strong>&#x2F;<strong>Master</strong>）和从机端（S：<strong>Subordinate</strong>&#x2F;<strong>Slave</strong>），而特色就是AXI-4里除了全局的时钟复位信号外还有5个通道。下图展示了AXI主机向从机写、读数据时各通道传输的信息和工作流程。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-1.png" alt="写传输"></p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-2.png" alt="读传输"></p>
+<p>出来点对点的读写操作外，AXI-4是支持多主机多从机，这很符合现代SoC的多协处理器设计理念需求，比如手机的CPU芯片除了常规多核CPU外肯定还有DMA和GPU等（2020年之后手机芯片上顺带个DPU都是很常见的了），这些协处理器都需要作为主机访问共同的一段内存。而多主从机设计到总线仲裁，AXI-4规范了下图所示的总线互联器（<strong>Interconnect</strong>），在后面介绍<code>ID</code>时会看到互联器的另一重要功能——提供口令地址映射转换。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-3.png" alt="多主从机"></p>
+<p>下表是完整版的AXI-4总线中各个通道的信号线，并概况性地注明了每个信号的功能，同时用<code>,</code>分隔一个信号中的不同缩写以方便阅读（如<code>AWLEN</code>中隔开了地址通道<code>A</code>、写操作<code>W</code>、长度<code>LEN</code>）。</p>
+<span id="more"></span>
+
+<table>
+<thead>
+<tr>
+<th align="center">全局信号</th>
+<th align="center">写地址通道</th>
+<th align="center">写数据通道</th>
+<th align="center">写响应通道</th>
+<th align="center">读地址通道</th>
+<th align="center">读数据通道</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">A,CLK（AXI时钟）</td>
+<td align="center">A,W,ID（口令）</td>
+<td align="center"></td>
+<td align="center">B,ID</td>
+<td align="center">A,R,ID</td>
+<td align="center">R,ID</td>
+</tr>
+<tr>
+<td align="center">A,RESETn（复位）</td>
+<td align="center">A,W,ADDR（地址）</td>
+<td align="center">W,DATA（数据）</td>
+<td align="center">B,RESP</td>
+<td align="center">A,R,ADDR</td>
+<td align="center">R,DATA</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,LEN（突发写长度）</td>
+<td align="center">W,STRB（有效字节通道标识）</td>
+<td align="center">B,USER</td>
+<td align="center">A,R,LEN</td>
+<td align="center">R,RESP</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,SIZE（数据宽度）</td>
+<td align="center">W,LAST（最后传输数据标识）</td>
+<td align="center">B,VALID</td>
+<td align="center">A,R,SIZE</td>
+<td align="center">R,LAST</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,BURST（突发模式）</td>
+<td align="center">W,USER</td>
+<td align="center">B,READY</td>
+<td align="center">A,R,BURST</td>
+<td align="center">R,USER</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,LOCK（通道锁定）</td>
+<td align="center">W,VALID</td>
+<td align="center"></td>
+<td align="center">A,R,LOCK</td>
+<td align="center">R,VALID</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,CACHE（存储器类型）</td>
+<td align="center">W,READY</td>
+<td align="center"></td>
+<td align="center">A,R,CACHE</td>
+<td align="center">R,READY</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,PROT（保护属性）</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">A,R,PORT</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,QOS（优先级指示器)</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">A,R,QOS</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,REGION（域标识）</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">A,R,REGION</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,USER（用户扩展）</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">A,R,USER</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,VALID（有效）</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">A,R,VALID</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">A,W,READY（空闲）</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">A,R,READY</td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<p>本文不对AXI-4中的常规总线信号进行解释（如：地址<code>ADDR</code>、数据<code>DATA</code>），仅介绍特色信号和不好理解的信号。</p>
+<h3 id="ID"><a href="#ID" class="headerlink" title="ID"></a>ID</h3><p>ID这个玩意是每个通道都有的，为了更好地理解这个信号，我将其翻译为“口令”。<br>在读数据时，从机必须确保所有返回数据的<code>RID</code>与其响应的主机请求地址时的<code>ARID</code>相匹配；写数据时，同样要确保<code>WID</code>与<code>BID</code>、<code>AWID</code>相匹配。</p>
+<p>来自同一个主机，同一个序号的指令只能顺序执行；来自同一主机不同序号的或来自不同主机的传输任务没有执行顺序的要求。<br>因此传输任务ID的作用是指定某些特殊传输任务的顺序，当存在明确的先后顺序时，可以用相同的任务ID标识。</p>
+<p>上面讲到互联器的时候，提到了口令地址映射转换，这个过程就像是路由器在NAT的时候对IP包的处理一样。连接在同一个互联器上的每个主机，在请求从机读写数据的时候，都会自己生成ID，但是主机并不保证自己发出的ID不会与其他主机的ID冲突（一样）。互联器在工作时负责在每个主机的原始ID上加额外ID；并且在收到从机数据时，从机发来的ID是带额外ID的，互联器将负责解析ID对应的主机并将额外ID去除后转发给主机。</p>
+<h3 id="LOCK"><a href="#LOCK" class="headerlink" title="LOCK"></a>LOCK</h3><p>当主机挂起LOCK信号（<code>ARLOCK</code>表示读锁定，<code>AWLOCK</code>表示写锁定）时，表示主机对目标从机的通信进入“锁定占有”状态，此时在该主从机间的互联交互器上的其他主机将无法对该从机发起通信；这个状态一直持续到该主机对从机发起一次“不LOCK”通信，其他主机才能对目标从机进行通信。这个LOCK机制是互联器中的总线仲裁器（<strong>arbiter</strong>）来实现的。</p>
+<p>但是请注意：主机发出锁定时，读（W）和写（W）通道之间是分开的。</p>
+<h3 id="CACHE"><a href="#CACHE" class="headerlink" title="CACHE"></a>CACHE</h3><p>AXI-4协议中对不同类型的存储器进行编码的信号就叫做<code>CACHE</code>（写通道的<code>AWCACHE</code>、读通道的<code>ARCACHE</code>）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-4.png" alt="存储类型编码"></p>
+<h3 id="PROT"><a href="#PROT" class="headerlink" title="PROT"></a>PROT</h3><p>AXI总线提供防御非法访问的<strong>访问权限</strong>信号，读（R）通道和写（W）通道都有该功能，具体位定义如下图所示。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-5.png" alt="范围权限"></p>
+<p>一些处理器支持多种级别的访问特权，但是在AXI4总线中，只区分是否特权模式（<strong>Unprivileged</strong> 或 <strong>privileged</strong>）；<br>同时AXI4中的安全模式与ARM的安全扩展设计信号一致，这一位信号官方的说明是可以用来分离两个地址空间分别表示安全地址（<strong>Secure</strong>）和普通地址（<strong>Non-secure</strong>）；最后一位用于标明总线传输的是指令（<strong>Instruction</strong>）还是数据（<strong>Data</strong>），但是现代CPU支持带数据指令，所以官方表示这玩意只起到<strong>提示作用</strong>🤔。</p>
+<h2 id="AXI-Lite"><a href="#AXI-Lite" class="headerlink" title="AXI-Lite"></a>AXI-Lite</h2><blockquote>
+<p>场景：节省IC资源的简单地址映射通信</p>
+</blockquote>
+<p>Lite版AXI-4总线特性：不突发传输，所有数据宽度保持不变（阉割版AXI）。</p>
+<table>
+<thead>
+<tr>
+<th align="center">全局信号</th>
+<th align="center">写地址通道</th>
+<th align="center">写数据通道</th>
+<th align="center">写响应通道</th>
+<th align="center">读地址通道</th>
+<th align="center">读数据通道</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">A,CLK</td>
+<td align="center">A,W,VALID</td>
+<td align="center">W,VALID</td>
+<td align="center">B,VALID</td>
+<td align="center">A,R,VALID</td>
+<td align="center">R,VALID</td>
+</tr>
+<tr>
+<td align="center">A,RESETn</td>
+<td align="center">A,W,READY</td>
+<td align="center">W,READY</td>
+<td align="center">B,READY</td>
+<td align="center">A,R,READY</td>
+<td align="center">R,READY</td>
+</tr>
+<tr>
+<td align="center">−</td>
+<td align="center">A,W,ADDR</td>
+<td align="center">W,DATA</td>
+<td align="center">B,RESP</td>
+<td align="center">A,R,ADDR</td>
+<td align="center">R,DATA</td>
+</tr>
+<tr>
+<td align="center">−</td>
+<td align="center">A,W,PROT</td>
+<td align="center">W,STRB</td>
+<td align="center">−</td>
+<td align="center">A,R,PROT</td>
+<td align="center">R,RESP</td>
+</tr>
+</tbody></table>
+<p>看信号线就知道Lite有多简单直接了，主机<code>VALID</code>和从机<code>READY</code>握手成功，就可以发东西了。</p>
+<h2 id="AXI-Stream"><a href="#AXI-Stream" class="headerlink" title="AXI-Stream"></a>AXI-Stream</h2><blockquote>
+<p>高速流数据传输，没有地址，无限制数据突发传输</p>
+</blockquote>
+<p>Stream版AXI4总线还是挺不一样的，设计目的是被用作连接交换数据的组件的标准接口，这个接口可以用来连接一个<strong>产生数据的主机</strong>和一个<strong>接收数据的从机</strong>。该协议也可用于连接较多的主、从机，支持使用同一组共享线路的多个数据流，允许构建一个通用互连，可以执行放大、缩小和路由操作。</p>
+<p>所以AXI-Stream就不区分读写通道了，数据是单向高速流动的。正如下表中笔者对信号的分类，依据主从机分。</p>
+<blockquote>
+<p>AXI-Stream是主机发数据，从机收数据！这一点在开发输入数据流类外设时要注意不要混淆方向</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">全局信号</th>
+<th align="center">主机信号</th>
+<th align="center">从机信号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">A,CLK</td>
+<td align="center">T,VALID</td>
+<td align="center">T,READY</td>
+</tr>
+<tr>
+<td align="center">A,RESETn</td>
+<td align="center">T,DATA</td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<pre><code>      | T,STRB（有效字节标志）
+      | T,KEEP（字节限定符）
+      | T,LAST（结束）
+      | T,ID（区别不同流）
+      | T,DEST（目的路由）
+      | T,USER
+</code></pre>
+<p>讲一下AXI-Stream中的两个特色信号<code>TSTRB</code>和<code>TKEEP</code>，每一位都标志着<code>TDATA</code>数据线中的一个字节范围（比如：TKEEP[$x$]标识TDATA[$(8x+7)$:$8x$]；TSTRB[$x$]标识TDATA[$(8x+7)$:$8x$]）。这两个位是组合起来使用的，表示的控制信号如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th align="center">TKEEP</th>
+<th align="center">TSTRB</th>
+<th align="center">数据类型</th>
+<th align="center">详解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">数据</td>
+<td align="center">关联的字节包含必须在源和目标之间传输的有效信息。</td>
+</tr>
+<tr>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">位置</td>
+<td align="center">关联字节表示数据字节在流中的相对位置，但不包含任何相关的数据值。</td>
+</tr>
+<tr>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">Null</td>
+<td align="center">啥都没有，可以删掉</td>
+</tr>
+<tr>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">保留</td>
+<td align="center">不许使用</td>
+</tr>
+</tbody></table>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.arm.com/architectures/system-architectures/amba/amba-4">AMBA4 ARM官网</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/ihi0022/latest">AXI4协议 ARM官网</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.arm.com/documentation/ihi0051/a">AXI4-Stream协议 ARM官网</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2022/03/10/AXI4BusType/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AXI/" rel="tag">AXI</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2022/03/19/YOLO/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            YOLO
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2022/02/05/airplane-Model/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">固定翼飞行器动力学分析</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

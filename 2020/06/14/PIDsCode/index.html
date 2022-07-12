@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>PID代码实现 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-PIDsCode"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  PID代码实现
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/06/14/PIDsCode/" class="article-date">
+  <time datetime="2020-06-14T03:30:30.000Z" itemprop="datePublished">2020-06-14</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/">控制技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">6 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>在之前的一篇文章中讨论了<a href="/2020/05/27/PIDCtrl/">PID控制器的数学原理</a>和调试技巧，本文续接，讨论PID在微控制器上使用C++语言实现</p>
+</blockquote>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><ul>
+<li><p>位置式PID</p>
+<p>  $$<br>  V[n]&#x3D;K_p \cdot e[n] + K_i \cdot \sum ^n_{\tau &#x3D; 0} e[\tau] + K_d \cdot (e[n]-e[n-1])<br>  $$</p>
+<blockquote>
+<p>从公式上，可以显式的看出位置式PID的公式中带有积分成分（累加），也就是过去的所有状态误差都对输出造成影响</p>
+</blockquote>
+</li>
+<li><p>增量式PID</p>
+  <span id="more"></span>
+
+<p>  在位置式PID的基础上，对本次值和上次值做差分可计算得：<br>  $$<br>  \Delta V &#x3D; V[n]-V[n-1] \\<br>  &#x3D; K_p \cdot (e[n]-e[n-1]) + K_i \cdot e[n] + K_d \cdot (e[n]-2e[n-1]+e[n-2])<br>  $$</p>
+<blockquote>
+<p>显然增量式PID算法中，由于采用的是“增量”，所以计算过程中使用到的过去状态量只有本次误差采样、上次误差采样和上上次误差采样，在此之前的数据没有影响</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="本质理解与应用"><a href="#本质理解与应用" class="headerlink" title="本质理解与应用"></a>本质理解与应用</h2><ul>
+<li>增量式PID<ul>
+<li>适用对象：本身带有积分性质的受控目标</li>
+<li>实际应用：对于步进电机，电机工作在对固定角度的锁定状态（除非失步），当是对步进电机的目标位置进行控制时，步进电机本身相当于一个积分器；而且对步进电机的驱动方式，就是输入和转角正比的脉冲个数，所以增量式PID适用该场景</li>
+</ul>
+</li>
+<li>位置式PID<ul>
+<li>适用对象：无记忆系统</li>
+<li>实际应用：对于直流电机，电机的转速和电机的输入电压是固定无记忆函数关系（稳态），所以控制直流电机旋转，应该采用位置式PID电机</li>
+</ul>
+</li>
+</ul>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="增量式PID"><a href="#增量式PID" class="headerlink" title="增量式PID"></a>增量式PID</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">T PID&lt;T&gt;::PID_updateDelta(T status)&#123;</span><br><span class="line">    T errNow = target_ - status;  <span class="comment">//目前误差值</span></span><br><span class="line"></span><br><span class="line">    T delta =   <span class="comment">//输出增量</span></span><br><span class="line">        K_p * (errNow - error_Pre) +    <span class="comment">//比例P</span></span><br><span class="line">        K_i * errNow +                  <span class="comment">//积分I</span></span><br><span class="line">        K_d * (errNow - <span class="number">2</span>*error_Pre + error_PPre);  <span class="comment">//微分D</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(delta&gt;max_) delta = max_;  <span class="comment">//输出限幅</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(delta&lt;min_) delta = min_;</span><br><span class="line"></span><br><span class="line">    error_PPre = error_Pre; <span class="comment">//误差记忆</span></span><br><span class="line">    error_Pre = errNow;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> delta;  <span class="comment">//返回结果</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="位置式PID"><a href="#位置式PID" class="headerlink" title="位置式PID"></a>位置式PID</h3><p>位置式就是在增量式的基础上进行了状态存储，累加积分</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">template&lt;typename T&gt;</span><br><span class="line">T PID&lt;T&gt;::PID_updateStatus(T status)&#123;</span><br><span class="line"></span><br><span class="line">    output_pre += this-&gt;PID_updateDelta(status);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(output_pre&gt;max_) output_pre = max_;  <span class="comment">//输出限幅</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(output_pre&lt;min_) output_pre = min_;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> output_pre;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="完整工程代码"><a href="#完整工程代码" class="headerlink" title="完整工程代码"></a>完整工程代码</h2><blockquote>
+<p>为了提高代码的可移植性，将PID控制器封装成了模板类，并且使用合适的预编译控制切换增量式PID和位置式PID</p>
+<blockquote>
+<p>工程代码已经上传到笔者的Github仓库：<a target="_blank" rel="noopener" href="https://github.com/studyHooligen/embeddedSysC-Algorithm">嵌入式算法</a>，欢迎白嫖</p>
+</blockquote>
+</blockquote>
+<ul>
+<li>头文件</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * PID.hpp - The C++ head file of PID controller</span></span><br><span class="line"><span class="comment"> * <span class="doctag">NOTE:</span> This file is based on C++11</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Copyright (c) 2020-, FOSH Project</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Change Logs:</span></span><br><span class="line"><span class="comment"> * Date           Author            Notes           mail</span></span><br><span class="line"><span class="comment"> * 2020-06-14     StudyHooligen     first version   2373180028@qq.com</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> _PID_H_</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _PID_H_</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//#define PID_use_integral  //若使用位置式PID则开启该预编译选项</span></span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PID</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"></span><br><span class="line">private:</span><br><span class="line"><span class="comment">/************ 内部参数 *************/</span></span><br><span class="line">    T K_p = <span class="number">0</span>;  <span class="comment">//比例增益</span></span><br><span class="line">    T K_i = <span class="number">0</span>;  <span class="comment">//积分增益</span></span><br><span class="line">    T K_d = <span class="number">0</span>;  <span class="comment">//微分增益</span></span><br><span class="line"></span><br><span class="line">    T target_ = <span class="number">0</span>;   <span class="comment">//输出目标值</span></span><br><span class="line"></span><br><span class="line">    T error_Pre = <span class="number">0</span>;    <span class="comment">//上一次误差</span></span><br><span class="line">    T error_PPre = <span class="number">0</span>;   <span class="comment">//上上次误差</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PID_use_integral</span></span><br><span class="line">    T output_pre = <span class="number">0</span>;   <span class="comment">//上次输出值</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    T max_ = <span class="number">65536</span>;  <span class="comment">//PID输出最大值</span></span><br><span class="line">    T min_ = <span class="number">0</span>;  <span class="comment">//PID输出最小值</span></span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line"><span class="comment">/*********** 模块接口 ***********/</span></span><br><span class="line">    <span class="keyword">typedef</span> PID * PIDptr;   <span class="comment">//模块指针</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 概要：默认构造函数</span></span><br><span class="line"><span class="comment">     * 入参：无</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    PID();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：带参构造函数</span></span><br><span class="line"><span class="comment">     * 入参：</span></span><br><span class="line"><span class="comment">     *      P: 比例系数</span></span><br><span class="line"><span class="comment">     *      I：积分系数</span></span><br><span class="line"><span class="comment">     *      D：微分系数</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    PID(T P,T I,T D,T outMin,T outMax);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：默认析构函数</span></span><br><span class="line"><span class="comment">     * 入参：无</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    ~PID();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 概要：改变PID实例参数</span></span><br><span class="line"><span class="comment">     * 入参：</span></span><br><span class="line"><span class="comment">     *      target：目标值</span></span><br><span class="line"><span class="comment">     * 回参：参数设置成功或失败</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="type">bool</span> <span class="title function_">PID_setTarget</span><span class="params">(T target)</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：改变PID实例参数</span></span><br><span class="line"><span class="comment">     * 入参：</span></span><br><span class="line"><span class="comment">     *      P: 比例系数</span></span><br><span class="line"><span class="comment">     *      I：积分系数</span></span><br><span class="line"><span class="comment">     *      D：微分系数</span></span><br><span class="line"><span class="comment">     * 回参：参数设置成功或失败</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="type">bool</span> <span class="title function_">PID_setParam</span><span class="params">(T P,T I,T D)</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：改变PID实例限幅值</span></span><br><span class="line"><span class="comment">     * 入参：</span></span><br><span class="line"><span class="comment">     *      target：目标值</span></span><br><span class="line"><span class="comment">     * 回参：参数设置成功或失败</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="type">bool</span> <span class="title function_">PID_setThreshold</span><span class="params">(T outMin,T outMax)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 概要：求取PID实例增量值</span></span><br><span class="line"><span class="comment">     * 入参：</span></span><br><span class="line"><span class="comment">     *      status：目标状态测量值</span></span><br><span class="line"><span class="comment">     * 回参：增量值</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    T <span class="title function_">PID_updateDelta</span><span class="params">(T status)</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：求取PID实例输出值</span></span><br><span class="line"><span class="comment">     * 入参：</span></span><br><span class="line"><span class="comment">     *      status：目标状态测量值</span></span><br><span class="line"><span class="comment">     * 回参：状态值</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    T <span class="title function_">PID_updateStatus</span><span class="params">(T status)</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：获取P参数</span></span><br><span class="line"><span class="comment">     * 入参：无</span></span><br><span class="line"><span class="comment">     * 回参：P参数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    T <span class="title function_">PID_getKp</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> K_p;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：获取P参数</span></span><br><span class="line"><span class="comment">     * 入参：无</span></span><br><span class="line"><span class="comment">     * 回参：P参数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    T <span class="title function_">PID_getKi</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> K_i;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* 概要：获取P参数</span></span><br><span class="line"><span class="comment">     * 入参：无</span></span><br><span class="line"><span class="comment">     * 回参：P参数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    T <span class="title function_">PID_getKd</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> K_d;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>源文件</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * PID.cpp - The C++ source file of PID controller</span></span><br><span class="line"><span class="comment"> * <span class="doctag">NOTE:</span> This file is based on C++11</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Copyright (c) 2020-, FOSH Project</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Change Logs:</span></span><br><span class="line"><span class="comment"> * Date           Author            Notes           mail</span></span><br><span class="line"><span class="comment"> * 2020-06-14     StudyHooligen     first version   2373180028@qq.com</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;PID/PID.hpp&quot;</span></span></span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line">PID&lt;T&gt;::PID(T P,T I,T D,T outMax,T outMin)</span><br><span class="line">    :K_p(P),K_i(I),K_d(D),</span><br><span class="line">    max_(outMax),min_(outMin)&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line"><span class="type">bool</span> PID&lt;T&gt;::PID_setTarget(T target)&#123;</span><br><span class="line">    target_ = target;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line"><span class="type">bool</span> PID&lt;T&gt;::PID_setParam(T P,T I,T D)&#123;</span><br><span class="line">    this-&gt;K_p = P;</span><br><span class="line">    this-&gt;K_i = I;</span><br><span class="line">    this-&gt;K_d = D;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line"><span class="type">bool</span> PID&lt;T&gt;::PID_setThreshold(T outMin,T outMax)&#123;</span><br><span class="line">    max_ = outMax;</span><br><span class="line">    min_ = outMin;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line">T PID&lt;T&gt;::PID_updateDelta(T status)&#123;</span><br><span class="line">    T errNow = target_ - status;  <span class="comment">//目前误差值</span></span><br><span class="line"></span><br><span class="line">    T delta =   <span class="comment">//输出增量</span></span><br><span class="line">        K_p * (errNow - error_Pre) +    <span class="comment">//比例P</span></span><br><span class="line">        K_i * errNow +                  <span class="comment">//积分I</span></span><br><span class="line">        K_d * (errNow - <span class="number">2</span>*error_Pre + error_PPre);  <span class="comment">//微分D</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(delta&gt;max_) delta = max_;  <span class="comment">//输出限幅</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(delta&lt;min_) delta = min_;</span><br><span class="line"></span><br><span class="line">    error_PPre = error_Pre; <span class="comment">//误差记忆</span></span><br><span class="line">    error_Pre = errNow;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> delta;  <span class="comment">//返回结果</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PID_use_integral</span></span><br><span class="line"></span><br><span class="line">template&lt;typename T&gt;</span><br><span class="line">T PID&lt;T&gt;::PID_updateStatus(T status)&#123;</span><br><span class="line"></span><br><span class="line">    output_pre += this-&gt;PID_updateDelta(status);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(output_pre&gt;max_) output_pre = max_;  <span class="comment">//输出限幅</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(output_pre&lt;min_) output_pre = min_;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> output_pre;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/06/14/PIDsCode/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PID/" rel="tag">PID</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/06/18/StabilityOfCtrlSys/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            控制系统稳定性
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/06/10/simulinkGenerateCode/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">simulink生成电机控制代码</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

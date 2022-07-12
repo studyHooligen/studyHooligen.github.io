@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>网络爬虫48H快速入门 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-webSpider-QuickStart"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  网络爬虫48H快速入门
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/01/12/webSpider-QuickStart/" class="article-date">
+  <time datetime="2021-01-12T07:01:05.000Z" itemprop="datePublished">2021-01-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/">网站技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">6.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">29 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这是一篇货真价实的48H快速入门爬虫+实战的博文☣今年笔者的大学软件课设题目就是做一个豆瓣电影数据爬虫，所以我将以一个网络爬虫小白快速入门后的视角来讲解</p>
+</blockquote>
+<h2 id="开始前准备"><a href="#开始前准备" class="headerlink" title="开始前准备"></a>开始前准备</h2><p>当然小白指的还是有一定基础的，在开始前你需要：</p>
+<ul>
+<li>具有基础的编程能力和思维，如：循环、条件判断、编码转换等</li>
+<li>基本的数据结构和算法能力：队列（FIFO）、哈希表等</li>
+<li>掌握一门你的工具编程语言，爬虫一般推荐Python（优美好调试and<a target="_blank" rel="noopener" href="https://www.runoob.com/python3/python3-tutorial.html">菜鸟教程传送门</a>）</li>
+<li>有HTTP、URL等WEB传输的基本概念（比如404、200和500是否能让你想起什么？）</li>
+<li>能看懂HTML文件的格式（附<a target="_blank" rel="noopener" href="https://www.runoob.com/html/html-tutorial.html">菜鸟教程传送门</a>）</li>
+<li>有数据库的概念</li>
+</ul>
+<h2 id="什么是爬虫？"><a href="#什么是爬虫？" class="headerlink" title="什么是爬虫？"></a>什么是爬虫？</h2><p>概况成一句话：爬虫就是按照你指定的规律不断循环提取页面里你需要的信息（包括下一步要爬取的网页链接）。因为互联网就是一个通信“网”🕸，所以我们的数据寻找程序就像是一只在“网”上的各个“节点”（有URL的页面）间“爬来爬去”（跳转），这就是爬虫名字的由来。下图是爬虫的工作原理：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210112/20210112-WebSpyder-1.png" alt="爬虫原理简图"></p>
+<p>比如说，这次（笔者的软件课设）要爬取豆瓣电影网的电影数据。让我们先缕一缕要求：</p>
+<span id="more"></span>
+
+<ul>
+<li>爬虫入口：<a target="_blank" rel="noopener" href="https://movie.douban.com/top250?start=0">豆瓣Top250页面</a></li>
+<li>以广度优先的方法在网络上爬开</li>
+<li>提取电影的数据<ul>
+<li>名字</li>
+<li>年份</li>
+<li>类型</li>
+<li>国家</li>
+<li>导演</li>
+<li>编剧</li>
+<li>主要演员</li>
+<li>上映日期</li>
+<li>其他名字</li>
+<li>电影页面链接</li>
+</ul>
+</li>
+<li>把提取到的电影数据存储进格式化（CSV）文件</li>
+<li>提取到的电影数据存入图数据库（Neo4j）并建立适当的节点关系</li>
+<li>提取当前页面中推荐的其他电影作为爬虫爬开的方式</li>
+<li>使用代理服务器加速爬虫运行速度和安全性</li>
+</ul>
+<h2 id="开始动手吧"><a href="#开始动手吧" class="headerlink" title="开始动手吧"></a>开始动手吧</h2><p>在这个简单的豆瓣爬虫中，笔者使用Python作为主语言，因为Py做开发时可用的库比较多且调用起来比较方便。接下来将要用到的库有：</p>
+<ul>
+<li>urllib3：功能强大的HTTP客户端库；用来访问网站并且下载HTML页面数据，支持使用代理服务器</li>
+<li>BeautifulSoup：解析HTML文件的库；对滴🎈分析网页就是用这个为主</li>
+<li>time：提供系统时间服务的库；比如用来做延时、获取当前系统时间等</li>
+<li>re：正则表达式库；分析网页的时候用来解决BeautifulSoup无法查找的数据</li>
+<li>deque：双向队列；对其重新封装定义就是本次咱们要使用的广义遍历URL管理器啦</li>
+<li>json：功能和其包名字一样，用来解析和转码JSON字符串的</li>
+</ul>
+<p>知道要用什么工具包，那接下来就让笔者带大家开始快速入门+动手开发吧🚀</p>
+<blockquote>
+<p>笔者使用的Python开发工具为：<br><a target="_blank" rel="noopener" href="https://www.anaconda.com/">Anaconda</a>🐍（Python环境管理器）+Spyder🕷（数据分析强推的IDE）</p>
+</blockquote>
+<h3 id="抓取（下载）第一个页面内容"><a href="#抓取（下载）第一个页面内容" class="headerlink" title="抓取（下载）第一个页面内容"></a>抓取（下载）第一个页面内容</h3><p>首先尝试爬取的页面是豆瓣电影top250主页面，也就是下面这个：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210112/20210112-WebSpyder-3.png" alt="豆瓣top250"></p>
+<p>使用urllib3工具包即可完成对网页的访问和下载，代码实例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib3  <span class="comment"># 导入工具包</span></span><br><span class="line"></span><br><span class="line">downloader = urllib3.PoolManager(); <span class="comment"># 实例化下载器</span></span><br><span class="line"></span><br><span class="line">urlNow = <span class="string">&quot;https://movie.douban.com/top250?start=0&quot;</span>; <span class="comment"># 要下载的页面的URL，这里用一个变量来方便表示</span></span><br><span class="line"></span><br><span class="line">res = downloader.request(<span class="string">&#x27;GET&#x27;</span>,urlNow) <span class="comment"># 下载指定url的数据</span></span><br><span class="line"></span><br><span class="line">res.status  <span class="comment"># 查看HTTP响应状态码；接收到服务器的正常响应是200</span></span><br><span class="line"></span><br><span class="line">res.data    <span class="comment"># 查看响应的页面数据⚠可能会跳出很多很多内容噢</span></span><br></pre></td></tr></table></figure>
+
+<p>如果在笔者的电脑上运行上代码如下：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210112/20210112-WebSpyder-2.png" alt="urllib3"></p>
+<p>如果你的状态码和笔者一样是200，那么就代表你下载成功啦！😘很简单对吧</p>
+<h3 id="查找HTML中的指定对象"><a href="#查找HTML中的指定对象" class="headerlink" title="查找HTML中的指定对象"></a>查找HTML中的指定对象</h3><p>让我们用浏览器再次打开上面的豆瓣电影top250主页面，并且打开“检查”功能查看网页结构数据。如下：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210112/20210112-WebSpyder-4.png" alt="网页检查"></p>
+<p>在使用工具前，我们先人工analyse一下我们需要的内容数据，从上图中对网页的源代码检查中我们可发现：该静态网页的主电影内容在标签页<code>ol</code>中，具有<code>class = &quot;grid&quot;</code>的属性；<code>ol</code>下有10个电影的<code>li</code>标签，让我们再打开看看细节：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210112/20210112-WebSpyder-5.png" alt="li细节"></p>
+<p>这时候所有数据的存储都很显然了吧！（博客的日期为2021年1月，可能你阅读时会有些许不同）</p>
+<ul>
+<li>电影的海报存储在<code>&lt;div class=&quot;pic&quot;&gt;</code>之内</li>
+<li>电影的数据主体为<code>&lt;div class=&quot;info&quot;&gt;</code><ul>
+<li>电影的名字存储在<code>&lt;div class=&quot;hd&quot;&gt;</code></li>
+<li>导演、评价等数据存储在<code>&lt;div class=&quot;bd&quot;&gt;</code>中</li>
+</ul>
+</li>
+</ul>
+<p>接下来让我们对其进行分析，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup <span class="comment"># 导入“靓汤”分析包</span></span><br><span class="line"></span><br><span class="line">wholeHTML_bsObj = BeautifulSoup(res.data,<span class="string">&quot;html.parser&quot;</span>,from_encoding=<span class="string">&quot;utf-8&quot;</span>);  <span class="comment"># 使用HTML数据实例化“靓汤”对象</span></span><br><span class="line"></span><br><span class="line">mainGrid = wholeHTML_bsObj.find(<span class="string">&quot;ol&quot;</span>,class_ = <span class="string">&quot;grid_view&quot;</span>); <span class="comment"># 提取上面我们发现的ol主对象</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>你可以打印一下mainGrid对象看看结果，让我们继续吧</p>
+</blockquote>
+<p>提取出了主要的数据块，就可以用同样类似<code>find</code>的操作继续分析查找需要的数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">movieBrief_list = mainGrid.find_all(<span class="string">&quot;li&quot;</span>);  <span class="comment"># 提取出该块中所有的单个电影，返回的是一个list对象</span></span><br><span class="line">movieBrief_list[<span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+
+<p>让我们看看这时候提取到的电影数据list的第一个对象内容吧，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&lt;li&gt;</span><br><span class="line">&lt;div <span class="keyword">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span><br><span class="line">&lt;div <span class="keyword">class</span>=<span class="string">&quot;pic&quot;</span>&gt;</span><br><span class="line">&lt;em <span class="keyword">class</span>=<span class="string">&quot;&quot;</span>&gt;<span class="number">1</span>&lt;/em&gt;</span><br><span class="line">&lt;a href=<span class="string">&quot;https://movie.douban.com/subject/1292052/&quot;</span>&gt;</span><br><span class="line">&lt;img alt=<span class="string">&quot;肖申克的救赎&quot;</span> <span class="keyword">class</span>=<span class="string">&quot;&quot;</span> src=<span class="string">&quot;https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg&quot;</span> width=<span class="string">&quot;100&quot;</span>/&gt;</span><br><span class="line">&lt;/a&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;div <span class="keyword">class</span>=<span class="string">&quot;info&quot;</span>&gt;</span><br><span class="line">&lt;div <span class="keyword">class</span>=<span class="string">&quot;hd&quot;</span>&gt;</span><br><span class="line">&lt;a <span class="keyword">class</span>=<span class="string">&quot;&quot;</span> href=<span class="string">&quot;https://movie.douban.com/subject/1292052/&quot;</span>&gt;</span><br><span class="line">&lt;span <span class="keyword">class</span>=<span class="string">&quot;title&quot;</span>&gt;肖申克的救赎&lt;/span&gt;</span><br><span class="line">&lt;span <span class="keyword">class</span>=<span class="string">&quot;title&quot;</span>&gt; / The Shawshank Redemption&lt;/span&gt;</span><br><span class="line">&lt;span <span class="keyword">class</span>=<span class="string">&quot;other&quot;</span>&gt; / 月黑高飞(港)  /  刺激<span class="number">1995</span>(台)&lt;/span&gt;</span><br><span class="line">&lt;/a&gt;</span><br><span class="line">&lt;span <span class="keyword">class</span>=<span class="string">&quot;playable&quot;</span>&gt;[可播放]&lt;/span&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;div <span class="keyword">class</span>=<span class="string">&quot;bd&quot;</span>&gt;</span><br><span class="line">&lt;p <span class="keyword">class</span>=<span class="string">&quot;&quot;</span>&gt;</span><br><span class="line">                            导演: 弗兰克·德拉邦特 Frank Darabont   主演: 蒂姆·罗宾斯 Tim Robbins /...&lt;br/&gt;</span><br><span class="line">                            <span class="number">1994</span> / 美国 / 犯罪 剧情</span><br><span class="line">                        &lt;/p&gt;</span><br><span class="line">&lt;div <span class="keyword">class</span>=<span class="string">&quot;star&quot;</span>&gt;</span><br><span class="line">&lt;span <span class="keyword">class</span>=<span class="string">&quot;rating5-t&quot;</span>&gt;&lt;/span&gt;</span><br><span class="line">&lt;span <span class="keyword">class</span>=<span class="string">&quot;rating_num&quot;</span> <span class="built_in">property</span>=<span class="string">&quot;v:average&quot;</span>&gt;<span class="number">9.7</span>&lt;/span&gt;</span><br><span class="line">&lt;span content=<span class="string">&quot;10.0&quot;</span> <span class="built_in">property</span>=<span class="string">&quot;v:best&quot;</span>&gt;&lt;/span&gt;</span><br><span class="line">&lt;span&gt;<span class="number">2241363</span>人评价&lt;/span&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;p <span class="keyword">class</span>=<span class="string">&quot;quote&quot;</span>&gt;</span><br><span class="line">&lt;span <span class="keyword">class</span>=<span class="string">&quot;inq&quot;</span>&gt;希望让人自由。&lt;/span&gt;</span><br><span class="line">&lt;/p&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;/li&gt;</span><br></pre></td></tr></table></figure>
+
+<p>是不是和上面我们“检查”网页时候的第一个电影的内容完全相符呢！😜</p>
+<h3 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h3><p>其实会了上面的下载数据和分析数据，基本你就拥有了爬虫的两大主要功能了，存储数据算是最后的环节了。对于存储，本次的豆瓣电影由于对象间存在着联系，所以笔者选用Neo4j图数据库进行存储电影、导演等对象节点，再建立节点间的边来表示关系。对于一般爬虫，直接存储数据就可了，所以笔者也使用了csv来存储每个电影的属性</p>
+<h4 id="图数据库（Neo4J）存储"><a href="#图数据库（Neo4J）存储" class="headerlink" title="图数据库（Neo4J）存储"></a>图数据库（Neo4J）存储</h4><blockquote>
+<p>Neo4J数据库的学习和入门，笔者推荐看<strong>W3Cschool</strong>的教程。最多2个小时就能学会了</p>
+</blockquote>
+<p>在使用数据库前，我们先对数据的组织结构进行设计，总共设计了5个对象和</p>
+<ol>
+<li><p>电影内容对象(movie)</p>
+<table>
+<thead>
+<tr>
+<th>属性名称（键）</th>
+<th>参数类型(值)</th>
+<th align="right">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>str字符串</td>
+<td align="right">电影名字</td>
+</tr>
+<tr>
+<td>originalName</td>
+<td>str</td>
+<td align="right">电影原名</td>
+</tr>
+<tr>
+<td>otherName</td>
+<td>str</td>
+<td align="right">其他名字</td>
+</tr>
+<tr>
+<td>link</td>
+<td>str</td>
+<td align="right">详细内容链接</td>
+</tr>
+<tr>
+<td>country</td>
+<td>str</td>
+<td align="right">国家</td>
+</tr>
+<tr>
+<td>year</td>
+<td>int正整数</td>
+<td align="right">上映年份</td>
+</tr>
+<tr>
+<td>date</td>
+<td>int</td>
+<td align="right">上映时间，如0120</td>
+</tr>
+<tr>
+<td>length</td>
+<td>int</td>
+<td align="right">电影时长</td>
+</tr>
+<tr>
+<td>score</td>
+<td>float</td>
+<td align="right">电影评分</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>导演对象(director)</p>
+<table>
+<thead>
+<tr>
+<th>属性名称（键）</th>
+<th>参数类型(值)</th>
+<th align="right">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>str</td>
+<td align="right">导演名字</td>
+</tr>
+<tr>
+<td>originalName</td>
+<td>str</td>
+<td align="right">原名</td>
+</tr>
+<tr>
+<td>link</td>
+<td>str</td>
+<td align="right">导演页面链接</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>演员对象(actor)</p>
+<table>
+<thead>
+<tr>
+<th>属性名称（键）</th>
+<th>参数类型(值)</th>
+<th align="right">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>str</td>
+<td align="right">演员名字</td>
+</tr>
+<tr>
+<td>originalName</td>
+<td>str</td>
+<td align="right">原名</td>
+</tr>
+<tr>
+<td>link</td>
+<td>str</td>
+<td align="right">演员页面链接</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>编剧对象（scriptwriter）</p>
+<table>
+<thead>
+<tr>
+<th>属性名称（键）</th>
+<th>参数类型（值）</th>
+<th align="right">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>str</td>
+<td align="right">编剧名字</td>
+</tr>
+<tr>
+<td>originalName</td>
+<td>str</td>
+<td align="right">原名</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>电影类型对象(movieType)</p>
+<table>
+<thead>
+<tr>
+<th>属性名称（键）</th>
+<th>参数类型(值)</th>
+<th align="right">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>str</td>
+<td align="right">电影类型</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>节点间关系</p>
+<table>
+<thead>
+<tr>
+<th>源对象</th>
+<th>关系</th>
+<th>目标对象</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>director</td>
+<td>导演</td>
+<td>movie</td>
+<td></td>
+</tr>
+<tr>
+<td>movie</td>
+<td>电影类型属于</td>
+<td>movieType</td>
+<td></td>
+</tr>
+<tr>
+<td>actor</td>
+<td>参演</td>
+<td>movie</td>
+<td></td>
+</tr>
+<tr>
+<td>actor</td>
+<td>合作过</td>
+<td>director</td>
+<td>双向关系</td>
+</tr>
+<tr>
+<td>movie</td>
+<td>喜欢本电影也喜欢</td>
+<td>movie</td>
+<td>双向关系</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<p>对Neo4J的操作实在是太简单了，将在neo4j客户端操作的控制指令以字符串的形式传给<code>GraphDatabase.driver.session()</code>创建的任务对象运行<code>write_transaction</code>方法就可以啦！笔者设计的数据库内容，封装为一个类后如下：</p>
+<blockquote>
+<p>如果你连最最最最基础的Python面向对象都不晓得的话，下面的内容也许会将你的阅读兴趣直接清零（虽然看起来很多，但是其实大部分都是注释hhh）</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Created on Fri Dec 11 16:27:43 2020</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">@author: singularity</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> neo4j</span><br><span class="line"><span class="keyword">from</span> neo4j <span class="keyword">import</span> (GraphDatabase, WRITE_ACCESS, unit_of_work)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">myNeo4j</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, </span></span><br><span class="line"><span class="params">                 url = <span class="string">&quot;neo4j://localhost:7687&quot;</span>, </span></span><br><span class="line"><span class="params">                 userName = <span class="string">&quot;neo4j&quot;</span>, </span></span><br><span class="line"><span class="params">                 password = <span class="string">&quot;1234567890&quot;</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        创建一个neo4j图数据库操作对象</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        url : str</span></span><br><span class="line"><span class="string">            数据库路径，默认为本地的7687端口路径</span></span><br><span class="line"><span class="string">        userName : str</span></span><br><span class="line"><span class="string">            登陆用户名</span></span><br><span class="line"><span class="string">        password : str</span></span><br><span class="line"><span class="string">            登陆密码</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.driver = GraphDatabase.driver(url, auth=(userName,password))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__del__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        对象析构函数</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.driver.close()</span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    neo4j库进行增删改查时使用的内部session</span></span><br><span class="line"><span class="string">    禁止外部调用！</span></span><br><span class="line"><span class="string">    BEGIN</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__search_Movie</span>(<span class="params">self,tx,movieName</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        功能：电影查找</span></span><br><span class="line"><span class="string">        说明：根据电影主名字查找</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        res = tx.run(<span class="string">&#x27;&#x27;&#x27;MATCH (</span></span><br><span class="line"><span class="string">                a:movie &#123;name: $name&#125;) RETURN (a) AS mv&#x27;&#x27;&#x27;</span>,</span><br><span class="line">                name=movieName</span><br><span class="line">                )</span><br><span class="line">        resList = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> res:</span><br><span class="line">            resList.append(i[<span class="string">&quot;mv&quot;</span>])</span><br><span class="line">        <span class="keyword">return</span> resList</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__add_Movie</span>(<span class="params">self,tx,movieName,originalName,otherName,</span></span><br><span class="line"><span class="params">                    link,country,year,date,length,score</span>):</span><br><span class="line">        <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">                      MERGE (</span></span><br><span class="line"><span class="string">                          m:movie &#123;</span></span><br><span class="line"><span class="string">                              name : $movieName,</span></span><br><span class="line"><span class="string">                              originalName : $originalName,</span></span><br><span class="line"><span class="string">                              otherName : $otherName,</span></span><br><span class="line"><span class="string">                              link : $link,</span></span><br><span class="line"><span class="string">                              country : $country,</span></span><br><span class="line"><span class="string">                              year : $year,</span></span><br><span class="line"><span class="string">                              date : $date,</span></span><br><span class="line"><span class="string">                              length : $length,</span></span><br><span class="line"><span class="string">                              score : $score&#125;)</span></span><br><span class="line"><span class="string">                      RETURN (m)</span></span><br><span class="line"><span class="string">                      &#x27;&#x27;&#x27;</span>,</span><br><span class="line">                      movieName = movieName,</span><br><span class="line">                      originalName = originalName,</span><br><span class="line">                      otherName = otherName,</span><br><span class="line">                      link = link,</span><br><span class="line">                      country = country,</span><br><span class="line">                      year = year,date = date,</span><br><span class="line">                      length = length,score = score).single().value()</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__establishRelation</span>(<span class="params">self,tx,</span></span><br><span class="line"><span class="params">                            srcType,srcName,</span></span><br><span class="line"><span class="params">                            tarType,tarName,</span></span><br><span class="line"><span class="params">                            relation</span>):</span><br><span class="line">        <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">                      MATCH (a:&#x27;&#x27;&#x27;</span>+srcType+<span class="string">&#x27;&#x27;&#x27; &#123;name:$srcN&#125;),</span></span><br><span class="line"><span class="string">                      (b:&#x27;&#x27;&#x27;</span>+tarType+<span class="string">&#x27;&#x27;&#x27; &#123;name : $tarN&#125;) </span></span><br><span class="line"><span class="string">                      CREATE (a) -[r:&#x27;&#x27;&#x27;</span>+relation+<span class="string">&#x27;&#x27;&#x27;]-&gt; (b)</span></span><br><span class="line"><span class="string">                      RETURN a,b,r</span></span><br><span class="line"><span class="string">                      &#x27;&#x27;&#x27;</span>,</span><br><span class="line">                      srcN = srcName,</span><br><span class="line">                      tarN = tarName).single().value()</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    neo4j内部session定义</span></span><br><span class="line"><span class="string">    END</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_Movie</span>(<span class="params">self,</span></span><br><span class="line"><span class="params">                  movieName,</span></span><br><span class="line"><span class="params">                  originalName = <span class="string">&#x27;&#x27;</span>, otherName = <span class="string">&#x27;&#x27;</span>,</span></span><br><span class="line"><span class="params">                  infPageLink = <span class="string">&#x27;&#x27;</span>,</span></span><br><span class="line"><span class="params">                  country = <span class="string">&#x27;&#x27;</span>,</span></span><br><span class="line"><span class="params">                  year = <span class="number">0</span>,date = <span class="number">0</span>,</span></span><br><span class="line"><span class="params">                  length = <span class="number">120</span>,score = <span class="number">0</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        movieName : str</span></span><br><span class="line"><span class="string">            电影名字.</span></span><br><span class="line"><span class="string">        originalName : str</span></span><br><span class="line"><span class="string">            电影原名.</span></span><br><span class="line"><span class="string">        otherName : str</span></span><br><span class="line"><span class="string">            其他名字.</span></span><br><span class="line"><span class="string">        infPageLink : str</span></span><br><span class="line"><span class="string">            电影内容页面链接</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        TYPE</span></span><br><span class="line"><span class="string">            DESCRIPTION.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__add_Movie,   </span><br><span class="line">                                                movieName,</span><br><span class="line">                                                originalName, otherName,</span><br><span class="line">                                                infPageLink,</span><br><span class="line">                                                country,</span><br><span class="line">                                                year,date,</span><br><span class="line">                                                length,score</span><br><span class="line">                                                );</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_director</span>(<span class="params">self,name,link = <span class="string">&#x27;&#x27;</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        添加导演</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        name : STR</span></span><br><span class="line"><span class="string">            导演名字.</span></span><br><span class="line"><span class="string">        link : STR</span></span><br><span class="line"><span class="string">            导演页面链接.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        TYPE</span></span><br><span class="line"><span class="string">            DESCRIPTION.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__add_director</span>(<span class="params">self,tx,name,link</span>):</span><br><span class="line">                <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">                              MERGE (d:director &#123;</span></span><br><span class="line"><span class="string">                                  name : $directorName,</span></span><br><span class="line"><span class="string">                                  link : $directorLink&#125;)</span></span><br><span class="line"><span class="string">                              RETURN (d)</span></span><br><span class="line"><span class="string">                              &#x27;&#x27;&#x27;</span>,</span><br><span class="line">                              directorName = name,</span><br><span class="line">                              directorLink = link).single().value()</span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(__add_director,</span><br><span class="line">                                             name,link);</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_scriptwriter</span>(<span class="params">self,name,link = <span class="string">&#x27;&#x27;</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        添加编剧人物对象</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        name : STR</span></span><br><span class="line"><span class="string">            编剧名字</span></span><br><span class="line"><span class="string">        link : STR</span></span><br><span class="line"><span class="string">            编剧的个人页面</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__add_scriptwriter</span>(<span class="params">tx,name,link</span>):</span><br><span class="line">            <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">                          MERGE (d:scriptwriter &#123;</span></span><br><span class="line"><span class="string">                              name : $directorName,</span></span><br><span class="line"><span class="string">                              link : $directorLink&#125;)</span></span><br><span class="line"><span class="string">                          RETURN (d)</span></span><br><span class="line"><span class="string">                          &#x27;&#x27;&#x27;</span>,</span><br><span class="line">                          directorName = name,</span><br><span class="line">                          directorLink = link).single().value()</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(__add_scriptwriter,name,link);</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_actor</span>(<span class="params">self,</span></span><br><span class="line"><span class="params">                  name,</span></span><br><span class="line"><span class="params">                  originalName,</span></span><br><span class="line"><span class="params">                  sex = <span class="literal">True</span>,</span></span><br><span class="line"><span class="params">                  birthday = <span class="string">&#x27;1997-14-2&#x27;</span>,</span></span><br><span class="line"><span class="params">                  country = <span class="string">&#x27;&#x27;</span>,</span></span><br><span class="line"><span class="params">                  link = <span class="string">&#x27;&#x27;</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        添加演员</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        name : STR</span></span><br><span class="line"><span class="string">            演员名字.</span></span><br><span class="line"><span class="string">        originalName : STR</span></span><br><span class="line"><span class="string">            原名.</span></span><br><span class="line"><span class="string">        sex : bool</span></span><br><span class="line"><span class="string">            性别，男生true，女生false.</span></span><br><span class="line"><span class="string">        birthday : int</span></span><br><span class="line"><span class="string">            生日时间戳，例如：20200819.</span></span><br><span class="line"><span class="string">        country : STR</span></span><br><span class="line"><span class="string">            演员所在国家.</span></span><br><span class="line"><span class="string">        link : STR</span></span><br><span class="line"><span class="string">            演员页面链接.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        TYPE</span></span><br><span class="line"><span class="string">            DESCRIPTION.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span>    </span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__add_actor</span>(<span class="params">self,tx,name,originalName,sex,birthday,country,link</span>):</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">                          MERGE (a:actor &#123;</span></span><br><span class="line"><span class="string">                              name : $actorName,</span></span><br><span class="line"><span class="string">                              originalName : $actorOrgName,</span></span><br><span class="line"><span class="string">                              sex : $actorSex,</span></span><br><span class="line"><span class="string">                              birthday : $actorBirthday,</span></span><br><span class="line"><span class="string">                              country : $actorCountry,</span></span><br><span class="line"><span class="string">                              link : $actorLink&#125;)</span></span><br><span class="line"><span class="string">                          RETURN (a)</span></span><br><span class="line"><span class="string">                          &#x27;&#x27;&#x27;</span>,</span><br><span class="line">                          actorName = name,</span><br><span class="line">                          actorOrgName = originalName,</span><br><span class="line">                          actorSex = sex,</span><br><span class="line">                          actorBirthday = birthday,</span><br><span class="line">                          actorCountry = country,</span><br><span class="line">                          actorLink = link).single().value()</span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(__add_actor,</span><br><span class="line">                                             name,originalName,sex,</span><br><span class="line">                                             birthday,country,link);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_movieType</span>(<span class="params">self,mType</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        添加电影类型</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        mType : STR</span></span><br><span class="line"><span class="string">            电影类型名，例如：喜剧、动作.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        TYPE</span></span><br><span class="line"><span class="string">            DESCRIPTION.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__add_movieType</span>(<span class="params">self,tx,mType</span>):</span><br><span class="line">            <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">                          MERGE (t:movieType &#123;</span></span><br><span class="line"><span class="string">                              name : $mtype&#125;)</span></span><br><span class="line"><span class="string">                          RETURN t</span></span><br><span class="line"><span class="string">                          &#x27;&#x27;&#x27;</span>,</span><br><span class="line">                          mtype = mType).single().value()</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__add_movieType,mType);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">establishRelation_director2movie</span>(<span class="params">self,</span></span><br><span class="line"><span class="params">                                         directorSrcName,movieTargName,</span></span><br><span class="line"><span class="params">                                         relation = <span class="string">&quot;导演&quot;</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        建立导演和电影的关系</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        directorSrcName : STR</span></span><br><span class="line"><span class="string">            导演名字.</span></span><br><span class="line"><span class="string">        movieTargName : STR</span></span><br><span class="line"><span class="string">            电影名字.</span></span><br><span class="line"><span class="string">        relation : STR</span></span><br><span class="line"><span class="string">            关系.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        TYPE</span></span><br><span class="line"><span class="string">            DESCRIPTION.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__establishRelation,</span><br><span class="line">                                             <span class="string">&quot;director&quot;</span>,directorSrcName,</span><br><span class="line">                                             <span class="string">&quot;movie&quot;</span>,movieTargName,</span><br><span class="line">                                             relation);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">establishRelation_srcriptWriter2movie</span>(<span class="params">self,srcName,targName,relation = <span class="string">&quot;编剧&quot;</span></span>):</span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__establishRelation,</span><br><span class="line">                                             <span class="string">&quot;scriptwriter&quot;</span>,srcName,</span><br><span class="line">                                             <span class="string">&quot;movie&quot;</span>,targName,</span><br><span class="line">                                             relation);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">establishRelation_movie2type</span>(<span class="params">self,srcName,targName,relation = <span class="string">&quot;电影类型&quot;</span></span>):</span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__establishRelation,</span><br><span class="line">                                             <span class="string">&quot;movie&quot;</span>,srcName,</span><br><span class="line">                                             <span class="string">&quot;movieType&quot;</span>,targName,</span><br><span class="line">                                             relation);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">establishRelation_actor2movie</span>(<span class="params">self,srcName,targName,relation = <span class="string">&quot;参演&quot;</span></span>):</span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__establishRelation,</span><br><span class="line">                                             <span class="string">&quot;actor&quot;</span>,srcName,</span><br><span class="line">                                             <span class="string">&quot;movie&quot;</span>,targName,</span><br><span class="line">                                             relation);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">establishRelation_actor4director</span>(<span class="params">self,srcName,targName,relation = <span class="string">&quot;合作关系&quot;</span></span>):</span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__establishRelation,</span><br><span class="line">                                             <span class="string">&quot;actor&quot;</span>,srcName,</span><br><span class="line">                                             <span class="string">&quot;director&quot;</span>,targName,</span><br><span class="line">                                             relation);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">establishRelation_movie4movie</span>(<span class="params">self,srcName,targName,relation = <span class="string">&quot;喜欢该电影的也喜欢&quot;</span></span>):</span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.write_transaction(self.__establishRelation,</span><br><span class="line">                                             <span class="string">&quot;movie&quot;</span>,srcName,</span><br><span class="line">                                             <span class="string">&quot;movie&quot;</span>,targName,</span><br><span class="line">                                             relation);</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">cleanDatabase</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        清空数据库里面的所有数据</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__cleanRelation</span>(<span class="params">tx</span>):</span><br><span class="line">            <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;MATCH (n)-[r]-&gt;(m) DELETE r&#x27;&#x27;&#x27;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">__cleanNode</span>(<span class="params">tx</span>):</span><br><span class="line">            <span class="keyword">return</span> tx.run(<span class="string">&#x27;&#x27;&#x27;MATCH (n) DELETE n&#x27;&#x27;&#x27;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># def __cleanAll(tx):</span></span><br><span class="line">        <span class="comment">#     return tx.run(&#x27;&#x27;&#x27;MATCH (n)-[r]-&gt;(m) DELETE r,n,m&#x27;&#x27;&#x27;)</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            session.write_transaction(__cleanRelation);</span><br><span class="line">            session.write_transaction(__cleanNode);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">search_Movie</span>(<span class="params">self,movieName</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        查找电影资料</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        movieName : STR</span></span><br><span class="line"><span class="string">            查找的电影名称.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">with</span> self.driver.session() <span class="keyword">as</span> session:</span><br><span class="line">            <span class="keyword">return</span> session.read_transaction(self.__search_Movie,movieName);</span><br><span class="line">            </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    neoObj = myNeo4j();</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<h4 id="本地CSV文件存储"><a href="#本地CSV文件存储" class="headerlink" title="本地CSV文件存储"></a>本地CSV文件存储</h4><p>笔者在使用pip官方的CSV操作API时，发现对爬虫爬取到的韩文支持并不好。看报错应该是官方CSV存储时默认将数据转码为GBK格式，没有韩文的编码内容。因为CSV文件的格式化准则特别简单，所以笔者索性直接自己写一个简易的CSV操作对象代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Created on Thu Dec 10 19:37:47 2020</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">@author: singularity</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">myCSV</span>:</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    这是一个非标准库的csv写入包</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self,fileAddr,fileOperateType = <span class="string">&quot;wb&quot;</span>,encoding = <span class="string">&quot;utf-8&quot;</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        创建一个CSV文件写入对象</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        fileAddr : str</span></span><br><span class="line"><span class="string">            文件路径字符串</span></span><br><span class="line"><span class="string">        fileOperateType : str</span></span><br><span class="line"><span class="string">            文件打开方式</span></span><br><span class="line"><span class="string">        encoding : str</span></span><br><span class="line"><span class="string">            存储时的编码方式</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.__csvFile = <span class="built_in">open</span>(fileAddr,fileOperateType)</span><br><span class="line">        self.__csvName = fileAddr</span><br><span class="line">        self.__encodingMethod = encoding</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">writerow</span>(<span class="params">self,rowData</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        向csv文件写入一行数据</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        rowData : list of string</span></span><br><span class="line"><span class="string">            要写入的字符串列表</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        writeData = <span class="built_in">str</span>()</span><br><span class="line">        <span class="keyword">for</span> now <span class="keyword">in</span> rowData:</span><br><span class="line">            writeData += <span class="built_in">str</span>(now)</span><br><span class="line">            writeData += <span class="string">&#x27;,&#x27;</span></span><br><span class="line">        writeData = writeData[:-<span class="number">1</span>]+<span class="string">&#x27;\n&#x27;</span></span><br><span class="line">        self.__csvFile.write(writeData.encode(self.__encodingMethod))</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__del__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        默认析构函数</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.__csvFile.close()</span><br><span class="line">        </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>CSV格式化文件语法概况：每一行数据以换行符<code>\n</code>标志；行内的列数据以英文逗号<code>,</code>标志</p>
+</blockquote>
+<h3 id="URL管理器"><a href="#URL管理器" class="headerlink" title="URL管理器"></a>URL管理器</h3><p>本次设计的爬虫搜索逻辑是“广度优先”遍历，所以很容易想到用具有FIFO性质的队列来实现，但是为了提高代码的整体鲁棒性，笔者还是对原生<code>deque</code>库进行了二次封装。那么为什么要用双向队列实现呢？主要是为了支持操作回滚和其他支持，从双向队列和队列的实现原理上知道两者在性能上基本是一样的（理论读写速度一样，但双向占用的存储空间更大一点）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> queue <span class="keyword">import</span> Queue,deque</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">urlCtrl</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        创建URL管理器对象</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.__queueCache = deque();</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">empty</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(self.__queueCache) == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span>;</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span>;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_URL</span>(<span class="params">self,URL,Name = <span class="string">&#x27;&#x27;</span></span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        向管理器中添加URL和对应的名字</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Parameters</span></span><br><span class="line"><span class="string">        ----------</span></span><br><span class="line"><span class="string">        URL : str</span></span><br><span class="line"><span class="string">            url字符串.</span></span><br><span class="line"><span class="string">        Name : str, optional</span></span><br><span class="line"><span class="string">            网址名称. The default is &#x27;&#x27;.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        None.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.__queueCache.append((Name,URL));</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_URL</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        从URL管理器中提取一个单位</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        TYPE</span></span><br><span class="line"><span class="string">            DESCRIPTION.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">return</span> self.__queueCache.popleft();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">rollBack_URL</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        回滚上一次放进管理器的URL数据</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns</span></span><br><span class="line"><span class="string">        -------</span></span><br><span class="line"><span class="string">        (Name,URL).</span></span><br><span class="line"><span class="string">            名字+URL</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">return</span> self.__queueCache.pop();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clear</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">        清空管理器中所有的数据</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        self.__queueCache.clear();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(self.__queueCache)</span><br><span class="line">        </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    ctrl = urlCtrl();</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Tip：二次封装的好处就是，你可以随意变换URL遍历算法而不用大幅度修改主程序</p>
+<blockquote>
+<p>如果你有性能癖，可自己写一套节省存储空间的可回滚队列。当然也可以用高性能的C++写了之后封装给Py调用</p>
+</blockquote>
+</blockquote>
+<h3 id="把爬虫逻辑搭起来"><a href="#把爬虫逻辑搭起来" class="headerlink" title="把爬虫逻辑搭起来"></a>把爬虫逻辑搭起来</h3><p>至此，爬虫所需要的四大基本功能（下载、分析、存储、URL管理）就都有了，接下来就把他们全部都进行有机拼接吧！也就是本次笔者课设的完整代码，当然在<a target="_blank" rel="noopener" href="https://github.com/studyHooligen/spider-DBMovie">Github开源了仓库</a>大家可直接clone：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> urllib3 </span><br><span class="line"><span class="keyword">import</span> bs4</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> myCSV</span><br><span class="line"><span class="keyword">import</span> myNeo4j</span><br><span class="line"><span class="keyword">import</span> myURLcontroller</span><br><span class="line"><span class="keyword">import</span> myProxy</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">用户参数配置</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">LIMIT_OBEJECT = <span class="number">100</span>     <span class="comment"># 闲置爬取的数据量，单位：个电影</span></span><br><span class="line"></span><br><span class="line">LIMIT_RATE = <span class="number">3</span>          <span class="comment"># 爬虫速率</span></span><br><span class="line"></span><br><span class="line">USE_PROXY = <span class="literal">False</span>       <span class="comment"># 选择是否使用代理服务</span></span><br><span class="line"></span><br><span class="line">CLEAN_ORIGINAL_DATABASE = <span class="literal">True</span> <span class="comment"># 爬虫开始前删除原始数据库数据</span></span><br><span class="line"></span><br><span class="line">SAVE_HTMLFILE = <span class="literal">True</span>    <span class="comment"># 是否保存爬取过程中的HTML页面内容</span></span><br><span class="line">SAVE2CSV = <span class="literal">True</span>         <span class="comment"># 是否把爬取的数据存储到本地csv文件中</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">用户参数配置完毕</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取运行时间</span></span><br><span class="line">RUNNING_TIME = time.strftime(<span class="string">&#x27;%Y-%m-%d,%H:%m&#x27;</span>,time.localtime(time.time()))</span><br><span class="line"></span><br><span class="line"><span class="comment">#下载器</span></span><br><span class="line">downloader = urllib3.PoolManager();</span><br><span class="line"></span><br><span class="line"><span class="comment">#URL管理器</span></span><br><span class="line">urlManager = myURLcontroller.urlCtrl();</span><br><span class="line"></span><br><span class="line"><span class="comment">#代理获取器</span></span><br><span class="line">proxyPool = myProxy.myProxy(<span class="string">&quot;http://stream.singularity-blog.top&quot;</span>,<span class="number">5010</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">#图数据库</span></span><br><span class="line">GDB_movie = myNeo4j.myNeo4j();</span><br><span class="line"></span><br><span class="line"><span class="comment">#CSV读写器</span></span><br><span class="line"><span class="keyword">if</span> SAVE2CSV:</span><br><span class="line">    movieBrief_csvWriter = myCSV.myCSV(<span class="string">&quot;./csvData/movieBrief&quot;</span>+RUNNING_TIME+<span class="string">&quot;.csv&quot;</span>,<span class="string">&quot;wb&quot;</span>,<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line"></span><br><span class="line">    movieBrief_csvWriter.writerow([<span class="string">&quot;电影名字&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;电影原名&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;其他名字&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;详细内容链接&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;导演&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;编剧&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;主演&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;年份&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;电影类型&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;国家/地区&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;语言&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;上映日期&quot;</span>,</span><br><span class="line">                                   <span class="string">&quot;片长&quot;</span></span><br><span class="line">                                   ])</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> CLEAN_ORIGINAL_DATABASE:</span><br><span class="line">    GDB_movie.cleanDatabase()</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">爬取基础的250个页面数据到url数据器里</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;&#x27;&#x27;-------开始爬取根数据--------&#x27;&#x27;&#x27;</span>)</span><br><span class="line">urlRoot = <span class="string">&quot;https://movie.douban.com/top250?start=&quot;</span>  <span class="comment"># 根爬取地址</span></span><br><span class="line"></span><br><span class="line">pageNum = <span class="number">0</span> <span class="comment">#遍历用的页面号</span></span><br><span class="line"><span class="keyword">while</span> pageNum &lt; <span class="number">10</span>:</span><br><span class="line">    </span><br><span class="line">    urlNow = urlRoot + <span class="built_in">str</span>(pageNum*<span class="number">25</span>)    <span class="comment">#当前要爬的路径</span></span><br><span class="line">    </span><br><span class="line">    r = downloader.request(<span class="string">&#x27;GET&#x27;</span>,urlNow)  <span class="comment">#下载HTML数据</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(r.status != <span class="number">200</span>):    <span class="comment">#检测是否请求失败（被豆瓣查水表）</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;get error,status code:&quot;</span>,<span class="built_in">str</span>(r.status))</span><br><span class="line">        exit(-<span class="number">1</span>)</span><br><span class="line">    </span><br><span class="line">    pageNum += <span class="number">1</span>    <span class="comment">#迭代</span></span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    存储网页原HTML数据</span></span><br><span class="line"><span class="string">    用户可配置开启</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> SAVE_HTMLFILE:</span><br><span class="line">        localSaveFile = <span class="built_in">open</span>(<span class="string">&quot;./sourceHTMl/top250Main/豆瓣电影top250-&quot;</span>+<span class="built_in">str</span>(pageNum)+<span class="string">&quot;.html&quot;</span>,mode = <span class="string">&quot;wb&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        localSaveFile.write(r.data) <span class="comment">#存储网页数据</span></span><br><span class="line">        </span><br><span class="line">        localSaveFile.close()   <span class="comment">#关闭文件</span></span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    开始分析网页文件</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    wholeHTML_bsObj = BeautifulSoup(r.data,<span class="string">&quot;html.parser&quot;</span>,from_encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    mainGrid = wholeHTML_bsObj.find(<span class="string">&quot;ol&quot;</span>,class_ = <span class="string">&quot;grid_view&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    movieBrief_list = mainGrid.find_all(<span class="string">&quot;li&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> movie <span class="keyword">in</span> movieBrief_list:</span><br><span class="line">        </span><br><span class="line">        movieName = movie.find_all(<span class="string">&quot;span&quot;</span>,class_ = <span class="string">&quot;title&quot;</span>)   <span class="comment">#查电影的名字</span></span><br><span class="line">        movieOtherName = movie.find(<span class="string">&quot;span&quot;</span>,class_ = <span class="string">&quot;other&quot;</span>)    <span class="comment">#查电影的其他名字</span></span><br><span class="line">        movieLink = movie.find(<span class="string">&#x27;a&#x27;</span>).attrs[<span class="string">&#x27;href&#x27;</span>] <span class="comment">#电影详细内容链接</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">#防止电影没有第二名字</span></span><br><span class="line">        movieName.append(movieName[<span class="number">0</span>])</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># if SAVE2CSV:    # 存储数据到CSV文件</span></span><br><span class="line">        <span class="comment">#     movieBrief_csvWriter.writerow([movieName[0].text.replace(u&#x27;\xa0&#x27;, u&#x27; &#x27;),</span></span><br><span class="line">        <span class="comment">#                                    movieName[1].text.replace(u&#x27;\xa0&#x27;, u&#x27; &#x27;).replace(&quot; / &quot;,&#x27;&#x27;),</span></span><br><span class="line">        <span class="comment">#                                    movieOtherName.text.replace(u&#x27;\xa0&#x27;, u&#x27; &#x27;).replace(&quot; / &quot;,&#x27; &#x27;),</span></span><br><span class="line">        <span class="comment">#                                    movieLink</span></span><br><span class="line">        <span class="comment">#                                    ])</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 电影名字字符格式调整</span></span><br><span class="line">        movieName[<span class="number">0</span>] = movieName[<span class="number">0</span>].text.replace(<span class="string">u&#x27;\xa0&#x27;</span>, <span class="string">u&#x27; &#x27;</span>);</span><br><span class="line">        movieName[<span class="number">1</span>] = movieName[<span class="number">1</span>].text.replace(<span class="string">u&#x27;\xa0&#x27;</span>, <span class="string">u&#x27; &#x27;</span>).replace(<span class="string">&quot; / &quot;</span>,<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 存储数据到知识图谱库</span></span><br><span class="line">        <span class="comment"># GDB_movie.add_Movie(movieName[0],</span></span><br><span class="line">        <span class="comment">#                    movieName[1],</span></span><br><span class="line">        <span class="comment">#                    movieOtherName.text.replace(u&#x27;\xa0&#x27;, u&#x27; &#x27;).replace(&quot; / &quot;,&#x27; &#x27;),</span></span><br><span class="line">        <span class="comment">#                    movieLink</span></span><br><span class="line">        <span class="comment">#                    )</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 存储页面链接到（广义爬虫）URL管理器中</span></span><br><span class="line">        urlManager.add_URL(movieLink,movieName[<span class="number">0</span>])</span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    防止查水表，适当限速</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    time.sleep(LIMIT_RATE)</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;爬取了第&quot;</span>+<span class="built_in">str</span>(pageNum)+<span class="string">&quot;次根数据&quot;</span>)</span><br><span class="line">    </span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;top250主页面数据爬取完成&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">普通广义爬虫</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">pageNum = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> LIMIT_OBEJECT &gt; pageNum:</span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;循环迭代&#x27;&#x27;&#x27;</span></span><br><span class="line">    pageNum += <span class="number">1</span>;   <span class="comment"># 迭代</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;-----正在爬取第&quot;</span>+<span class="built_in">str</span>(pageNum)+<span class="string">&quot;次页面数据-----&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> urlManager.empty():</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    movieNow = urlManager.get_URL()   <span class="comment">#获取当前爬取页面的URL</span></span><br><span class="line">    urlNow = movieNow[<span class="number">1</span>];</span><br><span class="line">    name = movieNow[<span class="number">0</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;从网站下载数据&#x27;&#x27;&#x27;</span></span><br><span class="line">    time.sleep(LIMIT_RATE)  <span class="comment"># 限速</span></span><br><span class="line">    r = downloader.request(<span class="string">&#x27;GET&#x27;</span>,urlNow)  <span class="comment">#下载HTML数据</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    开始分析页面</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    wholeHTML_bsObj = BeautifulSoup(r.data,<span class="string">&quot;html.parser&quot;</span>,from_encoding=<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 年份数据</span></span><br><span class="line">    year = wholeHTML_bsObj.find(<span class="string">&quot;span&quot;</span>,class_ = <span class="string">&quot;year&quot;</span>).text.replace(<span class="string">&#x27;(&#x27;</span>,<span class="string">&#x27;&#x27;</span>).replace(<span class="string">&#x27;)&#x27;</span>,<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#电影详细数据块提取</span></span><br><span class="line">    infoDiv = wholeHTML_bsObj.find(<span class="string">&quot;div&quot;</span>,<span class="built_in">id</span> = <span class="string">&quot;info&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#电影主要人物数据提取：导演、编剧、主演</span></span><br><span class="line">    mainAttrList = infoDiv.find_all(<span class="string">&quot;span&quot;</span>,class_ = <span class="string">&quot;attrs&quot;</span>)</span><br><span class="line">    director = mainAttrList[<span class="number">0</span>].text     <span class="comment"># 导演</span></span><br><span class="line">    directorLink = mainAttrList[<span class="number">0</span>].find(<span class="string">&#x27;a&#x27;</span>).attrs[<span class="string">&#x27;href&#x27;</span>];   <span class="comment"># 导演页面链接</span></span><br><span class="line">    scriptwriter = mainAttrList[<span class="number">1</span>].text <span class="comment"># 编剧</span></span><br><span class="line">    leadRoleA = mainAttrList[<span class="number">2</span>].find_all(<span class="string">&quot;a&quot;</span>) <span class="comment"># 主演提取</span></span><br><span class="line">    leadRoleList = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> leadRoleA:</span><br><span class="line">        <span class="comment"># 主演数据格式转换，转为元组对：（主演名字+主演页面链接）</span></span><br><span class="line">        leadRoleList.append((i.text,i.attrs[<span class="string">&#x27;href&#x27;</span>]))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#电影类型提取</span></span><br><span class="line">    genre = infoDiv.find_all(<span class="string">&quot;span&quot;</span>,<span class="built_in">property</span> = <span class="string">&quot;v:genre&quot;</span>)</span><br><span class="line">    genreList = [];</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> genre: <span class="comment"># 格式转换</span></span><br><span class="line">        genreList.append(i.text)</span><br><span class="line">    <span class="comment">#国家</span></span><br><span class="line">    matchCountry = re.search( <span class="string">r&#x27;制片国家/地区:.*\n&#x27;</span>, infoDiv.text, re.M|re.I)</span><br><span class="line">    country = matchCountry.group().replace(<span class="string">&quot;制片国家/地区:&quot;</span>,<span class="string">&#x27;&#x27;</span>).replace(<span class="string">&quot;\n&quot;</span>,<span class="string">&#x27;&#x27;</span>).replace(<span class="string">&quot; &quot;</span>,<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    <span class="comment">#语言</span></span><br><span class="line">    matchLanguage = re.search( <span class="string">r&#x27;语言:.*\n&#x27;</span>, infoDiv.text, re.M|re.I)</span><br><span class="line">    language = matchLanguage.group().replace(<span class="string">&quot;语言:&quot;</span>,<span class="string">&#x27;&#x27;</span>).replace(<span class="string">&quot;\n&quot;</span>,<span class="string">&#x27;&#x27;</span>).replace(<span class="string">&quot; &quot;</span>,<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    <span class="comment">#上映日期</span></span><br><span class="line">    releaseDataRes = infoDiv.find_all(<span class="string">&quot;span&quot;</span>,<span class="built_in">property</span> = <span class="string">&quot;v:initialReleaseDate&quot;</span>)</span><br><span class="line">    releaseDataList = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> releaseDataRes:   <span class="comment"># 格式转换</span></span><br><span class="line">        releaseDataList.append(i.text)</span><br><span class="line">    <span class="comment">#片长</span></span><br><span class="line">    movieLength = infoDiv.find(<span class="string">&quot;span&quot;</span>,<span class="built_in">property</span> = <span class="string">&quot;v:runtime&quot;</span>).text</span><br><span class="line">    <span class="comment"># 其他名字</span></span><br><span class="line">    </span><br><span class="line">    matchOtherName = re.search(<span class="string">r&#x27;又名:.*\n&#x27;</span>, infoDiv.text, re.M|re.I)</span><br><span class="line">    <span class="keyword">if</span> matchOtherName <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        matchOtherName = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        otherName = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        otherName = matchOtherName.group().replace(<span class="string">&quot;又名:&quot;</span>,<span class="string">&#x27;&#x27;</span>).replace(<span class="string">&quot;\n&quot;</span>,<span class="string">&#x27;&#x27;</span>).replace(<span class="string">&quot; &quot;</span>,<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;开始导入数据至图数据库&#x27;&#x27;&#x27;</span></span><br><span class="line">    GDB_movie.add_Movie(movieName = name,</span><br><span class="line">                        originalName = name,</span><br><span class="line">                        otherName = otherName,</span><br><span class="line">                        infPageLink = urlNow,</span><br><span class="line">                        country = country,</span><br><span class="line">                        year = <span class="built_in">int</span>(year),</span><br><span class="line">                        date = <span class="built_in">str</span>(releaseDataList),</span><br><span class="line">                        length = movieLength</span><br><span class="line">                        )   <span class="comment"># 添加电影至数据库</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> leadRoleList:</span><br><span class="line">        GDB_movie.add_actor(name = i[<span class="number">0</span>],</span><br><span class="line">                            originalName = i[<span class="number">0</span>],</span><br><span class="line">                            link = i[<span class="number">1</span>]);   <span class="comment"># 添加演员</span></span><br><span class="line">        GDB_movie.establishRelation_actor2movie(i[<span class="number">0</span>],name); <span class="comment"># 建立关系</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> genreList:</span><br><span class="line">        GDB_movie.add_movieType(i); <span class="comment"># 添加电影类型</span></span><br><span class="line">        GDB_movie.establishRelation_movie2type(name,i); <span class="comment"># 建立关系</span></span><br><span class="line">    </span><br><span class="line">    GDB_movie.add_director(director,directorLink); <span class="comment"># 添加导演</span></span><br><span class="line">    GDB_movie.establishRelation_director2movie(director,name); <span class="comment"># 建立导演关系</span></span><br><span class="line">    </span><br><span class="line">    GDB_movie.add_scriptwriter(scriptwriter);   <span class="comment"># 添加编剧</span></span><br><span class="line">    GDB_movie.establishRelation_srcriptWriter2movie(scriptwriter,name); <span class="comment"># 添加编剧关系</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;保存数据至本地&#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> SAVE2CSV:</span><br><span class="line">        movieBrief_csvWriter.writerow([name,        <span class="comment"># 电影名字</span></span><br><span class="line">                                       name,        <span class="comment"># 电影原名</span></span><br><span class="line">                                       otherName,   <span class="comment"># 其他名字</span></span><br><span class="line">                                       urlNow,      <span class="comment"># 电影页面链接</span></span><br><span class="line">                                       director,    <span class="comment"># 导演</span></span><br><span class="line">                                       scriptwriter,        <span class="comment"># 编剧</span></span><br><span class="line">                                       <span class="built_in">str</span>(leadRoleList),   <span class="comment"># 主演</span></span><br><span class="line">                                       year,                <span class="comment"># 年份</span></span><br><span class="line">                                       <span class="built_in">str</span>(genreList),      <span class="comment"># 类别</span></span><br><span class="line">                                       country,             <span class="comment"># 国家</span></span><br><span class="line">                                       language,            <span class="comment"># 语言</span></span><br><span class="line">                                       <span class="built_in">str</span>(releaseDataList),<span class="comment"># 发行上映日期</span></span><br><span class="line">                                       <span class="built_in">str</span>(movieLength)     <span class="comment"># 电影长度</span></span><br><span class="line">                                    ])</span><br><span class="line">        </span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;更新URL管理器新数据&#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># 电影推荐数据块提取</span></span><br><span class="line">    recmDiv = wholeHTML_bsObj.find(<span class="string">&quot;div&quot;</span>,<span class="built_in">id</span> = <span class="string">&quot;recommendations&quot;</span>)</span><br><span class="line">    recmMovieFind = recmDiv.find_all(<span class="string">&quot;dd&quot;</span>);</span><br><span class="line">    <span class="comment"># 提取当前页面可爬的URL</span></span><br><span class="line">    recmMovieList = [];</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> recmMovieFind:</span><br><span class="line">        recmMovieList.append((i.find(<span class="string">&#x27;a&#x27;</span>).text,i.find(<span class="string">&#x27;a&#x27;</span>).attrs[<span class="string">&#x27;href&#x27;</span>]))</span><br><span class="line">    <span class="comment">#判断找到的新页面是否已经爬过了，如果爬过则跳过</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> recmMovieList:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(GDB_movie.search_Movie(i[<span class="number">0</span>])) == <span class="number">0</span>:    <span class="comment"># 查看是否爬过了</span></span><br><span class="line">            urlManager.add_URL(i)   <span class="comment"># 添加到URL管理器中</span></span><br><span class="line">            </span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;完成爬取第&quot;</span>+<span class="built_in">str</span>(pageNum)+<span class="string">&quot;次页面数据&quot;</span>)</span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">程序退出前收尾工作</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;爬虫运行完成，共爬取电影数据：&quot;</span>+<span class="built_in">str</span>(pageNum)+<span class="string">&quot;条。&quot;</span>);</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;------------正在退出程序--------------&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> SAVE2CSV:    <span class="comment"># 关闭CSV读写器</span></span><br><span class="line">    <span class="keyword">del</span> movieBrief_csvWriter</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;bye~&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>设置爬虫的爬取数量为100后，让我们打开Neo4J图数据库，查看所有的节点和关系，看下图的结果还是不错的吧</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210112/20210112-WebSpyder-6.png" alt="爬虫效果"></p>
+<blockquote>
+<p>这个爬虫其实是个半成品，很明显笔者是使用<code>sleep</code>做延时实现限速的，并且没有使用代理，限速功能使能后爬取速率就是网页间读取时间间隔。读者若有时间可以把代理服务器的功能加上，来大幅度提高访问效率，这边推荐一个还不错的代理服务爬虫项目：<a target="_blank" rel="noopener" href="https://github.com/jhao104/proxy_pool">Proxy_Pool</a></p>
+</blockquote>
+<h2 id="代理服务器"><a href="#代理服务器" class="headerlink" title="代理服务器"></a>代理服务器</h2><p>首先让我们先晓得为什么要有代理服务器🙃这些大前提是你必须要知道的：</p>
+<ul>
+<li>任何服务器资源都是有限的，服务器只不过是一个稳定不易崩的电脑罢了<ul>
+<li>服务器CPU一般主频还没有PC的高噢</li>
+<li>再🐂的服务器，都是通过网卡连接上互联网的</li>
+<li>服务器也是要插电的，电费也是网站运营的一大开销</li>
+</ul>
+</li>
+<li>服务器访问的请求多了，网站会直接掉线！</li>
+<li>你的爬虫无法对网站运营商带来经济受益（不符合经济学规则的事情都会被人们排斥）</li>
+<li>爬虫的访问速率是人类的好几百~几万倍，也就是对服务器来说需要<strong>承受不正常的压力大的非人的无受益的访问</strong></li>
+<li>换位思考你是运营商，就知道为什么需要代理</li>
+</ul>
+<p>所以像豆瓣这样的网站都不希望被爬虫占有太多资源，那么就出现了一系列封杀爬虫的手段。比如：黑名单IP、限制某IP的访问频率等等</p>
+<p>如果我们的爬虫不做限速直接访问目标服务器，由于访问频率太高了瞬间就被查水表了。那么，代理服务器的作用就很明显了，我们自己不能访问，那就让别人帮我们访问，然后再把数据传给我们就好了😁</p>
+<p>假设豆瓣的IP限制频率为最快2秒访问一次服务器，而我们电脑处理一个页面数据时间为40ms，和代理服务器交互的时间忽略。那么我们需要24个代理服务器，轮流使用（包括本机在内）IP访问目标服务器就可以不被查水表了！🎈</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2021/01/12/webSpider-QuickStart/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Neo4J/" rel="tag">Neo4J</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB/" rel="tag">网络爬虫</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/01/17/NeuralNetwork-Function/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            神经网络基础函数汇总
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">NodeJS+Express+Vue+MongoDB+Nginx环境搭建</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

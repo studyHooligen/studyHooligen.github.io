@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>D类功放——原理与建模 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-powerAmplifier-D"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  D类功放——原理与建模
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/07/30/powerAmplifier-D/" class="article-date">
+  <time datetime="2020-07-30T13:26:06.000Z" itemprop="datePublished">2020-07-30</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%BB%BA%E6%A8%A1%E4%BB%BF%E7%9C%9F/">建模仿真</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">5 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：对于当前这个数字电路称霸的世界，不会D类功放真是太Low了。该文章讨论的是采用Δ-Σ方案进行闭环控制的D类功放电路，且采用了单电源供电的方案</p>
+</blockquote>
+<h2 id="原理图"><a href="#原理图" class="headerlink" title="原理图"></a>原理图</h2><p>首先给出simulink中建立的模型：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202007/202007-DAmp-1.png" alt="simulinkModule"></p>
+<p>对于经典简易D类功放，并不采用上示闭环结构，而是采用原信号与高频三角波做比较调制出PWM信号驱动半桥，但是这种情况下，电源抑制比和稳定性参数都很差，所以为了达到更好的效果，常使用Δ-Σ方案。上框图可使用模拟电路实现积分和比较，也可使用数字方案（显然笔者在建模时，除了半桥驱动，剩下都变换到了通用信号模型）</p>
+<h2 id="原理推导计算"><a href="#原理推导计算" class="headerlink" title="原理推导计算"></a>原理推导计算</h2><span id="more"></span>
+
+<p>首先对模型中的各部分主要参数进行声明：</p>
+<p>$$<br>入端信号放大常数 A_1 &#x3D; 10 \\<br>反馈变换常数A_2 &#x3D; 1 \\<br>积分常数T &#x3D; 2000000 \\<br>施密特触发器阈值V_{th}&#x3D;\pm 2V \\<br>滤波电感L &#x3D; 45uH \\<br>滤波电容C &#x3D; 350nF \\<br>假负载R_{f}&#x3D;68\Omega,C_f&#x3D;100pF \\<br>输出耦合电容C_O &#x3D; 1mF \\<br>阻性负载R_L&#x3D;8\Omega \\<br>输入（电压）信号V_i \\<br>输出（电压）信号V_L \\<br>半桥供电V_B &#x3D; 24V<br>$$</p>
+<blockquote>
+<p>上述参数都可以对应到实际模拟方案中器件的参数，对应方法将会在后续文章中讨论</p>
+</blockquote>
+<p>首先，为了便于理解该模型的工作原理，我们先考虑当无信号输入时系统的工作情况。此时反馈环形成了一个方波震荡电路，考虑当积分器的输出刚好触碰到施密特触发器的上阈值时，半桥显然上管开通，则从此刻开始积分器的输出有：</p>
+<p>$$<br>V_{integ} &#x3D; V_{th}+\int T\cdot(-\frac{V_B}{2})dt &#x3D; V_{th}-\frac{TV_B}{2}t<br>$$</p>
+<blockquote>
+<p>注意在反馈路径上，减去了12V的电压，实际上更一般来说是半桥供电的中心电位</p>
+</blockquote>
+<p>那么积分器的输出显然是在下降（读者应该能感受到震荡的趋势了）,当下降到施密特触发器下阈值时，半桥下管开通，同理很容易得到：</p>
+<p>$$<br>V_{integ} &#x3D; -V_{th}+\frac{TV_B}{2}t<br>$$</p>
+<p>当上升到上阈值时，则回到了最开始讨论的状态，这也就是该电路PWM的产生来源。很容易得到积分器的上升时间和下降时间都为：</p>
+<p>$$<br>t_{up,down} &#x3D; \frac{2V_{th}}{\frac{TV_B}{2}}&#x3D;\frac{4V_{th}}{TV_B}<br>$$</p>
+<p>则PWM频率为：</p>
+<p>$$<br>f_{PWM}&#x3D;\frac{1}{t_{up}+t_{down}}&#x3D; \frac{TV_B}{8V_{th}}<br>$$</p>
+<blockquote>
+<p>一般来说，为了很好的调制原信号（音频：20~20kHz），可将该PWM频率调整至200kHz以上</p>
+</blockquote>
+<p>现在再观察有信号输入的情况，此时就非常好理解了，因为前面设置的PWM常态频率非常高（可认为10倍），所以可以认为原信号就是对积分器的上升下降时间做一个近似常量的时间加&#x2F;减速。观察积分器的输出，从积分器刚好达到迟滞比较器的阈值时刻开始观察：</p>
+<ul>
+<li>迟滞比较器上阈值被触发（此时显然半桥的上管开通）</li>
+</ul>
+<p>$$<br>V_{integ} &#x3D; V_{th}+K\cdot\int (V_i \cdot A_1 - \frac{V_B}{2}\cdot A_2) dt<br>\\ &#x3D; V_{th}-K(\frac{V_B}{2}A_2-V_iA_1)t<br>$$</p>
+<blockquote>
+<p>显然输入信号经过等效放大后，不能接近和超过输出电源轨，否则系统将停止工作</p>
+</blockquote>
+<ul>
+<li>下阈值触发，同理可得：</li>
+</ul>
+<p>$$<br>V_{integ} &#x3D; -V_{th}+K(\frac{V_B}{2}A_2+V_iA_1)t<br>$$</p>
+<p>则积分器上升时间(低电平）和下降时间（高电平）为：</p>
+<p>$$<br>t_L&#x3D;t_{up}&#x3D;\frac{2V_{th}}{K(\frac{V_B}{2}A_2+V_iA_1)} \\<br>t_H&#x3D;t_{down} &#x3D; \frac{2V_{th}}{K(\frac{V_B}{2}A_2-V_iA_1)}<br>$$</p>
+<p>则半桥输出电压的周期均值为</p>
+<p>$$<br>\overline{V_o} &#x3D; \frac{V_B\cdot t_H+0\cdot t_L}{t_H+t_L} &#x3D; \frac{V_B}{2}-V_i\cdot\frac{A_1}{A_2}<br>$$</p>
+<blockquote>
+<p>半桥输出的PWM波经过后面的LC滤波得到的即为周期均值，注意这里有一个相对半桥中心电位的直流偏置，所以为了减少静态功耗，要在输出端加隔直电容</p>
+</blockquote>
+<p>后级二阶LC滤波器需满足的关系为：</p>
+<p>$$<br>f_{PWM} \gggtr f_{LC} \gggtr f_{sourceMax} \simeq 20kHz<br>$$</p>
+<blockquote>
+<p>仅有LC滤波器，要注意出现一直极端情况，也就是当负载开路时，LC滤波器变为LC谐振器，在谐振点输出会产生大电压，谐振电路电流非常大，这常常会烧坏半桥MOS管。所以要注意添加一个假负载，起到压低谐振点Q值的作用</p>
+</blockquote>
+<h2 id="仿真测试结果（15W输出）"><a href="#仿真测试结果（15W输出）" class="headerlink" title="仿真测试结果（15W输出）"></a>仿真测试结果（15W输出）</h2><h3 id="输出波形预览"><a href="#输出波形预览" class="headerlink" title="输出波形预览"></a>输出波形预览</h3><ul>
+<li>使用频率20kHz、幅度0.8V的输入信号</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/202007/202007-DAmp-2.png" alt="test1"></p>
+<ul>
+<li>使用频率1kHz、幅度0.8V的输入信号</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/202007/202007-DAmp-3.png" alt="test2"></p>
+<p>由于笔者电脑性能的问题，就不提供20Hz的仿真结果了，对于百kHz频率级别的系统，这将花费大量的时间！读者有兴趣可以自行验证</p>
+<blockquote>
+<p>若低频效果不好，则加大输出级的隔直耦合电容，因为该电容和负载构成了一个低通电路噢</p>
+</blockquote>
+<h3 id="输出FFT分析"><a href="#输出FFT分析" class="headerlink" title="输出FFT分析"></a>输出FFT分析</h3><ul>
+<li>20kHz频率</li>
+</ul>
+<h3 id="带内THD"><a href="#带内THD" class="headerlink" title="带内THD"></a>带内THD</h3><h3 id="整机效率"><a href="#整机效率" class="headerlink" title="整机效率"></a>整机效率</h3><h3 id="增益-电源抑制比"><a href="#增益-电源抑制比" class="headerlink" title="增益-电源抑制比"></a>增益-电源抑制比</h3><h2 id="友情链接"><a href="#友情链接" class="headerlink" title="友情链接"></a>友情链接</h2><p>该模型已经上传至笔者的Github仓库：<br><a target="_blank" rel="noopener" href="https://github.com/studyHooligen/SimulinkModel">simulinkModel</a><br>欢迎白嫖</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2020/07/30/powerAmplifier-D/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/D%E7%B1%BB%E5%8A%9F%E6%94%BE/" rel="tag">D类功放</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%9F%E7%8E%87%E6%94%BE%E5%A4%A7%E5%99%A8/" rel="tag">功率放大器</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/08/01/mshCommandWithArguments/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            MSH控制台添加带参命令
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/07/11/HRTIMofSTM32/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">HRTIMofSTM32</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

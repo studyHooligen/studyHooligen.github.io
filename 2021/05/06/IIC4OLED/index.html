@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>硬件IIC控制OLED屏幕 |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-IIC4OLED"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  硬件IIC控制OLED屏幕
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/05/06/IIC4OLED/" class="article-date">
+  <time datetime="2021-05-06T05:46:05.000Z" itemprop="datePublished">2021-05-06</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">4.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">21 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>继上篇<a href="/2021/04/25/quicklyStartMSP432/">速成MSP432</a>后，笔者开始调试使用IIC通信控制的OLED显示屏时，但遇到了极大的阻碍（被中断相关问题困扰），而在网络上发现几乎所有的实现代码都是采用GPIO模拟IIC的方案，所以笔者认为很有必要分享一下这篇开发经历</p>
+</blockquote>
+<h2 id="认识IIC通信"><a href="#认识IIC通信" class="headerlink" title="认识IIC通信"></a>认识IIC通信</h2><p>我们分为两个部分来学习：IIC标准和具体的在MSP432上的IIC实现</p>
+<h3 id="IIC标准"><a href="#IIC标准" class="headerlink" title="IIC标准"></a>IIC标准</h3><p>下图是IIC的总线拓扑，可以看出只有两根信号线：数据（SDA）和时钟（SCL）。可以有任意个设备挂在这对总线上，同时注意到有两个电阻上拉到Vcc，这是因为IIC的IO端口是开漏输出的（见下面具体实现），所以这也带来了IIC的两大优越特性：</p>
+<ul>
+<li>线与：同一线上所有设备都推高才为高电平，任一设备拉低就必为低</li>
+<li>热拔插：可以带电拔、插总线上的IIC设备</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-1.png" alt="IIC总线拓扑"></p>
+<p>一次IIC通信的帧结构如下所示，总线上主机发出一个起始信号（’S’）；然后发<strong>7位</strong>从机（Slave）地址和一位读写控制位（0写1读），接着主机释放数据线，等待从机应答；若收到应答，则继续发数据，并且每一字节数据后面都跟一个从机应答；通信最后，主机发停止信号。</p>
+<span id="more"></span>
+
+<blockquote>
+<p>注意：应答是相对的！若是主机发数据，则由从机发应答；若是从机发数据（相当于主机读数据），则由主机发应答信号。</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-2.png" alt="IIC协议"></p>
+<p>那么上面说的几大信号：起始、应答、停止是什么意思呢？这就要用到IIC总线<strong>线与</strong>的特性并同时观察下图所示的IIC信号：</p>
+<ul>
+<li>释放总线：线与的特性就是所有设备都拉高，在总线上才体现高电平；所以释放总线就是所有的设备都给高信号，这时总线表现高电平，为空闲状态</li>
+<li>起始信号：在总线空闲情况下（都高电平），数据线（SDA）拉低</li>
+<li>应答信号：发送完一字节后，发送机释放总线，从机拉低</li>
+<li>结束信号：在时钟线高电平时，数据线发送一个上升沿。发送后总线回到空闲状态</li>
+</ul>
+<blockquote>
+<p>这里注意观察到，在时钟线高电平时，下降沿表示起始、上升沿表示结束；所以在传输数据时，时钟线高电平时读数据，时钟线低电平时改变数据线电平</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-3.png" alt="IIC信号"></p>
+<p>上面的IIC协议中从机地址为7位，在一些特殊的设备中，升级版的IIC设备支持10位地址，通信协议结构如下图：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-4.png" alt="10位地址"></p>
+<h3 id="MSP432的IIC"><a href="#MSP432的IIC" class="headerlink" title="MSP432的IIC"></a>MSP432的IIC</h3><p>认识完了IIC的通信，现在我们学习一波MSP432中IIC实例的硬件实现原理，下图为MSP432的IIC外设架构图：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-5.png" alt="MSP432IIC架构"></p>
+<p>底层还是很好理解的，就是两个移位器：</p>
+<ul>
+<li>接收移位器：输入为SDA，SCL为触发时钟源，收其8位了就放进接收缓存寄存器</li>
+<li>发送移位器：从发送缓存寄存器拿数据，SCL为触发时钟逐位输出到SDA</li>
+</ul>
+<p>注意到发送移位器（Transmit Shift Register）的输出是通过一个开漏的MOS输出到SDA脚的，而接收移位器（Receive Shift Register）直接从SDA拿数据进逻辑门。所以，我们重新绘制IIC的多设备拓扑图，如下：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-6.jpg" alt="IIC多设备"></p>
+<p>至此，相信你对IIC总线理解已经非常深刻了，开始实战环节了！</p>
+<blockquote>
+<p>上述选用MSP432的实现原理是为了方便理解，实际上理解后所有芯片都是通用的</p>
+</blockquote>
+<h2 id="OLED是啥"><a href="#OLED是啥" class="headerlink" title="OLED是啥"></a>OLED是啥</h2><p>OLED显示屏（点亮后）就是下面这个样子，其实和普通的显示屏看起来也没啥区别。但是从物理底层上来说，OLED全称：有机电激光显示二极管（Organic Light-Emitting Diode），发光是驱动后单像素点自发光的现象，无需背光板（其他光源）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-7.jpg" alt="OLED显示屏"></p>
+<p>当然，OLED其实只是个发光点阵，并不能直接被单片机使用IIC控制，所以一般通常是经过专门控制芯片驱动的，笔者买的这个模块是集成的SH1106方案，具体参数如下：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-8.png" alt="SH1106"></p>
+<p>这个片子的架构也很简单（虽然看起来很多），内部有一个132x64的RAM直接映射为OLED屏幕点阵数据，然后左上角是辅助电源，下半部分是通信接口，右上部分是OLED驱动。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-9.png" alt="SH1106架构"></p>
+<p>这个片子支持很多种和主机通信的接口：8080、SPI和我们选用的IIC。在IIC模式下，片子的配置如下，笔者选用的模块已经把各个引脚电平都拉好了，对外引出了SCL和SDA两个通信脚和电源脚。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-10.png" alt="SH1106IIC"></p>
+<p>这个片子的IIC读写协议倒是略有特色，为了区分设置命令和显示数据，加了控制字节（control byte）。下图描述的算是很清楚了，如果发送控制字节<code>0x00</code>意思就是后面发一串（Co&#x3D;0）的命令（DC&#x3D;0）；如果控制字节是<code>0xc0</code>意思就是后面发一个数据（DC&#x3D;1）并有后续控制字节（Co&#x3D;1）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-11.png" alt="SH1106协议"></p>
+<p>然后就是显存RAM和屏幕的映射关系与读写方式，如下图所示，这个<code>132x64</code>的点阵被分为了8个页（Page），每个页包括<code>132x8</code>bit数据，也就是相当于把屏幕分为了8行进行操作。</p>
+<blockquote>
+<p>这样设计的好处在下面很快就会见到🎈使用命令设置页内的段顺序等，可以很容易实现屏幕滚动等操作而不进行很多计算</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-12.png" alt="SH1106RAM"></p>
+<p>接下来，就让我们看看SH1106这个片子到底支持哪些控制命令。下表列出了手册中说明的所有命令，其中：列地址设置、启动显示、页地址设置命令是让屏幕显示内容的3个基础命令，设置显示起始行命令可以很容易实现滚动显示。每个命令具体的用途和位信息参见下表</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-13.png" alt="SH1106命令"></p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-14.png" alt="SH1106命令"></p>
+<h2 id="控制OLED"><a href="#控制OLED" class="headerlink" title="控制OLED"></a>控制OLED</h2><p>接下来就到了实战调试的时候了，我们先把IIC发数据的代码测试好，然后对OLED（SH1106）进行操作</p>
+<h3 id="MSP432中断实现IIC连发"><a href="#MSP432中断实现IIC连发" class="headerlink" title="MSP432中断实现IIC连发"></a>MSP432中断实现IIC连发</h3><p>Ti官方发布的IIC接口有：</p>
+<ul>
+<li>初始化（主机模式）：<code>I2C_initMaster</code></li>
+<li>设置目标从机地址：<code>I2C_setSlaveAddress</code></li>
+<li>设置通信模式：<code>I2C_setMode</code></li>
+<li>模块启动：<code>I2C_enableModule</code></li>
+<li>开始多字节数据发送：<code>I2C_masterSendMultiByteStart</code></li>
+<li>发送下一个字节数据：<code>I2C_masterSendMultiByteNext</code></li>
+<li>结束发送：<code>I2C_masterSendMultiByteStop</code></li>
+</ul>
+<blockquote>
+<p>NOTE：笔者在实际代码中，每个接口的调用前都加了<code>MAP_</code>前缀，这样是为了让编译器自动选择是调用函数版本的接口还是432内部ROM程序的接口（更快更轻量）。读者可以尝试打开（Ti驱动库）头文件<code>rom_map.h</code>查看详细实现</p>
+</blockquote>
+<p>使用上述接口的情况下，我们可以编写如下的IIC连发函数，共有2个接口（初始化、发送）和1个硬件中断函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;BSP.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OLED_IIC_ADDRESS 0x3c   <span class="comment">// OLED屏幕地址</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   IIC配置常量</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> eUSCI_I2C_MasterConfig i2cConfig =</span><br><span class="line">&#123;</span><br><span class="line">        EUSCI_B_I2C_CLOCKSOURCE_SMCLK,          <span class="comment">// SMCLK Clock Source</span></span><br><span class="line">        <span class="number">48000000</span>,                               <span class="comment">// SMCLK = 48MHz</span></span><br><span class="line">        EUSCI_B_I2C_SET_DATA_RATE_400KBPS,      <span class="comment">// Desired I2C Clock of 400khz</span></span><br><span class="line">        <span class="number">0</span>,                                      <span class="comment">// No byte counter threshold</span></span><br><span class="line">        EUSCI_B_I2C_NO_AUTO_STOP                <span class="comment">// No Autostop</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">uint32_t</span> _OLED_IIC_sending = <span class="number">0</span>;  <span class="comment">// 剩余要发送的数据量</span></span><br><span class="line"><span class="type">static</span> <span class="type">uint8_t</span> * _OLED_IIC_sendingPtr = <span class="number">0</span>;    <span class="comment">// 数据指针</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   初始化IIC设备</span></span><br><span class="line"><span class="comment"> * @note</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param   None</span></span><br><span class="line"><span class="comment"> * @ret     None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">IIC4OLED_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// P1.6 映射为IIC.SDA</span></span><br><span class="line">    <span class="comment">// P1.7 映射为IIC.SCL</span></span><br><span class="line">    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,</span><br><span class="line">                GPIO_PIN6 + GPIO_PIN7, GPIO_PRIMARY_MODULE_FUNCTION);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// IIC外设参数初始化配置</span></span><br><span class="line">    MAP_I2C_initMaster(EUSCI_B0_BASE, &amp;i2cConfig);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置（目标通信）从机地址</span></span><br><span class="line">    MAP_I2C_setSlaveAddress(EUSCI_B0_BASE, OLED_IIC_ADDRESS);</span><br><span class="line">    <span class="comment">// 发送数据模式</span></span><br><span class="line">    MAP_I2C_setMode(EUSCI_B0_BASE, EUSCI_B_I2C_TRANSMIT_MODE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使能IIC实例</span></span><br><span class="line">    MAP_I2C_enableModule(EUSCI_B0_BASE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清楚中断标志位，防止误促发中断</span></span><br><span class="line">    MAP_I2C_clearInterruptFlag(EUSCI_B0_BASE,</span><br><span class="line">                EUSCI_B_I2C_TRANSMIT_INTERRUPT0 + EUSCI_B_I2C_NAK_INTERRUPT);</span><br><span class="line">    <span class="comment">// 使能中断</span></span><br><span class="line">    MAP_I2C_enableInterrupt(EUSCI_B0_BASE,</span><br><span class="line">                EUSCI_B_I2C_TRANSMIT_INTERRUPT0 + EUSCI_B_I2C_NAK_INTERRUPT);</span><br><span class="line">    MAP_Interrupt_enableInterrupt(INT_EUSCIB0);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   发送数据给OLED</span></span><br><span class="line"><span class="comment"> * @note    使用中断连发数据</span></span><br><span class="line"><span class="comment"> *          但是会阻塞等待上一次调用</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param</span></span><br><span class="line"><span class="comment"> *      dataPtr(uint8_t *)  发送数据内存地址</span></span><br><span class="line"><span class="comment"> *      dataSize(uint32_t)  发送数据大小</span></span><br><span class="line"><span class="comment"> * @ret     None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">IIC4OLED_send</span><span class="params">(<span class="type">uint8_t</span> * dataPtr, <span class="type">uint32_t</span> dataSize)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 确保IIC是空闲的</span></span><br><span class="line"><span class="comment">//    while (MAP_I2C_masterIsStopSent(EUSCI_B0_BASE) == EUSCI_B_I2C_SENDING_STOP);</span></span><br><span class="line">    <span class="keyword">while</span>(_OLED_IIC_sending);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(dataSize)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 中断续发变量初始化</span></span><br><span class="line">        _OLED_IIC_sending = dataSize - <span class="number">1</span>;</span><br><span class="line">        _OLED_IIC_sendingPtr = dataPtr + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动多字节数据发送</span></span><br><span class="line">        MAP_I2C_masterSendMultiByteStart(EUSCI_B0_BASE, dataPtr[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   IIC中断处理函数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">EUSCIB0_IRQHandler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 中断状态</span></span><br><span class="line">    <span class="type">uint_fast16_t</span> status;</span><br><span class="line">    status = MAP_I2C_getEnabledInterruptStatus(EUSCI_B0_BASE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 没接收到应答（ACK）信号</span></span><br><span class="line">    <span class="keyword">if</span> (status &amp; EUSCI_B_I2C_NAK_INTERRUPT)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 清除中断</span></span><br><span class="line">        MAP_I2C_clearInterruptFlag(EUSCI_B0_BASE,EUSCI_B_I2C_NAK_INTERRUPT);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* ---处理--- */</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 接收中断</span></span><br><span class="line">    <span class="keyword">if</span> (status &amp; EUSCI_B_I2C_RECEIVE_INTERRUPT0)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 清除中断</span></span><br><span class="line">        MAP_I2C_clearInterruptFlag(EUSCI_B0_BASE,EUSCI_B_I2C_RECEIVE_INTERRUPT0);</span><br><span class="line">        <span class="comment">// 失能中断</span></span><br><span class="line">        MAP_I2C_disableInterrupt(EUSCI_B0_BASE,</span><br><span class="line">                                 EUSCI_B_I2C_RECEIVE_INTERRUPT0);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 发送完成中断</span></span><br><span class="line">    <span class="keyword">if</span>(status &amp; EUSCI_B_I2C_TRANSMIT_INTERRUPT0)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 清除中断</span></span><br><span class="line">        MAP_I2C_clearInterruptFlag(EUSCI_B0_BASE,EUSCI_B_I2C_TRANSMIT_INTERRUPT0);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* ---发送完成中断处理--- */</span></span><br><span class="line">        <span class="keyword">if</span>(_OLED_IIC_sending == <span class="number">0</span>)  <span class="comment">// 发完了</span></span><br><span class="line">        &#123;</span><br><span class="line">            _OLED_IIC_sendingPtr = <span class="number">0</span>;   <span class="comment">// 指针处理</span></span><br><span class="line">            MAP_I2C_masterSendMultiByteStop(EUSCI_B0_BASE); <span class="comment">// 发送IIC结束信号</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(_OLED_IIC_sending == <span class="number">1</span>) <span class="comment">// 还有一个就发完了</span></span><br><span class="line">        &#123;</span><br><span class="line">            MAP_I2C_masterSendMultiByteFinish(EUSCI_B0_BASE,    <span class="comment">// 发送完下一个信号自动跟上结束信号</span></span><br><span class="line">                                      *_OLED_IIC_sendingPtr);</span><br><span class="line"></span><br><span class="line">            _OLED_IIC_sendingPtr = <span class="number">0</span>;   <span class="comment">// 指针处理</span></span><br><span class="line">            _OLED_IIC_sending = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;  <span class="comment">// 还有很多数据待发</span></span><br><span class="line">            MAP_I2C_masterSendMultiByteNext(EUSCI_B0_BASE,  <span class="comment">// 放一个数据到发送寄存器</span></span><br><span class="line">                                *_OLED_IIC_sendingPtr);</span><br><span class="line">            _OLED_IIC_sendingPtr++; <span class="comment">// 指针迭代</span></span><br><span class="line">            _OLED_IIC_sending--;    <span class="comment">// 计数器自减</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 发送结束中断</span></span><br><span class="line">    <span class="keyword">if</span> (status &amp; EUSCI_B_I2C_STOP_INTERRUPT)</span><br><span class="line">    &#123;</span><br><span class="line">        MAP_I2C_clearInterruptFlag(EUSCI_B0_BASE,EUSCI_B_I2C_STOP_INTERRUPT);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>只要没有玄学问题，上代码读者可以直接抄走用，没有任何问题。不依赖开发环境只使用了Ti官方的接口。</p>
+<h3 id="OLED显示字符"><a href="#OLED显示字符" class="headerlink" title="OLED显示字符"></a>OLED显示字符</h3><p>现在我们回到OLED的手册上来，建议读者先通读SH1106的数据手册，大概对每个命令都有一定的了解。笔者将这个片子的所有命令做成了一个头文件<code>OLED_SH1106.h</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * OLED_SH1106.h - The C head file of the OLED Screen(SH1106) driver</span></span><br><span class="line"><span class="comment"> * <span class="doctag">NOTE:</span> This file is based on C99</span></span><br><span class="line"><span class="comment"> *       Up to now,this file only has instructions.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Copyright (c) 2020-2021, FOSH Project</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Change Logs:</span></span><br><span class="line"><span class="comment"> * Date           Author            Notes           mail</span></span><br><span class="line"><span class="comment"> * 2021-04-30     江榕煜     first version   2373180028@qq.com</span></span><br><span class="line"><span class="comment">**/</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> __OLED_SH1106_H__</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> __OLED_SH1106_H__</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdint.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* --- SH1106芯片内部指令集定义 --- */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetColAddrLow_SH1106    0x00        <span class="comment">// 后四位使用逻辑或|修改</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetColAddrHigh_SH1106   0x10        <span class="comment">// 后四位使用逻辑或|修改</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetDCDCVol_SH1106       0x30        <span class="comment">// 后两位使用逻辑或|修改</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetDispStarLine_SH1106  0x40        <span class="comment">// 后6位使用逻辑或|修改</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetContrast_SH1106      0x8100      <span class="comment">// 双字节结构：后一字节数据</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SegRightRot_SH1106      0xa0        <span class="comment">// 段地址右旋循环</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SegLeftRot_SH1106       0xa1        <span class="comment">// 段地址左旋循环</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EntireDispOff_SH1106    0xa4        <span class="comment">// 普通显示（禁用全显示测试功能）</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EntireDispOn_SH1106     0xa5        <span class="comment">// 全显示（测试功能）</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ReverseDispOff_SH1106   0xa6        <span class="comment">// 普通显示（不使用反色）</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ReverseDispOn_SH1106    0xa7        <span class="comment">// 反色显示</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MultRatio_SH1106        0xa800      <span class="comment">// 双字节结构：后6位使用逻辑或|修改</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DisableDCDC_SH1106      0xad8a      <span class="comment">// 失能DCDC</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EnableDCDC_SH1106       0xad8b      <span class="comment">// 使能DCDC</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DispOff_SH1106          0xae        <span class="comment">// 关闭显示</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DispOn_SH1106           0xaf        <span class="comment">// 启动显示</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetPageAddr_SH1106      0xb0        <span class="comment">// 后4位使用逻辑或|修改</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ScanDirPos_SH1106       0xc0        <span class="comment">// 顺序扫描</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ScanDirAnt_SH1106       0xc8        <span class="comment">// 逆序扫描</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetDispOffset_SH1106    0xd300      <span class="comment">// 双字节结构：后6位使用逻辑或|修改</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetDivAndFreq_SH1106    0xd5        <span class="comment">// 双字节结构：4+4分别为分频率和振荡器频率</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetchargePeriod_SH1106  0xd9        <span class="comment">// 双字节结构：4+4分别为放电周期和预充电周期</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ComSigPadSeqt_SH1106    0xda02      <span class="comment">// 引脚顺序</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ComSigPadAltn_SH1106    0xda0a      <span class="comment">// 引脚逆序</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SetVCOM_SH1106          0xdb00      <span class="comment">// 双字节结构：后一字节数据</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ReadModWrite_SH1106     0Xe0        <span class="comment">// 启动“读写”组合模式，即一次读写指针跳一次</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> END_SH1106              0Xee        <span class="comment">// 结束“读写”组合模式</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NOP_SH1106              0xe3        <span class="comment">// 无操作命令</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CommandNotTail_SH1106   0x80        <span class="comment">// 发送一个指令，还有其他内容</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DataNotTail_SH1106      0xc0        <span class="comment">// 发送一个数据，还有其他内容</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CommandAll_SH1106       0x00        <span class="comment">// 接下来发送一堆命令</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DataAll_SH1106          0x40        <span class="comment">// 接下来发送一堆数据</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* --- 用户接口定义 ---*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_display_on[<span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_display_off[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_Front_Jiang[<span class="number">16</span>*<span class="number">4</span>+<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_Number1234567890[<span class="number">10</span>][<span class="number">16</span>*<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_Chinese[][<span class="number">32</span>*<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_English[][<span class="number">16</span>*<span class="number">4</span>];</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>文件的末尾声明了几个数组，是使用字模软件提取了几个英文字母和中文字符的数据，放在配套的源文件<code>OLED_SH1106.C</code>中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;OLED_SH1106.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_display_on[<span class="number">5</span>] = &#123;</span><br><span class="line">    CommandAll_SH1106,</span><br><span class="line">    SetDCDCVol_SH1106 | <span class="number">0x02</span>,   <span class="comment">// 设置DCDC电压</span></span><br><span class="line">    (EnableDCDC_SH1106&gt;&gt;<span class="number">8</span>),   <span class="comment">// 启动DCDC</span></span><br><span class="line">    EnableDCDC_SH1106&amp;<span class="number">0x0f</span>,</span><br><span class="line">    DispOn_SH1106               <span class="comment">// 使能显示</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_display_off[<span class="number">4</span>] = &#123;</span><br><span class="line">    CommandAll_SH1106,</span><br><span class="line">    (DisableDCDC_SH1106&gt;&gt;<span class="number">8</span>),    <span class="comment">// 关闭DCDC</span></span><br><span class="line">    DisableDCDC_SH1106&amp;<span class="number">0x0f</span>,</span><br><span class="line">    DispOff_SH1106              <span class="comment">// 失能显示</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_Chinese[][<span class="number">32</span>*<span class="number">4</span>] =</span><br><span class="line">&#123;   <span class="comment">// 分辨率：32*32</span></span><br><span class="line"> &#123;  <span class="comment">//中文：电</span></span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x18</span>,<span class="number">0xF0</span>,<span class="number">0xF0</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x0C</span>,<span class="number">0xFC</span>,<span class="number">0xEC</span>,<span class="number">0x0C</span>,<span class="number">0x84</span>,<span class="number">0x84</span>,<span class="number">0xC4</span>,<span class="number">0xC4</span>,<span class="number">0xFF</span>,<span class="number">0x47</span>,<span class="number">0x42</span>,</span><br><span class="line">  <span class="number">0x42</span>,<span class="number">0x42</span>,<span class="number">0x02</span>,<span class="number">0x02</span>,<span class="number">0xC3</span>,<span class="number">0xFF</span>,<span class="number">0x7E</span>,<span class="number">0x0E</span>,<span class="number">0x04</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x1F</span>,<span class="number">0x18</span>,<span class="number">0x08</span>,<span class="number">0x08</span>,<span class="number">0x08</span>,<span class="number">0x08</span>,<span class="number">0xFF</span>,<span class="number">0x08</span>,<span class="number">0x08</span>,</span><br><span class="line">  <span class="number">0x08</span>,<span class="number">0x0C</span>,<span class="number">0x0C</span>,<span class="number">0x0C</span>,<span class="number">0x07</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x03</span>,<span class="number">0x07</span>,<span class="number">0x0C</span>,</span><br><span class="line">  <span class="number">0x0C</span>,<span class="number">0x18</span>,<span class="number">0x18</span>,<span class="number">0x18</span>,<span class="number">0x18</span>,<span class="number">0x18</span>,<span class="number">0x18</span>,<span class="number">0x18</span>,<span class="number">0x0C</span>,<span class="number">0x0C</span>,<span class="number">0x0F</span>,<span class="number">0x06</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line"> &#125;,</span><br><span class="line"> &#123;  <span class="comment">//中文：压</span></span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,</span><br><span class="line">  <span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x40</span>,<span class="number">0x60</span>,<span class="number">0x60</span>,<span class="number">0x60</span>,<span class="number">0x60</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xFF</span>,<span class="number">0x7F</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x02</span>,<span class="number">0xFE</span>,<span class="number">0xFE</span>,<span class="number">0x84</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0xF0</span>,<span class="number">0x3F</span>,<span class="number">0x07</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,</span><br><span class="line">  <span class="number">0x01</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x0C</span>,<span class="number">0x18</span>,<span class="number">0xB8</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x10</span>,<span class="number">0x08</span>,<span class="number">0x04</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x02</span>,<span class="number">0x02</span>,<span class="number">0x02</span>,<span class="number">0x02</span>,<span class="number">0x02</span>,<span class="number">0x02</span>,<span class="number">0x03</span>,<span class="number">0x03</span>,</span><br><span class="line">  <span class="number">0x03</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line"> &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_English[][<span class="number">16</span>*<span class="number">4</span>] =</span><br><span class="line">&#123;   <span class="comment">// 分辨率：16 X 32</span></span><br><span class="line"> &#123;  <span class="comment">//英文冒号</span></span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x03</span>,<span class="number">0x03</span>,<span class="number">0x03</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x0F</span>,<span class="number">0x0F</span>,<span class="number">0x07</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line"> &#125;,</span><br><span class="line"> &#123;  <span class="comment">//英文：V</span></span><br><span class="line">  <span class="number">0x40</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x03</span>,<span class="number">0x3F</span>,<span class="number">0xFF</span>,<span class="number">0xF8</span>,<span class="number">0xC0</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xE0</span>,<span class="number">0xFE</span>,<span class="number">0xFF</span>,<span class="number">0x0F</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x1F</span>,<span class="number">0xFF</span>,<span class="number">0xFC</span>,<span class="number">0xC0</span>,<span class="number">0xF0</span>,<span class="number">0xFF</span>,<span class="number">0x3F</span>,<span class="number">0x07</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">  <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x0F</span>,<span class="number">0x0F</span>,<span class="number">0x0F</span>,<span class="number">0x03</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line"> &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> OLED_Number1234567890[<span class="number">10</span>][<span class="number">16</span>*<span class="number">4</span>] =</span><br><span class="line">&#123;</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,</span><br><span class="line">        <span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0xF0</span>,<span class="number">0xFE</span>,<span class="number">0xFF</span>,    <span class="number">0x07</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x03</span>,<span class="number">0x0F</span>,    <span class="number">0xFF</span>,<span class="number">0xFC</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x1F</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,    <span class="number">0xC0</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xE0</span>,    <span class="number">0xFF</span>,<span class="number">0x7F</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x03</span>,    <span class="number">0x03</span>,<span class="number">0x07</span>,<span class="number">0x06</span>,<span class="number">0x0E</span>,</span><br><span class="line">        <span class="number">0x0E</span>,<span class="number">0x06</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,    <span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,</span><br><span class="line">        <span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x1C</span>,    <span class="number">0x0C</span>,<span class="number">0x06</span>,<span class="number">0x03</span>,<span class="number">0xFF</span>,</span><br><span class="line">        <span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xFF</span>,</span><br><span class="line">        <span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x07</span>,</span><br><span class="line">        <span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,    <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x04</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC1</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x1E</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xE0</span>,<span class="number">0x70</span>,<span class="number">0x38</span>,<span class="number">0x1E</span>,<span class="number">0x0F</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x06</span>,<span class="number">0x06</span>,<span class="number">0x06</span>,<span class="number">0x06</span>,<span class="number">0x06</span>,<span class="number">0x06</span>,<span class="number">0x06</span>,<span class="number">0x06</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x06</span>,<span class="number">0x0F</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xC1</span>,<span class="number">0x7F</span>,<span class="number">0x7F</span>,<span class="number">0x1E</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x40</span>,<span class="number">0xC0</span>,<span class="number">0xE0</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x03</span>,<span class="number">0x03</span>,<span class="number">0xDF</span>,<span class="number">0xFE</span>,<span class="number">0xFC</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x03</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x06</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x06</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,<span class="number">0x03</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0xE0</span>,<span class="number">0x70</span>,<span class="number">0x3C</span>,<span class="number">0x1E</span>,<span class="number">0x07</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x70</span>,<span class="number">0x78</span>,<span class="number">0x7E</span>,<span class="number">0x7F</span>,<span class="number">0x73</span>,<span class="number">0x71</span>,<span class="number">0x70</span>,<span class="number">0x70</span>,<span class="number">0x70</span>,<span class="number">0x70</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x70</span>,<span class="number">0x70</span>,<span class="number">0x70</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xF8</span>,<span class="number">0xFF</span>,<span class="number">0xCF</span>,<span class="number">0x60</span>,<span class="number">0x60</span>,<span class="number">0x60</span>,<span class="number">0x60</span>,<span class="number">0xE0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0xC1</span>,<span class="number">0xE1</span>,<span class="number">0x81</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0xE7</span>,<span class="number">0xFF</span>,<span class="number">0xFE</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x03</span>,<span class="number">0x07</span>,<span class="number">0x06</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0xF0</span>,<span class="number">0xF8</span>,<span class="number">0xFE</span>,<span class="number">0xCF</span>,<span class="number">0xC7</span>,<span class="number">0xC1</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x7C</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x83</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0xFE</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x03</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x06</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x06</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xE0</span>,<span class="number">0xF8</span>,<span class="number">0x3E</span>,<span class="number">0x0F</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xF0</span>,<span class="number">0xFE</span>,<span class="number">0x3F</span>,<span class="number">0x07</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x04</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x7F</span>,<span class="number">0x7F</span>,<span class="number">0xE1</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xE1</span>,<span class="number">0x7F</span>,<span class="number">0x7F</span>,<span class="number">0x1E</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0xFC</span>,<span class="number">0xFE</span>,<span class="number">0xCF</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x03</span>,<span class="number">0x03</span>,<span class="number">0x8F</span>,<span class="number">0xFE</span>,<span class="number">0xFC</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x03</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x06</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x0E</span>,<span class="number">0x06</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;,</span><br><span class="line">     &#123;</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x80</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0xC0</span>,<span class="number">0x80</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0xFE</span>,<span class="number">0xFF</span>,<span class="number">0x87</span>,<span class="number">0x01</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x83</span>,<span class="number">0xFF</span>,<span class="number">0xFF</span>,<span class="number">0x7E</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x01</span>,<span class="number">0x03</span>,<span class="number">0x07</span>,<span class="number">0x07</span>,<span class="number">0x06</span>,<span class="number">0x86</span>,<span class="number">0xE6</span>,<span class="number">0xFE</span>,<span class="number">0x7F</span>,<span class="number">0x1F</span>,<span class="number">0x07</span>,<span class="number">0x03</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,</span><br><span class="line">        <span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x08</span>,<span class="number">0x0E</span>,<span class="number">0x0F</span>,<span class="number">0x03</span>,<span class="number">0x01</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span></span><br><span class="line">        <span class="comment">/* (16 X 32 , 楷体 )*/</span></span><br><span class="line">     &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>注意上面定义了一个常量<code>OLED_display_on</code>，是点亮OLED的命令组合，上电后只要把里面的数据通过IIC发送出去，OLED就亮了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 启动显示</span></span><br><span class="line">IIC4OLED_send((<span class="type">uint8_t</span> *)OLED_display_on,<span class="keyword">sizeof</span>(OLED_display_on));</span><br></pre></td></tr></table></figure>
+
+<p>这时候，理论上是可以看到屏幕亮起来，但是是一些乱数据，我们需要往上面写字符或者图像数据。上面的OLED源文件中，我们定义了几个分辨率为<code>16X32</code>和<code>32X32</code>的中、英、数字字符，复习一下前面的显存RAM分页的设计特性，所以我们需要将每个字符分不同页不同部分进行写入，实现代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   发送数据给OLED</span></span><br><span class="line"><span class="comment"> * @note    使用中断连发数据</span></span><br><span class="line"><span class="comment"> *          但是会阻塞等待上一次调用</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param</span></span><br><span class="line"><span class="comment"> *      dataPtr(uint8_t *)  发送数据内存地址</span></span><br><span class="line"><span class="comment"> *      dataSize(uint32_t)  发送数据大小</span></span><br><span class="line"><span class="comment"> * @ret     None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">IIC4OLED_sendRAM</span><span class="params">(<span class="type">uint8_t</span> * dataPtr, <span class="type">uint32_t</span> dataSize)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 确保IIC是空闲的</span></span><br><span class="line"><span class="comment">//    while (MAP_I2C_masterIsStopSent(EUSCI_B0_BASE) == EUSCI_B_I2C_SENDING_STOP);</span></span><br><span class="line">    <span class="keyword">while</span>(_OLED_IIC_sending);</span><br><span class="line">    <span class="keyword">if</span>(dataSize)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 中断续发变量初始化</span></span><br><span class="line">        _OLED_IIC_sending = dataSize;</span><br><span class="line">        _OLED_IIC_sendingPtr = dataPtr;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 启动多字节数据发送</span></span><br><span class="line">        MAP_I2C_masterSendMultiByteStart(EUSCI_B0_BASE, DataAll_SH1106);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   在指定位置写数字</span></span><br><span class="line"><span class="comment"> * @note    字体为32*16</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param</span></span><br><span class="line"><span class="comment"> *      posX(uint16_t)      X位置</span></span><br><span class="line"><span class="comment"> *      posY(uint16_t)      Y位置</span></span><br><span class="line"><span class="comment"> *      data(uint8_t *)     字体数据</span></span><br><span class="line"><span class="comment"> * @ret</span></span><br><span class="line"><span class="comment"> *      None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">OLED_writeChar3216</span><span class="params">(<span class="type">uint16_t</span> posX, <span class="type">uint16_t</span> posY, <span class="type">uint8_t</span> * data)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> _setPos[<span class="number">4</span>];   <span class="comment">// CommandAll_SH1106+设置页+设置列高4位+设置列低四位</span></span><br><span class="line">    _setPos[<span class="number">0</span>]= CommandAll_SH1106;</span><br><span class="line">    _setPos[<span class="number">1</span>]= (posX &amp; <span class="number">0x0f</span>)       | SetColAddrLow_SH1106;</span><br><span class="line">    _setPos[<span class="number">2</span>]= (posX &gt;&gt; <span class="number">4</span>) &amp;<span class="number">0x0f</span>   | SetColAddrHigh_SH1106;</span><br><span class="line">    _setPos[<span class="number">3</span>]= (posY / <span class="number">8</span>) &amp;<span class="number">0x0f</span>    | SetPageAddr_SH1106;</span><br><span class="line"></span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data,<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">    _setPos[<span class="number">3</span>]= _setPos[<span class="number">3</span>] +<span class="number">1</span>;</span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data+<span class="number">16</span>,<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">    _setPos[<span class="number">3</span>]= _setPos[<span class="number">3</span>] +<span class="number">1</span>;</span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data+<span class="number">32</span>,<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">    _setPos[<span class="number">3</span>]= _setPos[<span class="number">3</span>] +<span class="number">1</span>;</span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data+<span class="number">48</span>,<span class="number">16</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief   在指定位置写数字</span></span><br><span class="line"><span class="comment"> * @note    字体为32*32</span></span><br><span class="line"><span class="comment"> * @author  江榕煜</span></span><br><span class="line"><span class="comment"> * @param</span></span><br><span class="line"><span class="comment"> *      posX(uint16_t)      X位置</span></span><br><span class="line"><span class="comment"> *      posY(uint16_t)      Y位置</span></span><br><span class="line"><span class="comment"> *      data(uint8_t *)     字体数据</span></span><br><span class="line"><span class="comment"> * @ret</span></span><br><span class="line"><span class="comment"> *      None</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">OLED_writeChar3232</span><span class="params">(<span class="type">uint16_t</span> posX, <span class="type">uint16_t</span> posY, <span class="type">uint8_t</span> * data)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> _setPos[<span class="number">4</span>];   <span class="comment">// CommandAll_SH1106+设置页+设置列高4位+设置列低四位</span></span><br><span class="line">    _setPos[<span class="number">0</span>]= CommandAll_SH1106;</span><br><span class="line">    _setPos[<span class="number">1</span>]= (posX &amp; <span class="number">0x0f</span>)       | SetColAddrLow_SH1106;</span><br><span class="line">    _setPos[<span class="number">2</span>]= (posX &gt;&gt; <span class="number">4</span>) &amp;<span class="number">0x0f</span>   | SetColAddrHigh_SH1106;</span><br><span class="line">    _setPos[<span class="number">3</span>]= (posY / <span class="number">8</span>) &amp;<span class="number">0x0f</span>    | SetPageAddr_SH1106;</span><br><span class="line"></span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data,<span class="number">32</span>);</span><br><span class="line"></span><br><span class="line">    _setPos[<span class="number">3</span>]= _setPos[<span class="number">3</span>] +<span class="number">1</span>;</span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data+<span class="number">32</span>,<span class="number">32</span>);</span><br><span class="line"></span><br><span class="line">    _setPos[<span class="number">3</span>]= _setPos[<span class="number">3</span>] +<span class="number">1</span>;</span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data+<span class="number">64</span>,<span class="number">32</span>);</span><br><span class="line"></span><br><span class="line">    _setPos[<span class="number">3</span>]= _setPos[<span class="number">3</span>] +<span class="number">1</span>;</span><br><span class="line">    IIC4OLED_send(_setPos,<span class="number">4</span>);</span><br><span class="line">    IIC4OLED_sendRAM(data+<span class="number">96</span>,<span class="number">32</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果读者想要显示图片等，可以根据页关系，修改上代码。</p>
+<blockquote>
+<p>有任何问题欢迎联系笔者交流</p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2021/05/06/IIC4OLED/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IIC/" rel="tag">IIC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSP432/" rel="tag">MSP432</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag">嵌入式</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/06/23/%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%E5%92%8C%E6%9E%9D%E8%8A%82%E5%8C%B9%E9%85%8D/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            阻抗匹配和枝节匹配器
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/04/25/quicklyStartMSP432/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">一天速成MSP432</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>
