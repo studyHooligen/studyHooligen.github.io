@@ -153,6 +153,91 @@
     
     
     <article
+  id="post-NeuralNetwork-UnderlyingCalculate"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/10/19/NeuralNetwork-UnderlyingCalculate/"
+    >深刻理解神经网络计算原理</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/10/19/NeuralNetwork-UnderlyingCalculate/" class="article-date">
+  <time datetime="2021-10-19T12:44:47.000Z" itemprop="datePublished">2021-10-19</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">5.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">25 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>笔者初入<strong>深度学习</strong>先是使用TensorFlow后转PyTorch，但都是在框架上进行开发，只能理解各种网络结构的“头口”原理。在学习的中后期或者是要做落地的时候，就会困扰一个非常常见的问题——我们的网络到底需要多少的计算资源？我们暂且将计算资源在两方面考虑：显存和浮点计算次数。这就需要对网络计算过程的底层有透彻直接的认识，也就是本文的重点</p>
+<blockquote>
+<p>很多厉害的大佬可以根据经验、直觉直接判断哪些网络可以在嵌入式平台上跑，但是笔者还是偏爱将过程量化</p>
+</blockquote>
+</blockquote>
+<h2 id="全连接网络"><a href="#全连接网络" class="headerlink" title="全连接网络"></a>全连接网络</h2><p><img src="http://imgjry.fangyikuan.xyz/20211019/20211019-NNC-1.png" alt="梯度下降"></p>
+<p>为了方便讨论，我们选取单隐藏层的全连接网络进行讨论。首先，声明该网络的输入为：</p>
+<p>$$<br>x_0 &#x3D; \begin{bmatrix}<br>    x_0^{(1)} \\<br>    x_0^{(2)} \\<br>    \vdots \\<br>    x_0^{(m_0)}<br>\end{bmatrix} \sim [m_0,1]<br>$$</p>
+<p>本文中所有公式中<code>~</code>后的为矩阵、向量的维度。然而，在训练过程中，我们通常一次使用几个样本一起训练网络（mini-batch），那么一次输入网络的数据就是：</p>
+<p>$$<br>X_0 &#x3D; \begin{bmatrix}<br>    x_{0,1} ,<br>    x_{0,2} ,<br>    \cdots ,<br>    x_{0,N}<br>\end{bmatrix} \sim [m_0,N]<br>$$</p> 
+      <a class="article-more-link" href="/2021/10/19/NeuralNetwork-UnderlyingCalculate/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NeuralNetwork/" rel="tag">NeuralNetwork</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Numpy/" rel="tag">Numpy</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%A8%E8%BF%9E%E6%8E%A5%E7%BD%91%E7%BB%9C/" rel="tag">全连接网络</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-NeuralNetWork-Optimizer"
   class="article article-type-post"
   itemscope
@@ -316,86 +401,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NeuralNetwork/" rel="tag">NeuralNetwork</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pytorch/" rel="tag">Pytorch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ResNet/" rel="tag">ResNet</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-photopair-grayDetect"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/08/19/photopair-grayDetect/"
-    >光电对管模拟信号检测</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/08/19/photopair-grayDetect/" class="article-date">
-  <time datetime="2021-08-19T10:30:02.000Z" itemprop="datePublished">2021-08-19</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.3k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：上个月做电赛培训，做到了轨迹检测，但是笔者发现现在市面上有售的光电对管模块都是调阈值输出逻辑量，而且会被环境光影响。所以在老师的指导下，设计了一款脉冲调制的可检测面反射参数的模拟量模块，不仅可用来测量灰度还可以用来测距，在本文中将分享这款模块的电路设计和原理分析。</p>
-</blockquote>
-<h2 id="What’s-光电对管"><a href="#What’s-光电对管" class="headerlink" title="What’s 光电对管"></a>What’s 光电对管</h2><p>本文中使用的是<code>ST188</code>型号光电管，所以也将以该器件的技术手册作为介绍展开。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210819/20210819-pp-1.png" alt="ST188"></p>
-<p>上图是截取自手册上的器件图，可见光电对管内部，就是一个发光二极管和光电接收管。只不过不是可见光，而是特定频率的红外光。当发射出去的光，经过反射回到光电管时，将会激发一定的光电流，正如下图所示，是在反射面参数不变的情况下，光电流相对距离的变化特性曲线。</p> 
-      <a class="article-more-link" href="/2021/08/19/photopair-grayDetect/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ADC/" rel="tag">ADC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%85%89%E7%94%B5/" rel="tag">光电</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BB%A4%E6%B3%A2%E5%99%A8/" rel="tag">滤波器</a></li></ul>
 
     </footer>
   </div>

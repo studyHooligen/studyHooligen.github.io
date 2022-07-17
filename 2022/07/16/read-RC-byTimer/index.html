@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>读取RC遥控信号（PWM和PPM） |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-read-RC-byTimer"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  读取RC遥控信号（PWM和PPM）
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/16/read-RC-byTimer/" class="article-date">
+  <time datetime="2022-07-15T16:20:37.000Z" itemprop="datePublished">2022-07-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">9 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：受益于毕业后的狂欢🐟博客鸽了半个月。也不算是完全鸽掉，这段时间搞了一艘RC船，通信部分是基础中的基础，因此记录一下自己写的STM32读取接收机信号的成果。</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20220717/20220717_PPMPWM_1.jpg" alt="RC接收机"></p>
+<p>图片中就是市面上最常见的“富士”系列接收机，可以输出数个通道的数据（对应于RC遥控器上的各个控制通道），而这些远程传输来的数据以PWM信号的形式供给舵机或者自驾仪，比如这款可以输出10个通道PWM信号。同时这款接收机还支持输出PPM信号（和1通道共用引脚），PPM信号如下图所示，只要使用1个引脚就能传输多个通道的数据，相比PWM来说节省了大量的走线和空间，这个信号也是笔者更偏爱的接收方式。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220717/20220717_PPMPWM_2.png" alt="PPMandPWM"></p>
+<span id="more"></span>
+
+<p>接下来本文将分为三个部分，欢迎读者按需跳读：</p>
+<ul>
+<li>PWM与PPM信号</li>
+<li>单定时器读取多路PWM信号</li>
+<li>读取PPM信号</li>
+</ul>
+<h2 id="PWM与PPM信号"><a href="#PWM与PPM信号" class="headerlink" title="PWM与PPM信号"></a>PWM与PPM信号</h2><p>PWM信号全称脉冲宽度调制信号（Pulse Width Modulation），也就是信号的高电平宽度表示信号有效值。但是用于RC遥控的接收机，输出的PWM信号是有一套标准的：</p>
+<ul>
+<li>高电平的时间范围为<code>0.5ms ~ 2.5ms</code></li>
+<li>每个通道的PWM信号周期为<code>20ms</code></li>
+<li>接收机供电和输出电平标准为5V</li>
+</ul>
+<p>之所以有这一套标准，是为了给广大模友提供即插即用的便利，因此很多舵机也都是兼容这套标准的。</p>
+<p>PWM信号对于传输数值的表示非常直接，但是肯定也有着大量缺陷，其中之一是：当使用到多路控制信号时，走线非常多！这一点促使人们发明了PPM编码的传输方式，从上面可以知道RC的一个PWM信号占空比最高为<code>12.5%</code>,所以PPM为了提高效率就把几路信号都塞进一个通道里串起来，一般塞10个通道并满足：</p>
+<ul>
+<li>每个通道高电平时间为<code>0.5ms~1.5ms</code></li>
+<li>每个通道结尾都有一个固定<code>0.5ms</code>的低电平</li>
+<li>一个帧内所有通道传输完成后，在末尾插入一个用于补齐帧长度至20ms的高电平段</li>
+</ul>
+<h2 id="单定时器读取多路PWM信号"><a href="#单定时器读取多路PWM信号" class="headerlink" title="单定时器读取多路PWM信号"></a>单定时器读取多路PWM信号</h2><p>接收机输出的多路PWM信号都是上升沿对齐的，所以我们可以仅使用一个定时器读取多个通道。笔者这里使用的是<strong>STM32CubeMX</strong>工具配置<strong>STM32F103</strong>，设置好时钟源和各个通道（<em>输入捕获模式</em>），并注意将参数设置为：</p>
+<ul>
+<li>配置定时器的时钟和周期计数值，使<em><strong>计数溢出周期时间略大于20ms</strong></em></li>
+<li>尽量将<em><strong>周期计数值配置大</strong></em>，以提高测量精度</li>
+<li>选一个用来对齐周期的通道（比如笔者使用通道1），输入捕获极性为<em><strong>上升沿</strong></em></li>
+<li>其他通道配置为<em><strong>下降沿捕获</strong></em></li>
+<li>各个通道配置适量的<em><strong>输入滤波</strong></em>（Input Filter）。若走线长、噪声大，必须使用较大的该参数；否则，从0开始增加调教至参数读取稳定即可</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/20220717/20220717_PPMPWM_3.png" alt="CubeMX配置输入捕获"></p>
+<blockquote>
+<p>⚠ 务必如图打开定时器的中断！因为下列代码是在定时器中断服务中实现的</p>
+</blockquote>
+<p>配置结束后，即可copy下代码块中的中断服务程序。定时器的初始化程序由CubeMX工具生成，使用时只需确保在定时器初始化完成后调用<code>HAL_TIM_IC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)</code>接口即可。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;bsp.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RC_TIMER_HANDLER (&amp;htim2) </span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">uint16_t</span> RC_ChannelsVal[RC_CHANNEL_NUM];	<span class="comment">// 各个通道PWM数据</span></span><br><span class="line"></span><br><span class="line"><span class="type">uint32_t</span> RC_TIM_IC_RISSING = <span class="number">1</span>;	<span class="comment">// 表示正在检测的为上升沿</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  初始化RC接收机驱动程序</span></span><br><span class="line"><span class="comment">  * @param  None</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">PWMCap_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//-- 启动输入捕获中断</span></span><br><span class="line">	HAL_TIM_IC_Start_IT(RC_TIMER_HANDLER,TIM_CHANNEL_1);</span><br><span class="line">	HAL_TIM_IC_Start_IT(RC_TIMER_HANDLER,TIM_CHANNEL_2);</span><br><span class="line">	HAL_TIM_IC_Start_IT(RC_TIMER_HANDLER,TIM_CHANNEL_3);</span><br><span class="line">	HAL_TIM_IC_Start_IT(RC_TIMER_HANDLER,TIM_CHANNEL_4);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//-- 设置各个通道的捕获极性</span></span><br><span class="line">	__HAL_TIM_SET_CAPTUREPOLARITY(RC_TIMER_HANDLER,TIM_CHANNEL_1,TIM_INPUTCHANNELPOLARITY_RISING);	<span class="comment">// 只有第一个通道设置为上升沿，用来对齐周期</span></span><br><span class="line">	__HAL_TIM_SET_CAPTUREPOLARITY(RC_TIMER_HANDLER,TIM_CHANNEL_2,TIM_INPUTCHANNELPOLARITY_FALLING);</span><br><span class="line">	__HAL_TIM_SET_CAPTUREPOLARITY(RC_TIMER_HANDLER,TIM_CHANNEL_3,TIM_INPUTCHANNELPOLARITY_FALLING);</span><br><span class="line">	__HAL_TIM_SET_CAPTUREPOLARITY(RC_TIMER_HANDLER,TIM_CHANNEL_4,TIM_INPUTCHANNELPOLARITY_FALLING);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  定时器2中断程序（专用来接收RC）</span></span><br><span class="line"><span class="comment">  * @param  None</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">TIM2_IRQHandler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/* 计数器溢出或者更新 */</span></span><br><span class="line">  <span class="keyword">if</span> (__HAL_TIM_GET_FLAG(RC_TIMER_HANDLER, TIM_FLAG_UPDATE) != RESET)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> (__HAL_TIM_GET_IT_SOURCE(RC_TIMER_HANDLER, TIM_IT_UPDATE) != RESET)</span><br><span class="line">    &#123;</span><br><span class="line">      __HAL_TIM_CLEAR_IT(RC_TIMER_HANDLER, TIM_IT_UPDATE);</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 处理</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 输入捕获 1 */</span></span><br><span class="line">  <span class="keyword">if</span> (__HAL_TIM_GET_FLAG(RC_TIMER_HANDLER, TIM_FLAG_CC1) != RESET)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> (__HAL_TIM_GET_IT_SOURCE(RC_TIMER_HANDLER, TIM_IT_CC1) != RESET)</span><br><span class="line">    &#123;</span><br><span class="line">			__HAL_TIM_CLEAR_IT(RC_TIMER_HANDLER, TIM_IT_CC1);</span><br><span class="line"></span><br><span class="line">			<span class="comment">/* Input capture event */</span></span><br><span class="line">			<span class="keyword">if</span>(RC_TIM_IC_RISSING)	<span class="comment">// 如果是在等上升沿</span></span><br><span class="line">			&#123;</span><br><span class="line">				__HAL_TIM_SET_COUNTER(RC_TIMER_HANDLER,<span class="number">0</span>);	<span class="comment">// 计数器清0</span></span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 设置通道进入  “下降沿捕获“  模式</span></span><br><span class="line">				__HAL_TIM_SET_CAPTUREPOLARITY(RC_TIMER_HANDLER,TIM_CHANNEL_1,TIM_INPUTCHANNELPOLARITY_FALLING);</span><br><span class="line">				</span><br><span class="line">				RC_TIM_IC_RISSING = <span class="number">0</span>;	<span class="comment">// 表示正在检测的为下降沿</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span>&#123;	<span class="comment">// 在等下降沿</span></span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 读取数值</span></span><br><span class="line">				RC_ChannelsVal[<span class="number">0</span>] = RC_TIMER_HANDLER-&gt;Instance-&gt;CCR1;</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 设置第一个通道为对齐通道，因此转为上升沿捕获</span></span><br><span class="line">				__HAL_TIM_SET_CAPTUREPOLARITY(RC_TIMER_HANDLER,TIM_CHANNEL_1,TIM_INPUTCHANNELPOLARITY_RISING);</span><br><span class="line">				RC_TIM_IC_RISSING = <span class="number">1</span>;	<span class="comment">// 表示正在检测的为上升沿</span></span><br><span class="line">			&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* 输入捕获 2 */</span></span><br><span class="line">  <span class="keyword">if</span> (__HAL_TIM_GET_FLAG(RC_TIMER_HANDLER, TIM_FLAG_CC2) != RESET)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> (__HAL_TIM_GET_IT_SOURCE(RC_TIMER_HANDLER, TIM_IT_CC2) != RESET)</span><br><span class="line">    &#123;</span><br><span class="line">			__HAL_TIM_CLEAR_IT(RC_TIMER_HANDLER, TIM_IT_CC2);</span><br><span class="line"></span><br><span class="line">			<span class="comment">/* Input capture event */</span></span><br><span class="line">			<span class="comment">// 读取数值</span></span><br><span class="line">			RC_ChannelsVal[<span class="number">1</span>] = RC_TIMER_HANDLER-&gt;Instance-&gt;CCR2;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* 输入捕获 3 */</span></span><br><span class="line">  <span class="keyword">if</span> (__HAL_TIM_GET_FLAG(RC_TIMER_HANDLER, TIM_FLAG_CC3) != RESET)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> (__HAL_TIM_GET_IT_SOURCE(RC_TIMER_HANDLER, TIM_IT_CC3) != RESET)</span><br><span class="line">    &#123;</span><br><span class="line">			__HAL_TIM_CLEAR_IT(RC_TIMER_HANDLER, TIM_IT_CC3);</span><br><span class="line"></span><br><span class="line">			<span class="comment">/* Input capture event */</span></span><br><span class="line">			<span class="comment">// 读取数值</span></span><br><span class="line">			RC_ChannelsVal[<span class="number">2</span>] = RC_TIMER_HANDLER-&gt;Instance-&gt;CCR3;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* 输入捕获 4 */</span></span><br><span class="line">  <span class="keyword">if</span> (__HAL_TIM_GET_FLAG(RC_TIMER_HANDLER, TIM_FLAG_CC4) != RESET)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> (__HAL_TIM_GET_IT_SOURCE(RC_TIMER_HANDLER, TIM_IT_CC4) != RESET)</span><br><span class="line">    &#123;</span><br><span class="line">			__HAL_TIM_CLEAR_IT(RC_TIMER_HANDLER, TIM_IT_CC4);</span><br><span class="line"></span><br><span class="line">			<span class="comment">/* Input capture event */</span></span><br><span class="line">			<span class="comment">// 读取数值</span></span><br><span class="line">			RC_ChannelsVal[<span class="number">3</span>] = RC_TIMER_HANDLER-&gt;Instance-&gt;CCR4;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="读取PPM信号"><a href="#读取PPM信号" class="headerlink" title="读取PPM信号"></a>读取PPM信号</h2><p>读取PPM信号在驱动程序上使用的HAL库接口与读取PWM信号基本一致，但是为了提高笔者和读者的水平和见识，这里使用了STM的高级定时器进行示范。相比普通&#x2F;通用定时器，高级定时器的中断请求更加细致，如下图所示，我们可以配置更新中断、捕获比较中断、通信中断、Break事件中断。笔者使用更新中断（update interrupt）和捕获比较中断（capture compare interrupt）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220717/20220717_PPMPWM_4.png" alt="CubeMX配置高级定时器中断"></p>
+<p>使用高级定时器读取PPM信号的代码如下所示，将解码程序分到了两个中断函数中实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;tim.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;main.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PPM_TIM_HANDLER (&amp;htim1)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PPM_CHANNELS_NUM (8)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PPM_TIM_COUNT_FREQ (2400)	<span class="comment">// 单位kHz</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 接收的各通道占空比的最大值和最小值</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PPM_DUTY_RANGE_MIN 500		<span class="comment">// 单位 us</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>	PPM_DUTY_RANGE_MAX 1500		<span class="comment">// 单位us</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 帧尾 判断最小时间长度 的计数值！</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PPM_FRAMEEND_COUNTVALUE (( 20 - 0.5*(PPM_CHANNELS_NUM+1) - (PPM_DUTY_RANGE_MAX/1000)*PPM_CHANNELS_NUM ) * PPM_TIM_COUNT_FREQ)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 通道数据 的计数值范围</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PPM_DUTY_MIN (PPM_DUTY_RANGE_MIN/1000 * PPM_TIM_COUNT_FREQ)	<span class="comment">// 最小</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PPM_DUTY_MAX (PPM_DUTY_RANGE_MAX/1000 * PPM_TIM_COUNT_FREQ)	<span class="comment">// 最大</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span>&#123;</span></span><br><span class="line">	WAIT_RAISSING,</span><br><span class="line">	WAIT_FALLING</span><br><span class="line">&#125; PPM_EDGE;</span><br><span class="line"></span><br><span class="line"><span class="type">uint32_t</span> PPM_Channel_Now = <span class="number">0</span>;	<span class="comment">// 当前操作的通道号。注：初始化为0，操作范围为1~PPM_CHANNELS_NUM</span></span><br><span class="line"><span class="type">uint32_t</span> PPM_Time_Cache = <span class="number">1</span>;	<span class="comment">// 用于计算通道时长的临时存储</span></span><br><span class="line">PPM_EDGE PPM_timer_cap_edge = WAIT_RAISSING;	<span class="comment">// 标记当前准备检测的边沿</span></span><br><span class="line"></span><br><span class="line"><span class="type">uint32_t</span> PPM_error = <span class="number">0</span>;				<span class="comment">// 标记PPM解码失效</span></span><br><span class="line"><span class="type">uint32_t</span> PPM_resault[PPM_CHANNELS_NUM] = &#123;<span class="number">0</span>&#125;;	<span class="comment">// 解码结果</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  定时器更新中断函数</span></span><br><span class="line"><span class="comment">  * @note   把定时器的更新周期设置为严格大于50Hz的PPM帧频率，所以溢出表示当前帧错误</span></span><br><span class="line"><span class="comment">            在 帧尾的下降沿 检测时，清空定时器计数值</span></span><br><span class="line"><span class="comment">  * @param  None</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">TIM1_UP_IRQHandler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// TODO：这个if判断可以优化掉，在确保中断触发安全的情况下</span></span><br><span class="line">	<span class="keyword">if</span>((__HAL_TIM_GET_FLAG(PPM_TIM_HANDLER, TIM_FLAG_UPDATE) != RESET)	<span class="comment">// 检查标志位</span></span><br><span class="line">		&amp;&amp;</span><br><span class="line">		(__HAL_TIM_GET_IT_SOURCE(PPM_TIM_HANDLER, TIM_IT_UPDATE) != RESET)	<span class="comment">// 检查中断开启</span></span><br><span class="line">	)</span><br><span class="line">	&#123;</span><br><span class="line">		__HAL_TIM_CLEAR_IT(PPM_TIM_HANDLER, TIM_IT_UPDATE);	<span class="comment">// 清除中断标志位</span></span><br><span class="line">				</span><br><span class="line">			<span class="comment">/* 执行 定时器溢出（超时）、强制刷新 事件处理任务 */</span></span><br><span class="line">		PPM_error = <span class="number">1</span>;	<span class="comment">// 记录PPM为错误解码状态</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  定时器 输入捕获 中断</span></span><br><span class="line"><span class="comment">  * @note   初始化时必须设置为输入捕获！这个接口本质上是捕获和比较一体中断</span></span><br><span class="line"><span class="comment">            这里负责检测 各通道值、帧有效性 和 定时器清空</span></span><br><span class="line"><span class="comment">  * @param  None</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">TIM1_CC_IRQHandler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// TODO：这个if判断可以优化掉，在确保中断触发安全的情况下</span></span><br><span class="line">	<span class="comment">// 这三个 if逻辑 参考HAL库中的HAL_TIM_IRQHandler接口</span></span><br><span class="line">	<span class="keyword">if</span>((__HAL_TIM_GET_FLAG(PPM_TIM_HANDLER,				<span class="comment">// 检查标志位</span></span><br><span class="line">						 TIM_FLAG_CC1) != RESET)</span><br><span class="line">		&amp;&amp;</span><br><span class="line">	 (__HAL_TIM_GET_IT_SOURCE(PPM_TIM_HANDLER,		<span class="comment">// 检查中断是否开启</span></span><br><span class="line">							  TIM_IT_CC1)</span><br><span class="line">		!= RESET)	<span class="comment">// TIM_FLAG_CC1代表第1通道</span></span><br><span class="line">	)</span><br><span class="line">  	&#123;</span><br><span class="line">		__HAL_TIM_CLEAR_IT(PPM_TIM_HANDLER, TIM_IT_CC1);	<span class="comment">// 清除中断标志位</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">/* 执行 输入捕获 事件处理任务 */</span></span><br><span class="line">		<span class="keyword">if</span> ((PPM_TIM_HANDLER-&gt;Instance-&gt;CCMR1 &amp; TIM_CCMR1_CC1S) != <span class="number">0x00</span>U)	<span class="comment">// CCMR1 是捕获/比较模式寄存器</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>( PPM_timer_cap_edge == WAIT_RAISSING )	<span class="comment">// 到达的是 上升沿</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">// 记录当前的计数值（起始时间）</span></span><br><span class="line">				PPM_Time_Cache = PPM_TIM_HANDLER-&gt;Instance-&gt;CCR1;</span><br><span class="line">				<span class="comment">// 记录一下 当前进入的数据通道</span></span><br><span class="line">				PPM_Channel_Now = PPM_Channel_Now +<span class="number">1</span>;</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 设置下一个为下降沿触发</span></span><br><span class="line">				__HAL_TIM_SET_CAPTUREPOLARITY(PPM_TIM_HANDLER,	<span class="comment">// timer handler</span></span><br><span class="line">											  TIM_CHANNEL_1,		<span class="comment">// channel</span></span><br><span class="line">											  TIM_INPUTCHANNELPOLARITY_FALLING);	<span class="comment">// polarity</span></span><br><span class="line">				PPM_timer_cap_edge = WAIT_FALLING;</span><br><span class="line">				</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span>&#123;	<span class="comment">// 到达的是 下降沿</span></span><br><span class="line">				<span class="comment">// 计算时长，放在这个位置能够保证测量指令延时等长（提高精度）</span></span><br><span class="line">				PPM_Time_Cache = PPM_TIM_HANDLER-&gt;Instance-&gt;CCR1 - PPM_Time_Cache;</span><br><span class="line">				<span class="comment">// 设置下一个为上升沿触发</span></span><br><span class="line">				__HAL_TIM_SET_CAPTUREPOLARITY(PPM_TIM_HANDLER,	<span class="comment">// timer handler</span></span><br><span class="line">											  TIM_CHANNEL_1,		<span class="comment">// channel</span></span><br><span class="line">											  TIM_INPUTCHANNELPOLARITY_RISING);	<span class="comment">// polarity</span></span><br><span class="line">				PPM_timer_cap_edge = WAIT_RAISSING;</span><br><span class="line">				</span><br><span class="line">				<span class="comment">/* 开始鉴别数据通道 、 检测帧尾 、 判断帧有效 、 处理计数器 */</span></span><br><span class="line">				<span class="comment">// 判断帧尾</span></span><br><span class="line">				<span class="keyword">if</span>( PPM_Time_Cache &gt; PPM_FRAMEEND_COUNTVALUE)</span><br><span class="line">				&#123;</span><br><span class="line">					__HAL_TIM_SET_COUNTER(PPM_TIM_HANDLER, <span class="number">0</span>);	<span class="comment">// 清空计数器</span></span><br><span class="line">					</span><br><span class="line">					<span class="keyword">if</span>(PPM_Channel_Now == PPM_CHANNELS_NUM)</span><br><span class="line">					&#123;	<span class="comment">// 前面采集到的通道数量有效</span></span><br><span class="line">						</span><br><span class="line">						PPM_error = <span class="number">0</span>;				<span class="comment">// 当前帧结果可用</span></span><br><span class="line">						<span class="comment">// TODO：为了防止通信断开带来的异常，这里可加 用DMA打包一组数据 做隔离</span></span><br><span class="line">					&#125;</span><br><span class="line">					</span><br><span class="line">					PPM_Channel_Now = <span class="number">0</span>;	<span class="comment">// 复位通道标记</span></span><br><span class="line">					</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span></span><br><span class="line">				&#123;	<span class="comment">// 不是帧尾，可能是通道数据</span></span><br><span class="line">					</span><br><span class="line">					<span class="comment">// 判断通道操作数的有效性</span></span><br><span class="line">					<span class="keyword">if</span>( PPM_Channel_Now &lt;= PPM_CHANNELS_NUM  &amp;&amp; PPM_Channel_Now &gt; <span class="number">0</span>)</span><br><span class="line">					&#123;</span><br><span class="line">						<span class="comment">// 存储这个通道的数据</span></span><br><span class="line">						PPM_resault[PPM_Channel_Now<span class="number">-1</span>] = PPM_Time_Cache;</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">else</span>&#123;</span><br><span class="line">						PPM_error = <span class="number">1</span>;	<span class="comment">// 通道数量超标！</span></span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;		</span><br><span class="line">  	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2022/07/16/read-RC-byTimer/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PPM/" rel="tag">PPM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWM/" rel="tag">PWM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RC/" rel="tag">RC</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2022/03/19/YOLO/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">YOLO</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

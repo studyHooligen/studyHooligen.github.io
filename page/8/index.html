@@ -153,6 +153,245 @@
     
     
     <article
+  id="post-NeuralNetwork-Function"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/01/17/NeuralNetwork-Function/"
+    >神经网络基础函数汇总</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/01/17/NeuralNetwork-Function/" class="article-date">
+  <time datetime="2021-01-17T04:05:01.000Z" itemprop="datePublished">2021-01-17</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：该博客的内容主要是三大部分：激活函数、损失函数、评价函数。笔者主要是为了提供后面方便查阅和选择适当函数撰写，所以数学成分和工程思想成分都会相应部分得较重😘</p>
+</blockquote>
+<p>在神经网络中，训练模型时需要计算损失函数来进行模型优化（对损失函数的梯度下降迭代来生成模型）；在测试（训练后）模型时，在模型对测试集推导后得到的结果，通过计算评价函数来评估模型的效果。</p>
+<h2 id="激活函数及导数"><a href="#激活函数及导数" class="headerlink" title="激活函数及导数"></a>激活函数及导数</h2><ul>
+<li>ReLU（Rectified Linear Unit）:修正线性单元</li>
+</ul>
+<p>$$<br>ReLU(x) &#x3D; \begin{cases}<br>    x, &amp; x&gt;0 \\<br>    0, &amp; other<br>\end{cases}<br>\\<br>\frac{\partial ReLU(x)}{\partial x} &#x3D; \begin{cases}<br>    1, &amp; x&gt;0 \\<br>    0, &amp; other<br>\end{cases}<br>$$</p>
+<ul>
+<li><p>Leeky ReLU</p>
+<p>  在负半轴修正为一个具有非常非常小斜率的线性</p>
+</li>
+</ul>
+<p>$$<br>a(x) &#x3D; \begin{cases}<br>    x, &amp; x&gt;0 \\<br>    \alpha\cdot x, &amp; x \le 0<br>\end{cases}<br>\\<br>\frac{\partial a(x)}{\partial x} &#x3D;\begin{cases}<br>    1, &amp; x&gt;0 \\<br>    \alpha, &amp; x \le 0<br>\end{cases}<br>$$</p>
+<ul>
+<li>Sigmoid<ul>
+<li>将输出（映射）限制在0~1之间</li>
+<li>在函数两端带来梯度消失问题</li>
+</ul>
+</li>
+</ul>
+<p>$$<br>\sigma(x) &#x3D; \frac{1}{1+e^{-x}}<br>\\<br>\frac{\partial \sigma(x)}{\partial x} &#x3D;\sigma(x)[1-\sigma(x)]<br>$$</p>
+<ul>
+<li><p>Softmax</p>
+<ul>
+<li>多分类问题中，在最后一层输出使用</li>
+<li>输出结果表示该类的<strong>概率</strong>，层的所有输出加起来为1<br>$$<br>y_i &#x3D; S(x_i) &#x3D; \frac{e^{x_i}}{\sum_{j&#x3D;1}^{C}e^{x_j}}<br>$$<br>在反向传播时，对该式求导（过程）为：<br>$$<br>\frac{\partial y_i}{\partial x_k} &#x3D; \begin{cases}<br>\frac{ [e^{x_k}\cdot \sum_{j&#x3D;i}^{C}e^{x_j} ] - [ e^{x_k} \cdot e^{x_k} ]}{[\sum_{j&#x3D;1}^{C}e^{x_j}]^2}, i&#x3D;k<br>\\<br>\frac{ - [ e^{x_i} \cdot e^{x_k} ]}{[\sum_{j&#x3D;1}^{C}e^{x_j}]^2}, i \neq k<br>\end{cases}<br>\\  &#x3D; \begin{cases}<br>y_k(1-y_k), i&#x3D;k<br>\\<br>-y_i y_k, i \neq k<br>\end{cases}<br>$$<br>在工程实际使用中，一般采用矩阵形式运算：<br>$$<br>S(X) &#x3D; \frac{e^{X}}{\sum e^{X}}<br>$$</li>
+</ul>
+</li>
+<li><p>tanh</p>
+<ul>
+<li>将输出（映射）限制在-1~1之间</li>
+<li>在函数两端带来梯度消失问题</li>
+</ul>
+</li>
+</ul>
+<p>$$<br>\tanh(x) &#x3D; \frac{e^{x}-e^{-x}}{e^{x}+e^{-x}}<br>\\<br>\frac{\partial \tanh(x)}{\partial x} &#x3D; 1-\tanh^2(x)<br>$$</p>
+<ul>
+<li>Swish<ul>
+<li>Swish无上界有下界(和ReLU一样)</li>
+<li>Swish是平滑且非单调(与ReLU不同)</li>
+</ul>
+</li>
+</ul>
+<p>$$<br>S(x) &#x3D; x\cdot \sigma(x) &#x3D; \frac{x}{1+e^{-x}}<br>\\<br>S’(x) &#x3D; S(x)+\sigma(x)\cdot(1-S(x))<br>$$</p>
+<ul>
+<li>Mish<ul>
+<li>无上界，有下界</li>
+<li>非单调</li>
+<li>无穷连续性和光滑性</li>
+<li>计算量较大，但是效果好(深度网络)。YOLO中被使用</li>
+</ul>
+</li>
+</ul>
+<p>$$<br>    M(x) &#x3D; x\cdot \tanh(\ln(1+e^x))<br>$$</p>
+<h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><p>$$<br>J(w,b) &#x3D; \frac{1}{m}\sum^m_{i&#x3D;1}L(\hat{y}^{(i)},y^{(i)})<br>$$</p>
+<ul>
+<li>MSE（Mean Squared Error0L2）:均方误差函数</li>
+</ul>
+<p>$$<br>MSE &#x3D; \frac{1}{m} \sum^m_{i&#x3D;1} (y- \hat y)^2<br>$$</p>
+<ul>
+<li>RMSE（Root Mean Square Error）:均方根误差</li>
+</ul>
+<p>$$<br>RMSE &#x3D; \sqrt{\frac{1}{m} \sum^m_{i&#x3D;1} (y- \hat y)^2}<br>$$</p>
+<ul>
+<li>MAE（Mean Absolute Error-L1）:平均绝对误差</li>
+</ul>
+<p>$$<br>MAE &#x3D; \frac{1}{m} \sum^m_{i&#x3D;1} |y- \hat y|<br>$$</p>
+<ul>
+<li>Exponential Loss：指数损失函数</li>
+</ul>
+<p>$$<br>L(Y,f(X)) &#x3D; \frac{1}{m}\sum^m_{i&#x3D;1}\exp(-y_i \cdot f(x_i))<br>$$</p>
+<ul>
+<li>Log-likelihood Loss：①对数似然损失函数；②交叉熵损失函数<ul>
+<li>BCE（Binary Cross Entropy）:二元交叉熵</li>
+<li>CCE（Complement Cross Entropy）：互补交叉熵</li>
+<li>SCCE：稀疏多分类交叉熵</li>
+</ul>
+</li>
+<li>Huber</li>
+</ul>
+<h3 id="Huber"><a href="#Huber" class="headerlink" title="Huber"></a>Huber</h3><p>$$<br>L_\delta(y,f(x)) &#x3D; \begin{cases}<br>    \frac{1}{2}(y-f(x))^2 &amp;,|y-f(x)| \le\delta<br>    \\<br>    \delta|y-f(x)| - \frac{1}{2}\delta^2 &amp;,other<br>\end{cases}<br>$$</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20210117/20210117-NeuralNetwork-1.gif" alt="Huber"></p>
+<p>让我们来分析一下Huber函数的数学本质和优缺点。</p>
+<p>从表达式上可见，Huber函数在估计量偏移样本量小的时候，本质上是平方损失函数；而当偏移大的时候，本质上是绝对误差。也就是说Huber是对MSE和MAE的融合</p>
+<p><strong>接下来从实际效果上思考Huber的优缺点</strong>。首先我们要分析一下MAE和MSE：考虑平方误差函数，当有一个样本的误差（大于1）较大的时候，这个误差会被严重放大，并且如果这是一个异常值，那么模型就会对这单个值作出谦让、调整（或称为适应），这就需要更多的正常值样本来平衡；再考虑绝对误差，对绝对值函数求导可知道MAE对小误差和大误差的导数是一样的，那么当一些误差发生小的偏移时（这种误差是可以被接受的，可以理解为噪声），模型应该作出轻微的调整而不是和大误差一样。所以这时候就可见Huber函数的优点啦！😜由于融合了小偏差时MSE的稳定性和大偏差时MAE的鲁棒性，使得Huber具有更加优秀的性能</p>
+<h3 id="Log-likelihood-Loss"><a href="#Log-likelihood-Loss" class="headerlink" title="Log-likelihood Loss"></a>Log-likelihood Loss</h3><blockquote>
+<p>该损失函数一般用于分类器损失计算和评价</p>
+</blockquote>
+<p>$$<br>L(Y,P(Y|X)) &#x3D; - \log P(Y|X) &#x3D; -\frac{1}{N}\sum_{i&#x3D;1}^N\sum_{j&#x3D;1}^M y_{ij} \log p_{ij}<br>$$</p>
+<p>上式中符号意义为：</p>
+<ul>
+<li>输入样本X，样本量为N</li>
+<li>输出样本Y，样本可能的值有M种</li>
+<li>真实类别判别指标（注意是二值的）<br>  $$<br>  y_{ij}<br>  $$</li>
+<li>输入i分类器输出属于j可能的概率<br>  $$<br>  p_{ij}<br>  $$</li>
+</ul>
+<blockquote>
+<p>这个玩意之所以还有个名字叫交叉熵损失，是因为和信息论中的信息熵数学表达式十分相似</p>
+</blockquote>
+<h4 id="BCE二元交叉熵函数"><a href="#BCE二元交叉熵函数" class="headerlink" title="BCE二元交叉熵函数"></a>BCE二元交叉熵函数</h4><p>当分类器输出只有两种情况时（M&#x3D;2），上式退化为二元交叉熵函数，如下式：</p>
+<p>$$<br>L &#x3D; - \frac{1}{N} \sum^N_{i &#x3D; 1} (\hat {y_i} \log \hat{y_i} + (1-\hat{y_i}) \log(1-\hat{y_i}))<br>$$</p>
+<p>显然，该式还可以继续退化：</p>
+<blockquote>
+<p>此时称为：categorical_crossentropy</p>
+</blockquote>
+<p>$$<br>\because \hat y_i &#x3D; [0,1]<br>\\ \therefore<br>L &#x3D; -\frac{1}{N}\sum^N_{i&#x3D;1} \hat{y_i}\log \hat{y_i}<br>$$</p>
+<h2 id="评价函数"><a href="#评价函数" class="headerlink" title="评价函数"></a>评价函数</h2><ul>
+<li>MAE、MSE、RMSE</li>
+<li>MAPE（Mean Absolute Percentage Error）：平均绝对百分比误差</li>
+</ul>
+<p>$$<br>MAPE &#x3D; \frac{1}{N} \sum^N_{i&#x3D;1} | \frac{\hat{y_i} - y_i}{y_i} | \cdot 100%<br>$$</p>
+<blockquote>
+<p>BUG☢真实值同时为零时，分母为0！</p>
+</blockquote>
+<ul>
+<li>SMAPE（Symmetric Mean Absolute Percentage Error）：对称平均绝对百分比误差</li>
+</ul>
+<p>$$<br>SMAPE &#x3D; \frac{1}{N} \sum^N_{i&#x3D;1} | \frac{\hat{y_i} - y_i}{(|\hat{y_i}|+|y_i|) &#x2F;2 } | \cdot 100%<br>$$</p>
+<blockquote>
+<p>BUG☢推测值和真实值同时为零时，分母为0！</p>
+</blockquote>
+<ul>
+<li>R Squared：决定系数</li>
+<li>Confusion Matrix：混淆矩阵<ul>
+<li>准确率</li>
+<li>精确率</li>
+<li>召回率</li>
+</ul>
+</li>
+</ul>
+<h3 id="R-Squared"><a href="#R-Squared" class="headerlink" title="R Squared"></a>R Squared</h3><blockquote>
+<p>最好的衡量线性回归法的指标</p>
+</blockquote>
+<p>$$<br>R^2 &#x3D; 1- \frac{\sum^n_{i&#x3D;1}|\hat{y_i} - y_i |^2 }{\sum^n_{i&#x3D;1}|\overline{y_i} - y_i |^2}<br>$$</p>
+<p>上式中的分母部分，可以理解为一个模型（<strong>基准模型</strong>）：</p>
+<p>$$<br>|\overline{y_i} - y_i |^2<br>$$</p>
+<p>该指标取值范围为[0,1]；如果小于0，则代表你的模型预测结果还不如基准模型</p>
+<h3 id="Confusion-Matrix"><a href="#Confusion-Matrix" class="headerlink" title="Confusion Matrix"></a>Confusion Matrix</h3><blockquote>
+<p>混淆矩阵也称误差矩阵，是表示精度评价的一种标准格式，用n行n列的矩阵形式来表示。此处给出的数学表示基于二分类</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">预测正例</th>
+<th align="center">预测反例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">真实正例</td>
+<td align="center">TP(真正)</td>
+<td align="center">FN(假反)</td>
+</tr>
+<tr>
+<td align="center">真实假例</td>
+<td align="center">FP(假正)</td>
+<td align="center">TN(真反)</td>
+</tr>
+</tbody></table>
+<p>准确率（Accuracy）：被预测对的样本，但是样本不平衡时效果差</p>
+<p>$$<br>A &#x3D; \frac{TP+TN}{TP+FP+TN+FN}<br>$$</p>
+<p>精准率（Precision）：预测为正的样本多少为对的</p>
+<p>$$<br>P &#x3D; \frac{TP}{TP+FP}<br>$$</p>
+<p>召回率（Recall）：实际正样本中多少预测对了</p>
+<p>$$<br>R &#x3D; \frac{TP}{TP+FN}<br>$$</p>
+<h2 id="神经网络原理简摘"><a href="#神经网络原理简摘" class="headerlink" title="神经网络原理简摘"></a>神经网络原理简摘</h2><p>考虑一个最简单的浅层全连接神经网络，那么需要训练的模型参数就是神经元中的权重和偏置，采用（对损失函数）梯度下降的方法：</p>
+<p>$$<br>w :&#x3D; w-\alpha\cdot\frac{\partial J(w,b)}{\partial w}<br>\\<br>b :&#x3D; b-\alpha\cdot\frac{\partial J(w,b)}{\partial b}<br>$$</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NeuralNetwork/" rel="tag">NeuralNetwork</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E3%80%81%E8%AF%84%E4%BB%B7%E5%87%BD%E6%95%B0/" rel="tag">损失函数、评价函数</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%9E%E7%BA%BF%E6%80%A7%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0/" rel="tag">非线性激活函数</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-webSpider-QuickStart"
   class="article article-type-post"
   itemscope
@@ -333,206 +572,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/" rel="tag">MongoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodeJS/" rel="tag">nodeJS</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-SCons"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/12/24/SCons/"
-    >SCons</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/12/24/SCons/" class="article-date">
-  <time datetime="2020-12-24T03:42:35.000Z" itemprop="datePublished">2020-12-24</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.1k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">8 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="Why-SCons"><a href="#Why-SCons" class="headerlink" title="Why SCons?"></a>Why SCons?</h2><blockquote>
-<p>让我引用一段官网的说法</p>
-<blockquote>
-<p>SCons is an Open Source software construction tool—that is, a next-generation build tool. Think of SCons as an improved, cross-platform substitute for the classic Make utility with integrated functionality similar to autoconf&#x2F;automake and compiler caches such as ccache. In short, SCons is an easier, more reliable and faster way to build software.</p>
-</blockquote>
-</blockquote>
-<p>SCons是新一代的开源程序构建工具。相对于传统的Make构建工具，SCons具有优越的跨平台特性（得益于采用Python为开发语言）和更加易于使用（集成了自动配置和自动生成）的特性😘从下面的例子中就会知道SCons真的太香了！</p>
-<h3 id="SCons具体好在哪？"><a href="#SCons具体好在哪？" class="headerlink" title="SCons具体好在哪？"></a>SCons具体好在哪？</h3><ul>
-<li>配置文件就是py脚本</li>
-<li>自动分析依赖文件</li>
-<li>内置支持语言有：C, C++, D, Java, Fortran, Yacc, Lex, Qt和SWIG</li>
-<li>你也可以很容易得自行开发对其他语言的支持（毕竟是Python对象）</li>
-<li>内置支持从SCCS, RCS, CVS, BitKeeper和Perforce获取源文件</li>
-<li>内置对Microsoft Visual Studio .Net和过去的Visual Studio版本的支持，包括生成。dsp、。dsw、。sln和。vcproj文件。(笔者在Windows平台下超爱VS的😘)</li>
-<li>改进了对并行构建的支持——比如make -j，但不管目录层次结构如何，都会使N个作业同时运行</li>
-<li>集成了类似autoconf的查找#include文件、库、函数和类型定义的支持（这真的太香了！🎈）</li>
-<li>所有依赖项的全局视图——不再需要多次构建或重新排序目标来构建所有内容</li>
-<li>能够在缓存中共享构建文件以加速多个构建——比如ccache，但适用于任何类型的目标文件，而不仅仅是C&#x2F; c++编译</li>
-<li>从一开始就为跨平台构建而设计，并且已知可以在Linux、其他POSIX系统(包括AIX、BSD系统、HP&#x2F;UX、IRIX和Solaris)、Windows NT、Mac OS X和OS&#x2F;2上工作</li>
-</ul>
-<h2 id="安装SCons"><a href="#安装SCons" class="headerlink" title="安装SCons"></a>安装SCons</h2><blockquote>
-<p>官网传送门：<a target="_blank" rel="noopener" href="https://scons.org/pages/download.html">SCons Download</a></p>
-<blockquote>
-<p>截至目前（2020年12月24号），官网最新版本为4.0.1，官方提供的安装方式有两种：方便的pip和完整的工程（python源码）压缩包</p>
-</blockquote>
-</blockquote>
-<ol>
-<li><p>首推使用pip安装</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pip install scons</span><br></pre></td></tr></table></figure>
-
-<p> 这个法子是最棒的了，无视任何平台小九九，一步到位。</p>
-</li>
-<li><p>也可以在官网下载工程包手动安装</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://udomain.dl.sourceforge.net/project/scons/scons/4.0.1/scons-4.0.1.tar.gz</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>是的🙃官网不提供直接下载服务，而是托管到了sourceforge这个网站上</p>
-<blockquote>
-<p>不一定要用wget下载，笔者亲测在windows上用迅雷下更香❤（迅雷下载的时候可以加速到3M&#x2F;s，而wget只有几十k&#x2F;s）</p>
-</blockquote>
-</blockquote>
-<p> 然后解压</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ tar -zxvf scons-4.0.1.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p> 进入目录后，允许安装脚本就行了</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> SCons-4.0.1</span><br><span class="line">$ python3 setup.py build</span><br><span class="line">$ sudo python3 setup.py install</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="开始爱上SCons"><a href="#开始爱上SCons" class="headerlink" title="开始爱上SCons"></a>开始爱上SCons</h2><p>在此之前先试试看你的SCons装好了没</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ scons --version</span><br></pre></td></tr></table></figure>
-
-<p>让我们编写一套最简单的C艹，创建一个“main.cpp”文件，内容如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;www.singularity-blog.top&quot;</span>&lt;&lt;std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>想要编译它，我们需要在目录下创建一个“Makefile”文件，内容为：</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">buildMain : main.cpp</span><br><span class="line">	g++ -o main main.cpp</span><br></pre></td></tr></table></figure>
-
-<p>那么如果用SCons呢？创建“<strong>Sconstruct</strong>”文件，内容为：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Program(&quot;main.cpp&quot;)</span><br></pre></td></tr></table></figure>
-
-<p>对！只有一句话并且非常好理解！看看构建时的输出是啥</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">scons: Reading SConscript files ...</span><br><span class="line">scons: <span class="keyword">done</span> reading SConscript files.</span><br><span class="line">scons: Building targets ...</span><br><span class="line">cl /Fomain.obj /c main.cpp /TP /nologo</span><br><span class="line">main.cpp</span><br><span class="line">E:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Tools\MSVC\14.28.29333\include\ostream(746): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc</span><br><span class="line">main.cpp(5): note: 查看对正在编译的函数 模板 实例化“std::basic_ostream&lt;char,std::char_traits&lt;char&gt;&gt; &amp;std::operator &lt;&lt;&lt;<span class="string">std::char_traits&lt;char&gt;&gt;(std</span>::basic_ostream&lt;char,std::char_traits&lt;char&gt;&gt; &amp;,const char *)”的</span><br><span class="line">引用</span><br><span class="line"><span class="built_in">link</span> /nologo /OUT:main.exe main.obj</span><br><span class="line">scons: <span class="keyword">done</span> building targets.</span><br></pre></td></tr></table></figure>
-
-<p>因为笔者是在Windows上跑的，所以SCons很聪明地自动找到了VS的编译器！而不是g++</p>
-<blockquote>
-<p>也许上面的例子还不能够非常体现出SCons强大的优势，你可以试着给这个工程多加一些头文件和源文件</p>
-</blockquote>
-<h2 id="SCons语法"><a href="#SCons语法" class="headerlink" title="SCons语法"></a>SCons语法</h2><p>先来一条比较长的例子</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Program(&#x27;helloscons2&#x27;, </span><br><span class="line">        [&#x27;helloscons2.c&#x27;, &#x27;file1.c&#x27;, &#x27;file2.c&#x27;],</span><br><span class="line">        LIBS = &#x27;m&#x27;, </span><br><span class="line">        LIBPATH = [&#x27;/usr/lib&#x27;, &#x27;/usr/local/lib&#x27;], </span><br><span class="line">        CPPPATH = [&#x27;./include&#x27;],</span><br><span class="line">        CCFLAGS = &#x27;-DHELLOSCONS&#x27;)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>Program ： 表示编译</li>
-<li>helloscons2 ： 目标文件</li>
-<li>[‘helloscons2.c’, ‘file1.c’, ‘file2.c’] ： 当有多个源文件时，采用（python的）列表形式</li>
-<li>LIBS &#x3D; ‘m’ : 使用的库文件</li>
-<li>LIBPATH &#x3D; [‘&#x2F;usr&#x2F;lib’, ‘&#x2F;usr&#x2F;local&#x2F;lib’] ：使用的库文件路径</li>
-<li>CPPPATH ： 头文件路径</li>
-<li>CCFLAGS &#x3D; ‘-DHELLOSCONS’ ： 其他编译时的选项。这边是宏定义</li>
-</ul>
-<p>所以SCons其实就是python的写法，非常优美</p>
-<blockquote>
-<p>具体可见官网帮助<a target="_blank" rel="noopener" href="https://scons.org/documentation.html">文档</a></p>
-</blockquote>
-<h3 id="编译类型命令"><a href="#编译类型命令" class="headerlink" title="编译类型命令"></a>编译类型命令</h3><ul>
-<li>Program ： 编译可执行文件</li>
-<li>Object ： 编译目标文件</li>
-<li>Library ： 编译库文件（默认静态）</li>
-<li>StaticLibrary ： 编译成静态库文件</li>
-<li>SharedLibrary ： 编译成动态库文件</li>
-</ul>
-<h3 id="指定编译器"><a href="#指定编译器" class="headerlink" title="指定编译器"></a>指定编译器</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import os</span><br><span class="line">env = Environment(ENV=&#123;&#x27;PATH&#x27;: os.environ[&#x27;PATH&#x27;],</span><br><span class="line">                       &#x27;ANDROID_HOME&#x27;: os.environ[&#x27;ANDROID_HOME&#x27;],</span><br><span class="line">                       &#x27;ANDROID_NDK_HOME&#x27;: os.environ[&#x27;ANDROID_NDK_HOME&#x27;]&#125;)</span><br></pre></td></tr></table></figure>
-
-<h3 id="Scons命令"><a href="#Scons命令" class="headerlink" title="Scons命令"></a>Scons命令</h3><ul>
-<li><p>多线程并行编译</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ scons -j 4</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>调试信息<br>  将有关派生文件缓存的调试信息写入指定文件。如果file是一个连字符(-)，则将调试信息打印到标准输出。打印的消息描述了在由CacheDir指定的派生文件缓存中查找、检索或写入的签名文件名</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ --cache-debug = file</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>不使用缓存</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--cache-disable,--no-cache</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>更新方案策略</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--config = [auto,force,cache]</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>auto ： scons将使用其正常的依赖机制来决定测试是否必须重新构建。这样就不必在每次调用scons时都运行相同的配置测试，从而节省了时间，但如果不显式指定这些依赖项，则会忽略系统头文件或外部命令(如编译器)中的更改。这是默认行为。</li>
-<li>force ： 如果指定此选项，则将重新运行所有配置测试，而不管缓存的结果是否过期。这可用于显式地强制更新配置测试，以响应系统头文件或编译器中未配置的更改。</li>
-<li>cache ：如果指定此选项，将不重新运行配置测试，并从缓存获取所有结果。如果指定了——config&#x3D;cache并且一个必要的测试在缓存中没有任何结果，则scons将报告一个错误。</li>
-</ul>
-</li>
-<li><p>尽量编译</p>
-<p>  就算遇到了error也会尽量继续编译下去</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-k,--keep-going</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>打印SCons的版本</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-v,--version</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="深入体验SCons"><a href="#深入体验SCons" class="headerlink" title="深入体验SCons"></a>深入体验SCons</h2><p>上面的HelloWorld例子也许没啥意义，所以在本文的最后。笔者决定给出一个比较有价值的DEMO——在windows上开发openCV！</p>
-<blockquote>
-<p>很多小伙伴本来就觉得在Windows上做开发很麻烦，配OpenCV更是劝退💢希望这个例子对你有所帮助</p>
-</blockquote>
-<p>程序实现的就是不断读取本地摄像头的数据，并且显示出来，更新触发条件为用户敲击键盘。上个代码，如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;opencv.hpp&quot;</span>   <span class="comment">//OpenCV（主）头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;    <span class="comment">//引入命名空间</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Mat cap;    <span class="comment">//像素矩阵变量</span></span><br><span class="line">    VideoCapture cam;   <span class="comment">//视频流对象（可以理解为相机）</span></span><br><span class="line">    cam.<span class="built_in">open</span>(<span class="number">0</span>);    <span class="comment">//打开相机，笔记本电脑前置摄像头默认号：0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!cam.<span class="built_in">isOpened</span>()) <span class="comment">//检查是否成功打开相机</span></span><br><span class="line">    &#123;</span><br><span class="line">        std::cout&lt;&lt;<span class="string">&quot;Open Failed!&quot;</span>&lt;&lt;std::endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;open Success!&quot;</span>&lt;&lt;std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        cam &gt;&gt; cap;   <span class="comment">//读取视频流</span></span><br><span class="line">        <span class="built_in">imshow</span>(<span class="string">&quot;camera&quot;</span>,cap);   <span class="comment">//显示图像</span></span><br><span class="line">        <span class="built_in">waitKey</span>(<span class="number">0</span>); <span class="comment">//按键更新</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>想要编译这个程序，需要的SConstruct内容为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Program(<span class="string">&#x27;main&#x27;</span>,</span><br><span class="line">        [<span class="string">&#x27;main.cpp&#x27;</span>],</span><br><span class="line">        LIBS = [<span class="string">&#x27;opencv_world420&#x27;</span>],</span><br><span class="line">        LIBPATH = [<span class="string">&#x27;E:/opencv/build/x64/vc15/lib&#x27;</span>],</span><br><span class="line">        CPPPATH = [<span class="string">&#x27;E:/opencv/build/include/opencv2/&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;E:/opencv/build/include/&#x27;</span>])</span><br></pre></td></tr></table></figure>
-
-<p>简单解释一下上面路径的由来，在OpenCV官网下载最新版（or你喜欢的版本）开发包，解压到你电脑上喜欢的位置（比如笔者显然直接放在了E盘下）就行。然后把相应库、头文件对应的路径代入就搞定了</p>
-<p>这样就完成了在windows上配置OpenCV和允许Demo的所有配置了🍻是不是非常简单呢？完全不需要配置环境变量以及其他IDE参数</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/" rel="tag">OpenCV</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SCons/" rel="tag">SCons</a></li></ul>
 
     </footer>
   </div>

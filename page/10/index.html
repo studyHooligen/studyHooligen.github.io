@@ -153,6 +153,100 @@
     
     
     <article
+  id="post-design-digitalFilter-With-Matlab"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/24/design-digitalFilter-With-Matlab/"
+    >数字滤波器设计</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/11/24/design-digitalFilter-With-Matlab/" class="article-date">
+  <time datetime="2020-11-24T00:32:45.000Z" itemprop="datePublished">2020-11-24</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%B0%83%E8%B0%90-%E6%BB%A4%E6%B3%A2/">调谐&滤波</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">4 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这又是一篇懒人福利博客嘿嘿嘿😝</p>
+</blockquote>
+<h2 id="设计步骤概览"><a href="#设计步骤概览" class="headerlink" title="设计步骤概览"></a>设计步骤概览</h2><ul>
+<li><p>使用designfilt函数设计&#x2F;修改一个滤波器</p>
+  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df = designfilt(resp,Name,Value);   <span class="comment">%设计滤波器</span></span><br><span class="line">designfilt(df); <span class="comment">%修改已存在滤波器</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用filter函数对指定信号序列进行滤波测试</p>
+</li>
+<li><p>使用fvtool工具箱可视化设计的滤波器</p>
+</li>
+</ul>
+<h2 id="designfilt函数使用方法"><a href="#designfilt函数使用方法" class="headerlink" title="designfilt函数使用方法"></a>designfilt函数使用方法</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df = designfilt(resp,Name,Value);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>第一个参数为滤波器类型，然后是Name+Value的属性配置键值对（可以有很多组）</p>
+<blockquote>
+<p>主要配置的重要属性有：滤波器类型、频率约束、幅度约束、滤波器阶数、设计算法、采样率</p>
+</blockquote>
+</blockquote> 
+      <a class="article-more-link" href="/2020/11/24/design-digitalFilter-With-Matlab/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BB%A4%E6%B3%A2%E5%99%A8/" rel="tag">滤波器</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-Analog-Modulation-and-Demodulation"
   class="article article-type-post"
   itemscope
@@ -378,85 +472,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CentOS/" rel="tag">CentOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VPN/" rel="tag">VPN</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-powerAmplifier-C"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/06/powerAmplifier-C/"
-    >C类功放</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/11/06/powerAmplifier-C/" class="article-date">
-  <time datetime="2020-11-06T07:53:45.000Z" itemprop="datePublished">2020-11-06</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">723</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">3 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：不同于常见的A、B、AB、D类功放的应用（不只能驱音响，笔者还试过驱电机😜），C类功放只适用于高频的射频类电路功率输出级。笔者之前一直很迷惑在网络上找到很少的C类功放文章，直到最近课内的“通信电子线路”这门课程很好地解释了C类功放的用途和设计，该电路在设计之初就是用于放大指定载波信号（也叫做谐振功率放大器），所以对宽带信号失谐非常严重，但是效率很高</p>
-</blockquote>
-<h2 id="C类功放电路"><a href="#C类功放电路" class="headerlink" title="C类功放电路"></a>C类功放电路</h2><p><img src="http://imgjry.fangyikuan.xyz/20201106/20201106-ampC-1.png" alt="C功放电路"></p>
-<p>该电路效率高的秘籍就在于将输入信号（假设正弦）的中心电平拉低，使得导通角减少，如下图：</p> 
-      <a class="article-more-link" href="/2020/11/06/powerAmplifier-C/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%89%E6%9E%81%E7%AE%A1/" rel="tag">三极管</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%9F%E7%8E%87%E6%94%BE%E5%A4%A7%E5%99%A8/" rel="tag">功率放大器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
 
     </footer>
   </div>

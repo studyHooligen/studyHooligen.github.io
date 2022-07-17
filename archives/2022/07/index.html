@@ -13,7 +13,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
       />
-      <title> Singularity-blog</title>
+      <title>Archives: 2022/7 |  Singularity-blog</title>
   <meta name="generator" content="hexo-theme-ayer">
       
       <link rel="shortcut icon" href="/S-favicon.ico" />
@@ -53,54 +53,7 @@
     
       
     <main class="content on">
-      
-<section class="cover">
-    
-  <div class="cover-frame">
-    <div class="bg-box">
-      <img src="/images/cover5.jpg" alt="image frame" />
-    </div>
-    <div class="cover-inner text-center text-white">
-      <h1><a href="/">Singularity-blog</a></h1>
-      <div id="subtitle-box">
-        
-        <span id="subtitle"></span>
-        
-      </div>
-      <div>
-        
-      </div>
-    </div>
-  </div>
-  <div class="cover-learn-more">
-    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
-  </div>
-</section>
-
-
-
-<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
-
-
-<!-- Subtitle -->
-
-  <script>
-    try {
-      var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
-        startDelay: 0,
-        typeSpeed: 200,
-        loop: true,
-        backSpeed: 100,
-        showCursor: true
-      });
-    } catch (err) {
-      console.log(err)
-    }
-  </script>
-  
-<div id="main">
-  <section class="outer">
+      <section class="outer">
   
   <ul class="ads">
     
@@ -113,307 +66,51 @@
 </ul>
   
   
-  
-<div class="notice" style="margin-top:50px">
-    <i class="ri-heart-fill"></i>
-    <div class="notice-content">目前在做GD32替代STM32作为主控的各种飞行器研究，欢迎感兴趣的朋友联系我。</div>
-</div>
-
-
-<style>
-    .notice {
-        padding: 20px;
-        border: 1px dashed #e6e6e6;
-        color: #969696;
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        background: #fbfbfb50;
-        border-radius: 10px;
-    }
-
-    .notice i {
-        float: left;
-        color: #999;
-        font-size: 16px;
-        padding-right: 10px;
-        vertical-align: middle;
-        margin-top: -2px;
-    }
-
-    .notice-content {
-        display: initial;
-        vertical-align: middle;
-    }
-</style>
-  
   <article class="articles">
     
     
+    <h1 class="page-type-title">2022/7</h1>
     
     
-    <article
-  id="post-IIC4OLED"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
+  
+  
+  
+  
+  
+  
+  <div class="archives-wrap">
+    <div class="archive-year-wrap">
+      <a href="/archives/2022" class="archive-year">2022</a>
+    </div>
+    <div class="archives">
+      
+      <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2022/07/16/read-RC-byTimer/" class="archive-article-date">
+  <time datetime="2022-07-15T16:20:37.000Z" itemprop="datePublished">07/16</time>
+</a>
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/05/06/IIC4OLED/"
-    >硬件IIC控制OLED屏幕</a> 
+  <a class="archive-article-title" href="/2022/07/16/read-RC-byTimer/"
+    >读取RC遥控信号（PWM和PPM）</a> 
 </h2>
  
 
-      
     </header>
-     
-    <div class="article-meta">
-      <a href="/2021/05/06/IIC4OLED/" class="article-date">
-  <time datetime="2021-05-06T05:46:05.000Z" itemprop="datePublished">2021-05-06</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+    
+    
   </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">4.7k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">21 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>继上篇<a href="/2021/04/25/quicklyStartMSP432/">速成MSP432</a>后，笔者开始调试使用IIC通信控制的OLED显示屏时，但遇到了极大的阻碍（被中断相关问题困扰），而在网络上发现几乎所有的实现代码都是采用GPIO模拟IIC的方案，所以笔者认为很有必要分享一下这篇开发经历</p>
-</blockquote>
-<h2 id="认识IIC通信"><a href="#认识IIC通信" class="headerlink" title="认识IIC通信"></a>认识IIC通信</h2><p>我们分为两个部分来学习：IIC标准和具体的在MSP432上的IIC实现</p>
-<h3 id="IIC标准"><a href="#IIC标准" class="headerlink" title="IIC标准"></a>IIC标准</h3><p>下图是IIC的总线拓扑，可以看出只有两根信号线：数据（SDA）和时钟（SCL）。可以有任意个设备挂在这对总线上，同时注意到有两个电阻上拉到Vcc，这是因为IIC的IO端口是开漏输出的（见下面具体实现），所以这也带来了IIC的两大优越特性：</p>
-<ul>
-<li>线与：同一线上所有设备都推高才为高电平，任一设备拉低就必为低</li>
-<li>热拔插：可以带电拔、插总线上的IIC设备</li>
-</ul>
-<p><img src="http://imgjry.fangyikuan.xyz/20210506/20210506-IIC-1.png" alt="IIC总线拓扑"></p>
-<p>一次IIC通信的帧结构如下所示，总线上主机发出一个起始信号（’S’）；然后发<strong>7位</strong>从机（Slave）地址和一位读写控制位（0写1读），接着主机释放数据线，等待从机应答；若收到应答，则继续发数据，并且每一字节数据后面都跟一个从机应答；通信最后，主机发停止信号。</p> 
-      <a class="article-more-link" href="/2021/05/06/IIC4OLED/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IIC/" rel="tag">IIC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSP432/" rel="tag">MSP432</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag">嵌入式</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
 </article>
-
-    
-    <article
-  id="post-quicklyStartMSP432"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/04/25/quicklyStartMSP432/"
-    >一天速成MSP432</a> 
-</h2>
- 
-
       
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/04/25/quicklyStartMSP432/" class="article-date">
-  <time datetime="2021-04-25T11:20:54.000Z" itemprop="datePublished">2021-04-25</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">3.2k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">13 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>为了备战2021年的全国大学生电子设计竞赛🚀笔者于昨日开始上手TI的MSP432主控并且于今日速成了基础的开发。为了让亲爱的读者们早日脱离苦海，我将在本文中分享：开发环境安装、MSP432架构分析、时钟设置、串口开发、DMA传输和中断（💎一条龙服务）</p>
-</blockquote>
-<h2 id="认识MSP432"><a href="#认识MSP432" class="headerlink" title="认识MSP432"></a>认识MSP432</h2><blockquote>
-<p>在文末有官方文献链接</p>
-<blockquote>
-<p>声明：本文中所有历程都基于<code>MSP432P401R LaunchPad</code>开发板</p>
-</blockquote>
-</blockquote>
-<p>首先，下图为MSP432R401控制器的总体架构。和STM32对比来看，这个片子架构确实简单，CPU和外设交互只有一对系统总线。外设除了常见的通信口、定时器和存储外，注意到432特色的一些设备：高精度ADC等模拟外设、时钟系统（将在下面专门讨论）和功率控制器。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210425/20210425-MSP-1.png" alt="架构"></p> 
-      <a class="article-more-link" href="/2021/04/25/quicklyStartMSP432/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
       
     </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DMA/" rel="tag">DMA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IOT/" rel="tag">IOT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSP432/" rel="tag">MSP432</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UART/" rel="tag">UART</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag">嵌入式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/" rel="tag">驱动程序</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-fuzzyPID"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/29/fuzzyPID/"
-    >模糊PID控制器</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/29/fuzzyPID/" class="article-date">
-  <time datetime="2021-03-29T07:59:57.000Z" itemprop="datePublished">2021-03-29</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%8E%A7%E5%88%B6%E6%8A%80%E6%9C%AF/">控制技术</a>
   </div>
   
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.6k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">6 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：经典PID控制器的参数需要人工整定且是定参数，那么聪明的工程师们就想到了自动调整参数的PID控制器，其中使用模糊控制的方式调整参数就是本文中讨论的模糊PID</p>
-</blockquote>
-<h2 id="Why-Fuzzy-PID-controller？"><a href="#Why-Fuzzy-PID-controller？" class="headerlink" title="Why Fuzzy PID controller？"></a>Why Fuzzy PID controller？</h2><p>在自动控制领域，PID控制器就是爹一般的存在，基本现在市面上过半的控制系统都能看到它。在之前的<a href="https://www.singularity-blog.top/2020/05/27/PID%E6%8E%A7%E5%88%B6%E5%99%A8/">一篇文章</a>中已经深入剖析了PID控制器的原理，知道了PID确实可以（粗糙的）解决大部分的需求，但是难免还是存在人工调参麻烦的问题，而且最最最主要的问题就是固定参数的话系统的情况变了效果也变了。</p>
-<hr>
-<p>以汽车控制来举例<br>🚗🚗🚗🚗🚗🚗🚗</p> 
-      <a class="article-more-link" href="/2021/03/29/fuzzyPID/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PID/" rel="tag">PID</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A8%A1%E7%B3%8A%E6%8E%A7%E5%88%B6/" rel="tag">模糊控制</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-  </article>
   
 
-  
-  <nav class="page-nav">
-    
-    <a class="extend prev" rel="prev" href="/page/4/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/6/">下一页</a>
-  </nav>
   
 </section>
-</div>
-
       <footer class="footer">
   <div class="outer">
     <ul>
