@@ -153,6 +153,90 @@
     
     
     <article
+  id="post-Camera-model-IntrinsicMatrix"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/12/08/Camera-model-IntrinsicMatrix/"
+    >相机针孔模型&amp;内参矩阵&amp;标定</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/12/08/Camera-model-IntrinsicMatrix/" class="article-date">
+  <time datetime="2020-12-08T03:46:12.000Z" itemprop="datePublished">2020-12-08</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">974</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">4 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本文是笔者的CV处女篇，聊聊最基础的相机（针孔）模型和该模型下对应的<strong>内参数矩阵</strong>，最后分享一下用Matlab标定内参矩阵的工具</p>
+</blockquote>
+<h2 id="针孔相机模型"><a href="#针孔相机模型" class="headerlink" title="针孔相机模型"></a>针孔相机模型</h2><p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-1.png" alt="针孔模型"></p>
+<p>对！就是初中生都知道的小孔成像原理，如上图所示：可以把相机内部的感光面抽象为像素平面，镜头抽象为光心和对应的焦距。坐标轴的标准定义如上图，z轴为相机正向，y向下，xyz满足右手螺旋。</p>
+<p>那么根据三角相似原理，有：</p>
+<p>$$<br>\frac Z f &#x3D; -\frac{X}{X’}&#x3D; -\frac{Y}{Y’}<br>$$</p>
+<p>图中负号对应于物理上的倒像。那么为了简化模型，我们可以作如下对称等效处理及归一化处理</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-2.png" alt="归一化成像面"></p>
+<p>那么，去掉负号并且整理：</p> 
+      <a class="article-more-link" href="/2020/12/08/Camera-model-IntrinsicMatrix/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9B%B8%E6%9C%BA/" rel="tag">相机</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-design-digitalFilter-With-Matlab"
   class="article article-type-post"
   itemscope
@@ -321,157 +405,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%97%A0%E7%BA%BF%E9%80%9A%E4%BF%A1/" rel="tag">无线通信</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-VPN-with-PPTP"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/09/VPN-with-PPTP/"
-    >基于PPTPD搭建VPN服务器</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/11/09/VPN-with-PPTP/" class="article-date">
-  <time datetime="2020-11-09T09:24:53.000Z" itemprop="datePublished">2020-11-09</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/">网站技术</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">641</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：由于政策原因，目前国内的可用的VPN真是少之又少。然而这怎么能困得住我科学上网呢！有的时候搭个梯子下载东西加个速真的很舒服（比如引起笔者这一波操作的导火线就是Nvidia官网下载太慢了）</p>
-</blockquote>
-<h2 id="生产环境"><a href="#生产环境" class="headerlink" title="生产环境"></a>生产环境</h2><ul>
-<li>VPS：腾讯云香港轻流服务器<ul>
-<li>带宽：30Mbps</li>
-<li>1核1G</li>
-<li>25G云磁盘<blockquote>
-<p>对！这种服务器除了带宽大其他资源都很烂🎈所以产品定位也很显然了hhh</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li>操作系统：CentOS 7.8</li>
-</ul>
-<h2 id="DETAIL"><a href="#DETAIL" class="headerlink" title="DETAIL"></a>DETAIL</h2><blockquote>
-<p>NOTE：为了区别命令和文本，命令都以$字符为开头</p>
-</blockquote>
-<ol>
-<li><p>安装pptpd</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">yum install -y pptpd</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置VPN映射的IP段</p>
-<p>修改pptpd.conf文件</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">vim /etc/pptpd.conf</span></span><br></pre></td></tr></table></figure>
-
-<p> 跟着文本自带的注释提示，在合适的地方</p>
- <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">localip 119.28.6.20</span><br><span class="line">remoteip 119.28.6.234-238,119.28.6.245</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>这就是让你配置一个VPN服务器的DHCP给客户端</p>
-</blockquote>
-</li>
-<li><p>配置DNS</p>
-<p>修改options.pptpd文件</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">vim /etc/ppp/options.pptpd</span></span><br></pre></td></tr></table></figure>
-
-<p> 跟着文本自带的注释提示，在合适的地方</p>
- <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ms-dns 8.8.8.8</span><br><span class="line">ms-dns 8.8.4.4</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置用户名和密码</p>
-<p>修改chap-secrets文件</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">vim /etc/ppp/chap-secrets</span></span><br></pre></td></tr></table></figure>
-
-<p> 跟着文本自带的注释提示，在合适的地方</p>
- <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># Secrets for authentication using CHAP</span><br><span class="line"># client        server  secret                  IP addresses</span><br><span class="line">singularity     pptpd   thisIsSecret            *</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>启用系统IP转发</p>
-<p>修改sysctl.conf文件</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">vim /etc/sysctl.conf</span></span><br></pre></td></tr></table></figure>
-
-<p> 在合适的地方使能IP包转播功能</p>
- <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.ip_forward = 1</span><br></pre></td></tr></table></figure>
-
-<p> 使能更新后的内核参数</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">sysctl -p</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置转发策略和放通防火墙端口</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -A INPUT -p tcp -m tcp --dport 21 -j ACCEPT</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -I INPUT 1 -p tcp --dport 1723 -j ACCEPT</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -I INPUT 2 -p udp --dport 1723 -j ACCEPT</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -t nat -A POSTROUTING -s 119.28.6.0/24 -j MASQUERADE</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -t nat -A POSTROUTING -s 119.28.6.0/24 -j SNAT --to-source 119.28.6.20</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -I INPUT 1 -p gre -j ACCEPT</span></span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">iptables -I OUTPUT 1 -p gre -j ACCEPT</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>主要是放通pptp协议专用的1723端口，其次是设置转发</p>
-</blockquote>
-</li>
-<li><p>启动pptpd服务</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">systemctl start pptpd.service</span></span><br></pre></td></tr></table></figure>
-
-<p> 查看是否启动成功</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">systemctl status pptpd.service</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>然后就可以直接用手机和电脑网络管理中心自带的VPN工具连接服务器啦😘</p>
-</li>
-</ol>
-<blockquote>
-<p>基于PPTPD的VPN服务器是最简单易用的，但是由于开发年代至今已有几十年了所以安全性是值得考虑的问题。建议使用IPsec</p>
-</blockquote>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a target="_blank" rel="noopener" href="http://www.zsythink.net/archives/1199">iptables详解</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-ifconfig.html">查看本地网卡</a></li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CentOS/" rel="tag">CentOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VPN/" rel="tag">VPN</a></li></ul>
 
     </footer>
   </div>

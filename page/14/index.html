@@ -153,6 +153,105 @@
     
     
     <article
+  id="post-BasicInformationTheory"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/09/01/BasicInformationTheory/"
+    >基础信息论知识汇总</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/01/BasicInformationTheory/" class="article-date">
+  <time datetime="2020-09-01T15:50:03.000Z" itemprop="datePublished">2020-09-01</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/My%E5%A4%A7%E5%AD%A6/">My大学</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">4.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">21 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这是一篇笔者的《信息论与编码》课内学习笔记，最近刚考完信息论，分享下自己的笔记吧😀希望能出个好成绩</p>
+<blockquote>
+<p>个人感觉这门课最有用的就是香农三大定理了，尤其是香农公式给出了信噪比和带宽的需求关系</p>
+</blockquote>
+</blockquote>
+<h2 id="离散单符号信源"><a href="#离散单符号信源" class="headerlink" title="离散单符号信源"></a>离散单符号信源</h2><h3 id="基础概率表示"><a href="#基础概率表示" class="headerlink" title="基础概率表示"></a>基础概率表示</h3><ul>
+<li>无条件概率（先验概率）<br>  $$<br>  p(a_i)<br>  $$</li>
+<li>条件概率(后验概率)<br>  $$<br>  p(a_i&#x2F;b_j)<br>  $$</li>
+<li>联合概率<br>  $$<br>  p(a_ib_j)&#x3D;p(b_j)p(a_i&#x2F;b_j)&#x3D;p(a_i)p(b_j&#x2F;a_i)<br>  $$<h3 id="信息量"><a href="#信息量" class="headerlink" title="信息量"></a>信息量</h3></li>
+<li>概率的降函数</li>
+<li>度量<br>  $$<br>  自信息量I(x_i)&#x3D;\log \frac 1{p(x_i)} &#x3D; -\log p(x_i) \\<br>  联合自信息量 I(a_ib_j)&#x3D;-\log_2p(a_ib_j) \\<br>  条件自信息量 I(a_i&#x2F;b_j)&#x3D;-\log_2p(a_i&#x2F;b_j) \\<br>  互信息量I(x_i;y_i) &#x3D; \log_2 \frac {p(x_i|y_i)} {p(x_i)}&#x3D; I(x_i)-I(x_i&#x2F;y_i) \\<br>  条件互信息量 I(a_i;b_j&#x2F;c_k)&#x3D;\log _2\frac {p(a_i&#x2F;b_jc_k)}{p(a_i&#x2F;c_k)}<br>  $$<ul>
+<li>bit：2底</li>
+<li>nat：e底</li>
+<li>hart：10底</li>
+</ul>
+</li>
+<li>互信息量性质<ul>
+<li>互易性<br>  $$<br>  I(a_i;b_j) &#x3D; I(b_j;a_i)<br>  $$</li>
+<li>统计独立时，互信息量为0</li>
+<li>只有互信息量可为负,此时表示信道受到干扰或者错误</li>
+</ul>
+</li>
+<li>联合互信息量<br>  $$<br>  I(a_i;b_jc_k)&#x3D;I(a_i;c_k)+I(a_i;b_j|c_k)<br>  $$</li>
+</ul> 
+      <a class="article-more-link" href="/2020/09/01/BasicInformationTheory/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-mshCommandWithArguments"
   class="article article-type-post"
   itemscope
@@ -307,91 +406,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/D%E7%B1%BB%E5%8A%9F%E6%94%BE/" rel="tag">D类功放</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab-Simulink/" rel="tag">Matlab@Simulink</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%9F%E7%8E%87%E6%94%BE%E5%A4%A7%E5%99%A8/" rel="tag">功率放大器</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-HRTIMofSTM32"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/07/11/HRTIMofSTM32/"
-    >HRTIMofSTM32</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/07/11/HRTIMofSTM32/" class="article-date">
-  <time datetime="2020-07-11T06:51:32.000Z" itemprop="datePublished">2020-07-11</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">698</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：就在去年（2019年），ST公司推出了一个全新的控制器系列——G4。该系列主打方向为电源和驱动类电路控制，笔者好奇的发现STM32G474这个产品线，相对其他的控制器一大亮点为——超高精度定时器（High-resolution Timer）。具有184ps的定时精度！</p>
-</blockquote>
-<h2 id="HRTIM框图"><a href="#HRTIM框图" class="headerlink" title="HRTIM框图"></a>HRTIM框图</h2><p><img src="http://imgjry.fangyikuan.xyz/202007/202007-HRTIM-1.jpg" alt="HRTIM"></p>
-<h2 id="亮点特性"><a href="#亮点特性" class="headerlink" title="亮点特性"></a>亮点特性</h2><ul>
-<li>184ps定时精度</li>
-<li>12路输出（6个定时器单位，每单位两路）</li>
-<li>可触发内部模拟外设（ADC、DAC、比较器）</li>
-<li>对偶信号可插入死区时间（735ps精度）</li>
-<li>支持突发模式（DCDC转换器轻载模式）</li>
-</ul> 
-      <a class="article-more-link" href="/2020/07/11/HRTIMofSTM32/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HRTIM/" rel="tag">HRTIM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32/" rel="tag">STM32</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32G4/" rel="tag">STM32G4</a></li></ul>
 
     </footer>
   </div>

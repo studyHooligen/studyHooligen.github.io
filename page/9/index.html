@@ -153,6 +153,107 @@
     
     
     <article
+  id="post-NodeJS-Express-Vue-MongoDB-Nginx"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/"
+    >NodeJS+Express+Vue+MongoDB+Nginx环境搭建</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/" class="article-date">
+  <time datetime="2021-01-02T09:00:53.000Z" itemprop="datePublished">2021-01-02</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/">网站技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这一套环境算是目前（2021年）主流的网站建设框架了吧，最近刚好需要部署学院里的一套网站（前端&amp;后端），所以就简要记录一下配置安装的步骤防止自己后面遗忘😘</p>
+<blockquote>
+<p>Attention：服务器系统为CentOS7</p>
+</blockquote>
+</blockquote>
+<h2 id="安装nodeJS"><a href="#安装nodeJS" class="headerlink" title="安装nodeJS"></a>安装nodeJS</h2><p>打开官网<a target="_blank" rel="noopener" href="https://nodejs.org/en/download/">下载地址</a>，选择想要的版本并copy链接，在终端使用wget下载</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget https://nodejs.org/dist/v14.15.3/node-v14.15.3-linux-x64.tar.xz</span></span><br></pre></td></tr></table></figure>
+
+<p>解压文件并移动到安装目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">tar -zxvf node-v14.15.3-linux-x64.tar.xz</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mv</span> node-v14.15.3-linux-x64 /usr/local/</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mv</span> node-v14.15.3-linux-x64 nodejs</span></span><br></pre></td></tr></table></figure>
+
+<p>创建程序引导链接（Method.1）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ln</span> -s /usr/local/nodejs/bin/node /usr/local/bin</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ln</span> -s /usr/local/nodejs/bin/npm /usr/local/bin</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>创建链接的方法可能略有繁琐，也可以把整个bin可执行文件目录添加到系统环境变量（Method.2）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">vim /etc/profile</span></span><br></pre></td></tr></table></figure>
+
+<p>在文末添加</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PATH = $PATH:/usr/local/nodejs/bin</span><br><span class="line">export PATH</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>查看版本号测试一下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">node -v</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm -v</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="安装cnpm"><a href="#安装cnpm" class="headerlink" title="安装cnpm"></a>安装cnpm</h3> 
+      <a class="article-more-link" href="/2021/01/02/NodeJS-Express-Vue-MongoDB-Nginx/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/" rel="tag">MongoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/express/" rel="tag">express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodeJS/" rel="tag">nodeJS</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-SCons"
   class="article article-type-post"
   itemscope
@@ -438,90 +539,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8C%AF%E8%8D%A1%E5%99%A8/" rel="tag">振荡器</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-Camera-model-IntrinsicMatrix"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/12/08/Camera-model-IntrinsicMatrix/"
-    >相机针孔模型&amp;内参矩阵&amp;标定</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/12/08/Camera-model-IntrinsicMatrix/" class="article-date">
-  <time datetime="2020-12-08T03:46:12.000Z" itemprop="datePublished">2020-12-08</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">974</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>本文是笔者的CV处女篇，聊聊最基础的相机（针孔）模型和该模型下对应的<strong>内参数矩阵</strong>，最后分享一下用Matlab标定内参矩阵的工具</p>
-</blockquote>
-<h2 id="针孔相机模型"><a href="#针孔相机模型" class="headerlink" title="针孔相机模型"></a>针孔相机模型</h2><p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-1.png" alt="针孔模型"></p>
-<p>对！就是初中生都知道的小孔成像原理，如上图所示：可以把相机内部的感光面抽象为像素平面，镜头抽象为光心和对应的焦距。坐标轴的标准定义如上图，z轴为相机正向，y向下，xyz满足右手螺旋。</p>
-<p>那么根据三角相似原理，有：</p>
-<p>$$<br>\frac Z f &#x3D; -\frac{X}{X’}&#x3D; -\frac{Y}{Y’}<br>$$</p>
-<p>图中负号对应于物理上的倒像。那么为了简化模型，我们可以作如下对称等效处理及归一化处理</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-2.png" alt="归一化成像面"></p>
-<p>那么，去掉负号并且整理：</p> 
-      <a class="article-more-link" href="/2020/12/08/Camera-model-IntrinsicMatrix/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9B%B8%E6%9C%BA/" rel="tag">相机</a></li></ul>
 
     </footer>
   </div>
