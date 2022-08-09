@@ -78,7 +78,7 @@
   <time datetime="2022-07-28T12:07:57.000Z" itemprop="datePublished">2022-07-28</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a> / <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
+    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
   </div>
   
 <div class="word_count">
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">4.5k</span>
+            <span class="post-count">4.8k</span>
         </span>
     </span>
 
@@ -95,7 +95,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">18 min</span>
+            <span class="post-count">19 min</span>
         </span>
     </span>
 </div>
@@ -196,7 +196,7 @@
 <p>因此四元数旋转计算过程可以矩阵化为：</p>
 <p>$$<br>\begin{bmatrix}<br>0 \\ \mathbf v_{1}’<br>\end{bmatrix} &#x3D; \mathbf q \otimes<br>\begin{bmatrix}<br>0 \\<br>\mathbf v_{1}<br>\end{bmatrix} \otimes \mathbf q^* &#x3D;<br>\mathbf q^{+} \cdot \mathbf q^{* -} \cdot<br>\begin{bmatrix}<br>0 \\<br>\mathbf v_{1}<br>\end{bmatrix}<br>$$<br>$$<br>\Rightarrow<br>\begin{bmatrix}<br>0 \\ \mathbf v_1’<br>\end{bmatrix} &#x3D;<br>\begin{bmatrix}<br>q_0 &amp; -\mathbf q_v^T<br>\\<br>\mathbf q_v &amp; q_0\mathbf I_3 + [\mathbf q_v]_\times<br>\end{bmatrix}<br>\begin{bmatrix}<br>q_0 &amp; +\mathbf q_v^T<br>\\<br>-\mathbf q_v &amp; q_0\mathbf I_3 + [\mathbf q_v]_\times<br>\end{bmatrix}<br>\begin{bmatrix}<br>0 \\<br>\mathbf v_1<br>\end{bmatrix}<br>$$</p>
 <p>在这个过程中，由于变换对象和结果对象四元数的实数部分都是0，所以如下我们可以把与0操作的部分直接去掉，则得到如下类似旋转矩阵的变换形式：</p>
-<p>$$<br>\mathbf v_1’ &#x3D;<br>\begin{bmatrix}<br>q_0^2+q_1^2-q_2^2-q_3^2 &amp; 2(q_1q_2-q_0q_3) &amp; 2(q_1q_3+q_0q_2)<br>\\<br>2(q_1q_2+q_0q_3) &amp; q_0^2-q_1^2+q_2^2-q_3^2 &amp;2(q_2q_3-q_0q_1)<br>\\<br>2(q_1q_3-q_0q_2) &amp; 2(q_2q_3+q_0q_1) &amp; q_0^2-q_1^2-q^2+q_3^2<br>\end{bmatrix} \cdot<br>v_1<br>$$</p>
+<p>$$<br>\mathbf v_1’ &#x3D;<br>\begin{bmatrix}<br>q_0^2+q_1^2-q_2^2-q_3^2 &amp; 2(q_1q_2-q_0q_3) &amp; 2(q_1q_3+q_0q_2)<br>\\<br>2(q_1q_2+q_0q_3) &amp; q_0^2-q_1^2+q_2^2-q_3^2 &amp;2(q_2q_3-q_0q_1)<br>\\<br>2(q_1q_3-q_0q_2) &amp; 2(q_2q_3+q_0q_1) &amp; q_0^2-q_1^2-q^2+q_3^2<br>\end{bmatrix} \cdot<br>\mathbf v_1<br>$$</p>
 <h3 id="六轴数据→四元数→姿态估计"><a href="#六轴数据→四元数→姿态估计" class="headerlink" title="六轴数据→四元数→姿态估计"></a>六轴数据→四元数→姿态估计</h3><p>姿态估计算法的<strong>最终目标</strong>通常就是<strong>欧拉角</strong>，因为欧拉角的物理概念很直观很好理解，方便设计多旋翼等类型的控制系统。而中间计算过程，上面通过对四元数的介绍，我们知道肯定是用这种优秀的工具。当机体停在平地上开机，接着开始运动，我们可以分别从3轴陀螺仪、3轴加速度计获得两套姿态：</p>
 <ol>
 <li><p>陀螺仪数据获得姿态</p>
@@ -219,6 +219,9 @@
 <blockquote>
 <p>这里接下来讨论的其实是<strong>Mahony算法</strong>！还有很多其他优秀的姿态估计算法，只是本文写不下而已！</p>
 </blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-7.png" alt="Mahony算法框图"></p>
+<p>图中$_b \vec a$和$_b\vec \omega$分别表示传感器测量得到的加速度和角速度，由于传感器是安装在机体上的，所以这里使用前下角标“$_b$”进行注明，并考虑图片分辨率问题使用头戴箭头的方式替代本文中的粗体来表示矢量。</p>
+<p>这个算法融合的原理简单来说，就是用PI控制器去调整四元数离散微分方程中的角速度，补偿的依据（误差）是加速度计测量得到的向量与估计姿态下的重力方向做叉乘，这个误差的定义也就是这个算法的精髓。可以看出算法框图中是一个闭环结构，所以最后算法收敛的目标就是陀螺仪估计得到的姿态应该接近&#x2F;等于加速度计估计的姿态。</p>
 <h3 id="Mahony姿态估计实现代码"><a href="#Mahony姿态估计实现代码" class="headerlink" title="Mahony姿态估计实现代码"></a>Mahony姿态估计实现代码</h3><p>暂时先鸽，发现有还不错的算法实现代码在<a target="_blank" rel="noopener" href="https://github.com/topics/mahony-filter">Github上</a>开源了，笔者自己撸的算法等整机测试通过后再放。</p>
 <h2 id="MEMS陀螺仪工作原理"><a href="#MEMS陀螺仪工作原理" class="headerlink" title="MEMS陀螺仪工作原理"></a>MEMS陀螺仪工作原理</h2><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-8.jpg" alt="科里奥利力"></p>
 <p>首先介绍物理学中的科里奥利力（Coriolis force），是对旋转体系中进行直线运动的质点由于惯性相对于旋转体系产生的直线运动的偏移的一种描述。科里奥利力来自于物体运动所具有的惯性。说白了，其实就是射击游戏里的<strong>打提前量，但是目标是旋转的</strong>。这玩意的发现来源于炮弹射不准问题，因为地球是有自转的（旋转系），所以在某个时刻瞄准目标打炮时，炮弹只会直着飞出去（相对于宇宙这个静止惯性系），然而在飞的过程中目标跟着地球转走了，就打不准；从地面上受害者的角度来看，就是炮弹自己慢慢拐弯走了？？？🤣聪明的炮兵就因此就请出了科里奥利力来算射击提前量：</p>
@@ -227,9 +230,14 @@
 <p>MEMS陀螺仪也是这么个道理，内部有一个微机电（Micro-Electro-Mechanical）谐振腔，腔内有一个小振子受到交替电压驱动作振动，当外壳带着谐振腔旋转时，里面的振子因为科里奥利力导致振动方向偏移，测量这个方向偏移就可以得到<em>旋转速度</em>了。</p>
 <h2 id="MEMS加速度计原理"><a href="#MEMS加速度计原理" class="headerlink" title="MEMS加速度计原理"></a>MEMS加速度计原理</h2><p>加速度计的不同类型原理有：</p>
 <ul>
-<li>压电式：里面有个质量块以及用来测量的压电元件，加减速时由于压力不同导致压电元件产生的电压不同：<br>  $$<br>  F &#x3D; ma \<br>  V &#x3D; kF<br>  $$</li>
+<li>压电式：里面有个质量块以及用来测量的压电元件，加减速时由于压力不同导致压电元件产生的电压不同：<br>  $$<br>  F &#x3D; ma \\<br>  V &#x3D; kF<br>  $$</li>
 <li>电容式：内部一样有一个质量块，加减速时拉动电容的极板，通过测量电容量即可</li>
 <li>热感式：没有任何质量块，它的中央有一个加热体，周边是温度传感器，里面是密闭的气腔，工作时在加热体的作用下，气体在内部形成一个热气团，热气团的比重和周围的冷气是有差异的，通过惯性热气团的移动形成的热场变化让感应器感应到加速度值</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://hal.archives-ouvertes.fr/hal-00488376/document">Mahony滤波算法原论文</a></li>
+<li><a target="_blank" rel="noopener" href="https://ahrs.readthedocs.io/en/latest/index.html">AHRS项目</a>：一个包含了常用定位、姿态算法的Python开源工具包</li>
+<li>全权.多旋翼飞行器设计与控制[M]，电子工业出版社，2018</li>
 </ul>
  
       <!-- reward -->
