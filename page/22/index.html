@@ -153,6 +153,90 @@
     
     
     <article
+  id="post-JS渲染MD公式问题"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/05/29/JS%E6%B8%B2%E6%9F%93MD%E5%85%AC%E5%BC%8F%E9%97%AE%E9%A2%98/"
+    >JS渲染MD公式换行问题</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/05/29/JS%E6%B8%B2%E6%9F%93MD%E5%85%AC%E5%BC%8F%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2020-05-29T11:05:20.000Z" itemprop="datePublished">2020-05-29</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF/">网站技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">553</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">2 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="问题引出"><a href="#问题引出" class="headerlink" title="问题引出"></a>问题引出</h2><blockquote>
+<p>本博客主要使用的是Markdown语言做笔记再渲染为静态的HTML文件。<br>但是在文章中，当进行公式渲染时发现不能使用\换行！<br>包括矩阵换行、公式换行…How terrible！</p>
+</blockquote>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><blockquote>
+<p>首先使用的“marked”包对markdown文件进行渲染<br>那么很有可能就是因为在渲染的过程中，将 \ 直接当作转义符号了</p>
+<blockquote>
+<p>就像是\n一样，把 \ 转义成 \ 了</p>
+</blockquote>
+</blockquote>
+<h2 id="解决方案1"><a href="#解决方案1" class="headerlink" title="解决方案1"></a>解决方案1</h2> 
+      <a class="article-more-link" href="/2020/05/29/JS%E6%B8%B2%E6%9F%93MD%E5%85%AC%E5%BC%8F%E9%97%AE%E9%A2%98/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/" rel="tag">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/" rel="tag">Markdown</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MathJax/" rel="tag">MathJax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-ModernControlModel"
   class="article article-type-post"
   itemscope
@@ -325,98 +409,13 @@
 </article>
 
     
-    <article
-  id="post-UART-DMA"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/05/25/UART-DMA/"
-    >UART-DMA</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/05/25/UART-DMA/" class="article-date">
-  <time datetime="2020-05-25T13:28:44.000Z" itemprop="datePublished">2020-05-25</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">404</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><ul>
-<li>CubeMX配置<ul>
-<li>UART</li>
-<li>DMA</li>
-<li>其他</li>
-</ul>
-</li>
-<li>思路框架</li>
-<li>核心代码</li>
-<li>实验结果</li>
-</ul> 
-      <a class="article-more-link" href="/2020/05/25/UART-DMA/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DMA/" rel="tag">DMA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IOT/" rel="tag">IOT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32/" rel="tag">STM32</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UART/" rel="tag">UART</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">实验记录</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag">嵌入式</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/21/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/23/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/21/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/23/">下一页</a>
   </nav>
   
 </section>

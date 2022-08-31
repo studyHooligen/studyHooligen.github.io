@@ -153,6 +153,90 @@
     
     
     <article
+  id="post-Analog-Modulation-and-Demodulation"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/10/Analog-Modulation-and-Demodulation/"
+    >模拟调制解调技术</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/11/10/Analog-Modulation-and-Demodulation/" class="article-date">
+  <time datetime="2020-11-10T07:00:29.000Z" itemprop="datePublished">2020-11-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">4 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：由于低频的信号不容易通过天线发射出去，所以调制解调的意义在于将信号放到高频载波上，从而实现无线远程通信</p>
+</blockquote>
+<h2 id="调幅AM"><a href="#调幅AM" class="headerlink" title="调幅AM"></a>调幅AM</h2><p>$$<br>载波 c(t) &#x3D; \cos (\omega_c t)<br>\\<br>基带信号m(t)均值为0<br>\\ \Rightarrow<br>已调信号s_{AM} &#x3D; (A_0 + m(t))\cos (\omega_c t)<br>$$</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20201110/20201110-AM-1.png" alt="AM"></p>
+<p>则如上图，显然有频谱关系：</p>
+<p>$$<br>S_{AM} (\omega) &#x3D; \pi A_0 [\delta(\omega + \omega_c) + \delta(\omega - \omega_c)] +  \frac{1}{2} [M(\omega + \omega_c) + M(\omega - \omega_c)]<br>$$</p>
+<blockquote>
+<p>注意：调制加入的直流偏量要大于原信号的最大值，否则会出现“过调幅”，不能使用包络检波</p>
+</blockquote> 
+      <a class="article-more-link" href="/2020/11/10/Analog-Modulation-and-Demodulation/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%97%A0%E7%BA%BF%E9%80%9A%E4%BF%A1/" rel="tag">无线通信</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-VPN-with-PPTP"
   class="article article-type-post"
   itemscope
@@ -382,105 +466,13 @@
 </article>
 
     
-    <article
-  id="post-HighFreqAmp"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/04/HighFreqAmp/"
-    >高频小信号放大器</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/11/04/HighFreqAmp/" class="article-date">
-  <time datetime="2020-11-04T08:07:19.000Z" itemprop="datePublished">2020-11-04</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">915</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>在高频情况下，晶体管放大器必须要考虑极间电容和引脚电感带来的高频影响。相对于现代通信科技，也许这里的高频用的不是很恰当，严谨来说，本文中论述的放大器模型适用的为MHz级别放大器</p>
-</blockquote>
-<h2 id="指标声明"><a href="#指标声明" class="headerlink" title="指标声明"></a>指标声明</h2><ul>
-<li>电压增益<br>  $$<br>  A_v &#x3D; 20 \log \frac{V_o}{V_i}<br>  $$</li>
-<li>功率增益<br>  $$<br>  A_P &#x3D; 10 \log \frac{P_o}{P_i}<br>  $$</li>
-<li>通频带<blockquote>
-<p>3dB处为截止点<br>  $$<br>  B &#x3D; 2 \Delta f_{0.7}<br>  $$</p>
-</blockquote>
-</li>
-<li>矩形系数<blockquote>
-<p>可以按照需求选取参考点<br>  $$<br>  K_{r0.1} &#x3D; \frac{2\Delta f_{0.1}}{2\Delta f_{0.7}}<br>  $$</p>
-</blockquote>
-</li>
-<li>抑制比<br>  $$<br>  d_n &#x3D; 20 \log \frac{谐振增益A_0}{干扰增益A_n}<br>  $$</li>
-<li>噪声系数<br>  $$<br>  N &#x3D; \frac{ 输入信噪比 \frac{P_{si}}{P_{ni}} }{输出信噪比 \frac{P_{so}}{P_{no}} }<br>  $$</li>
-</ul>
-<h2 id="三极管物理模型等效电路"><a href="#三极管物理模型等效电路" class="headerlink" title="三极管物理模型等效电路"></a>三极管物理模型等效电路</h2><p><img src="http://imgjry.fangyikuan.xyz/20201104/20201104-HFAMP-1.png" alt="等效模型"></p> 
-      <a class="article-more-link" href="/2020/11/04/HighFreqAmp/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%89%E6%9E%81%E7%AE%A1/" rel="tag">三极管</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/10/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/12/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/10/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/12/">下一页</a>
   </nav>
   
 </section>
