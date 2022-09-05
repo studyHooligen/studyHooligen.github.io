@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">3.5k</span>
+            <span class="post-count">3.6k</span>
         </span>
     </span>
 
@@ -155,8 +155,11 @@
 <p>$$<br>DV&#x3D;1<br>\\<br>D&#x3D;\begin{bmatrix}<br>x_1^2 &amp; y_1^2 &amp; z_1^2 &amp; 2x_1y_1 &amp; 2x_1y_1 &amp; 2x_1y_1 &amp; 2x_1 &amp; 2y_1 &amp; 2z_1<br>\\<br>&amp;&amp;&amp;&amp; \vdots<br>\\<br>x_N^2 &amp; y_N^2 &amp; z_N^2 &amp; 2x_Ny_N &amp; 2x_Ny_N &amp; 2x_Ny_N &amp; 2x_N &amp; 2y_N &amp; 2z_N<br>\end{bmatrix}<br>\\<br>V&#x3D;\begin{bmatrix}<br>a &amp; b &amp; c &amp; d &amp; e &amp; f &amp; g &amp; h &amp; i<br>\end{bmatrix}^T<br>$$</p>
 <p>接下来使用非方矩阵的伪逆来求解$V$的最小二乘拟合（见文末）：</p>
 <p>$$<br>D^TDV&#x3D;D^T\cdot 1<br>\\<br>V&#x3D;(D^TD)^{-1}D^T \cdot 1<br>$$</p>
+<blockquote>
+<p>上面的“椭球拟合”图片，就是笔者使用AK09915的实际采样数据，用“非方矩阵伪逆法”拟合的参数效果。Matlab画图相关接口：scatter3、fimplicit3</p>
+</blockquote>
 <p>那么拟合得到的系数，如何对应到校准方程中的矩阵系数呢？首先是偏移量向量：</p>
-<p>$$<br>O&#x3D;A^{-1}<em>{3\times3}V</em>{ghi}<br>\\<br>A_{3\times3}&#x3D;\begin{bmatrix}<br>a &amp; d &amp; e \\<br>d &amp; b &amp; f \\<br>e &amp; f &amp; c<br>\end{bmatrix},<br>V_{ghi}&#x3D;\begin{bmatrix}<br>g \\ h \\ i<br>\end{bmatrix}<br>$$</p>
+<p>$$<br>O&#x3D;A_{3\times3}^{-1} V_{ghi}<br>\\<br>A_{3\times3}&#x3D;\begin{bmatrix}<br>a &amp; d &amp; e \\<br>d &amp; b &amp; f \\<br>e &amp; f &amp; c<br>\end{bmatrix} ,<br>V_{ghi}&#x3D;\begin{bmatrix}<br>g \\ h \\ i<br>\end{bmatrix}<br>$$</p>
 <p>接着求椭圆旋转矩阵，先求一个中间辅助矩阵：</p>
 <p>$$<br>B_{4\times4}&#x3D;T A_{4\times 4}T^T<br>\\<br>T &#x3D; \begin{bmatrix}<br>1 &amp;0 &amp;0 &amp;0 \\<br>0 &amp;1 &amp;0 &amp;0 \\<br>0 &amp;0 &amp;1 &amp;0 \\<br>Ox &amp; Oy &amp; Oz &amp; 1<br>\end{bmatrix},<br>A_{4\times 4}&#x3D;\begin{bmatrix}<br>a &amp; d &amp; e &amp; g \\<br>d &amp; b &amp; f &amp; h \\<br>e &amp; f &amp; c &amp; i \\<br>g &amp; h &amp; i &amp; -1<br>\end{bmatrix}<br>$$</p>
 <p>然后把这个辅助矩阵$B_{4\times4}$进行分块来求解另一个辅助矩阵：</p>
