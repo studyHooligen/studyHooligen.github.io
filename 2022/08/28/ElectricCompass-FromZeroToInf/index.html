@@ -152,7 +152,7 @@
 <p>得到拟合形式后，我们就可以用最小二乘法等数学工具将采样数据点拿去推参数了。但是上式中的实数项要合并一下还有参数项要拆出一个系数2方便后面的关系转换：</p>
 <p>$$<br>ax^2+by^2+cz^2+d2xy+e2xz+f2yz+g2x+h2y+i2z&#x3D;1<br>$$</p>
 <p>将上式中要拟合的系数和样本数据分别用向量$V\in \mathbb R^{9\times 1}$和非方矩阵$D\in\mathbb R^{N\times 9}$来表示：</p>
-<p>$$<br>DV&#x3D;1<br>\\<br>D&#x3D;\begin{bmatrix}<br>x_1^2 &amp; y_1^2 &amp; z_1^2 &amp; 2x_1y_1 &amp; 2x_1y_1 &amp; 2x_1y_1 &amp; 2x_1 &amp; 2y_1 &amp; 2z_1<br>\\<br>&amp;&amp;&amp;&amp; \vdots<br>\\<br>x_N^2 &amp; y_N^2 &amp; z_N^2 &amp; 2x_Ny_N &amp; 2x_Ny_N &amp; 2x_Ny_N &amp; 2x_N &amp; 2y_N &amp; 2z_N<br>\end{bmatrix}<br>\\<br>V&#x3D;\begin{bmatrix}<br>a &amp; b &amp; c &amp; d &amp; e &amp; f &amp; g &amp; h &amp; i<br>\end{bmatrix}^T<br>$$</p>
+<p>$$<br>DV&#x3D;1<br>\\<br>D&#x3D;\begin{bmatrix}<br>x_1^2 &amp; y_1^2 &amp; z_1^2 &amp; 2x_1y_1 &amp; 2x_1z_1 &amp; 2y_1z_1 &amp; 2x_1 &amp; 2y_1 &amp; 2z_1<br>\\<br>&amp;&amp;&amp;&amp; \vdots<br>\\<br>x_N^2 &amp; y_N^2 &amp; z_N^2 &amp; 2x_Ny_N &amp; 2x_Nz_N &amp; 2y_Nz_N &amp; 2x_N &amp; 2y_N &amp; 2z_N<br>\end{bmatrix}<br>\\<br>V&#x3D;\begin{bmatrix}<br>a &amp; b &amp; c &amp; d &amp; e &amp; f &amp; g &amp; h &amp; i<br>\end{bmatrix}^T<br>$$</p>
 <p>接下来使用非方矩阵的伪逆来求解$V$的最小二乘拟合（见文末）：</p>
 <p>$$<br>D^TDV&#x3D;D^T\cdot 1<br>\\<br>V&#x3D;(D^TD)^{-1}D^T \cdot 1<br>$$</p>
 <blockquote>
