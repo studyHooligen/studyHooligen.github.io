@@ -153,6 +153,95 @@
     
     
     <article
+  id="post-photoCompressionPython"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/02/14/photoCompressionPython/"
+    >Python开发图片压缩小工具</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/02/14/photoCompressionPython/" class="article-date">
+  <time datetime="2021-02-14T10:13:44.000Z" itemprop="datePublished">2021-02-14</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">5 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>这个小工具非常简单，就是把图像以最小的损失量压缩。网络上的工具要么是要钱，要么一张张图片导入导出实在是太麻烦啦🙃笔者博客的图片全部都托管在gitee上，有1MB的大小限制，所以就搞个小工具来批量压缩图片啦大家有需要自取</p>
+</blockquote>
+<h2 id="图像存储原理"><a href="#图像存储原理" class="headerlink" title="图像存储原理"></a>图像存储原理</h2><p>首先区别两个知识点：图片格式&amp;颜色模式</p>
+<ul>
+<li>图片格式：文件存储的时候文件编码的数据结构，比如常见的.jpg和.png是两种图片存储格式</li>
+<li>颜色模式：指的是颜色表示的方式，常见的有RGB和YUV</li>
+</ul>
+<p>一般来说，咱们常见的.jpg图片，使用手机拍的、电脑截图的如果没有经过特殊转码处理，一般采用RGB颜色模式。</p>
+<p>一张数字图片，可以理解为一个二维数组，每一个元素就是常说的像素点，每个像素点就是一个颜色方块，当这些方块非常非常小时，就组成了一张图片（微分思想）。我们知道使用三基色可以合成所有颜色，这也就是RGB颜色模式的由来。由红R+绿G+蓝B三个颜色分量合成一个像素点，目前一般采样RGB24也就是一个分量一个字节（1Byte&#x3D;8bits），那么一个像素点就是3Bytes（24bits）。计算一张采用RGB24颜色模式的分辨率A×B的图片大小：</p>
+<p>$$<br>\text{Size} &#x3D; A\cdot B \cdot 3Bytes<br>$$</p>
+<blockquote>
+<p>当然还有更节省存储的RGB8和RGB16，也有色板精度更高的RGB32</p>
+</blockquote>
+<h2 id="图像压缩实例代码"><a href="#图像压缩实例代码" class="headerlink" title="图像压缩实例代码"></a>图像压缩实例代码</h2> 
+      <a class="article-more-link" href="/2021/02/14/photoCompressionPython/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E5%AD%97%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">数字图像处理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-xbotPark2021"
   class="article article-type-post"
   itemscope
@@ -342,245 +431,6 @@
 </article>
 
     
-    <article
-  id="post-NeuralNetwork-Function"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/01/17/NeuralNetwork-Function/"
-    >神经网络基础函数汇总</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/01/17/NeuralNetwork-Function/" class="article-date">
-  <time datetime="2021-01-17T04:05:01.000Z" itemprop="datePublished">2021-01-17</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.9k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">8 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：该博客的内容主要是三大部分：激活函数、损失函数、评价函数。笔者主要是为了提供后面方便查阅和选择适当函数撰写，所以数学成分和工程思想成分都会相应部分得较重😘</p>
-</blockquote>
-<p>在神经网络中，训练模型时需要计算损失函数来进行模型优化（对损失函数的梯度下降迭代来生成模型）；在测试（训练后）模型时，在模型对测试集推导后得到的结果，通过计算评价函数来评估模型的效果。</p>
-<h2 id="激活函数及导数"><a href="#激活函数及导数" class="headerlink" title="激活函数及导数"></a>激活函数及导数</h2><ul>
-<li>ReLU（Rectified Linear Unit）:修正线性单元</li>
-</ul>
-<p>$$<br>ReLU(x) &#x3D; \begin{cases}<br>    x, &amp; x&gt;0 \\<br>    0, &amp; other<br>\end{cases}<br>\\<br>\frac{\partial ReLU(x)}{\partial x} &#x3D; \begin{cases}<br>    1, &amp; x&gt;0 \\<br>    0, &amp; other<br>\end{cases}<br>$$</p>
-<ul>
-<li><p>Leeky ReLU</p>
-<p>  在负半轴修正为一个具有非常非常小斜率的线性</p>
-</li>
-</ul>
-<p>$$<br>a(x) &#x3D; \begin{cases}<br>    x, &amp; x&gt;0 \\<br>    \alpha\cdot x, &amp; x \le 0<br>\end{cases}<br>\\<br>\frac{\partial a(x)}{\partial x} &#x3D;\begin{cases}<br>    1, &amp; x&gt;0 \\<br>    \alpha, &amp; x \le 0<br>\end{cases}<br>$$</p>
-<ul>
-<li>Sigmoid<ul>
-<li>将输出（映射）限制在0~1之间</li>
-<li>在函数两端带来梯度消失问题</li>
-</ul>
-</li>
-</ul>
-<p>$$<br>\sigma(x) &#x3D; \frac{1}{1+e^{-x}}<br>\\<br>\frac{\partial \sigma(x)}{\partial x} &#x3D;\sigma(x)[1-\sigma(x)]<br>$$</p>
-<ul>
-<li><p>Softmax</p>
-<ul>
-<li>多分类问题中，在最后一层输出使用</li>
-<li>输出结果表示该类的<strong>概率</strong>，层的所有输出加起来为1<br>$$<br>y_i &#x3D; S(x_i) &#x3D; \frac{e^{x_i}}{\sum_{j&#x3D;1}^{C}e^{x_j}}<br>$$<br>在反向传播时，对该式求导（过程）为：<br>$$<br>\frac{\partial y_i}{\partial x_k} &#x3D; \begin{cases}<br>\frac{ [e^{x_k}\cdot \sum_{j&#x3D;i}^{C}e^{x_j} ] - [ e^{x_k} \cdot e^{x_k} ]}{[\sum_{j&#x3D;1}^{C}e^{x_j}]^2}, i&#x3D;k<br>\\<br>\frac{ - [ e^{x_i} \cdot e^{x_k} ]}{[\sum_{j&#x3D;1}^{C}e^{x_j}]^2}, i \neq k<br>\end{cases}<br>\\  &#x3D; \begin{cases}<br>y_k(1-y_k), i&#x3D;k<br>\\<br>-y_i y_k, i \neq k<br>\end{cases}<br>$$<br>在工程实际使用中，一般采用矩阵形式运算：<br>$$<br>S(X) &#x3D; \frac{e^{X}}{\sum e^{X}}<br>$$</li>
-</ul>
-</li>
-<li><p>tanh</p>
-<ul>
-<li>将输出（映射）限制在-1~1之间</li>
-<li>在函数两端带来梯度消失问题</li>
-</ul>
-</li>
-</ul>
-<p>$$<br>\tanh(x) &#x3D; \frac{e^{x}-e^{-x}}{e^{x}+e^{-x}}<br>\\<br>\frac{\partial \tanh(x)}{\partial x} &#x3D; 1-\tanh^2(x)<br>$$</p>
-<ul>
-<li>Swish<ul>
-<li>Swish无上界有下界(和ReLU一样)</li>
-<li>Swish是平滑且非单调(与ReLU不同)</li>
-</ul>
-</li>
-</ul>
-<p>$$<br>S(x) &#x3D; x\cdot \sigma(x) &#x3D; \frac{x}{1+e^{-x}}<br>\\<br>S’(x) &#x3D; S(x)+\sigma(x)\cdot(1-S(x))<br>$$</p>
-<ul>
-<li>Mish<ul>
-<li>无上界，有下界</li>
-<li>非单调</li>
-<li>无穷连续性和光滑性</li>
-<li>计算量较大，但是效果好(深度网络)。YOLO中被使用</li>
-</ul>
-</li>
-</ul>
-<p>$$<br>    M(x) &#x3D; x\cdot \tanh(\ln(1+e^x))<br>$$</p>
-<h2 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h2><p>$$<br>J(w,b) &#x3D; \frac{1}{m}\sum^m_{i&#x3D;1}L(\hat{y}^{(i)},y^{(i)})<br>$$</p>
-<ul>
-<li>MSE（Mean Squared Error0L2）:均方误差函数</li>
-</ul>
-<p>$$<br>MSE &#x3D; \frac{1}{m} \sum^m_{i&#x3D;1} (y- \hat y)^2<br>$$</p>
-<ul>
-<li>RMSE（Root Mean Square Error）:均方根误差</li>
-</ul>
-<p>$$<br>RMSE &#x3D; \sqrt{\frac{1}{m} \sum^m_{i&#x3D;1} (y- \hat y)^2}<br>$$</p>
-<ul>
-<li>MAE（Mean Absolute Error-L1）:平均绝对误差</li>
-</ul>
-<p>$$<br>MAE &#x3D; \frac{1}{m} \sum^m_{i&#x3D;1} |y- \hat y|<br>$$</p>
-<ul>
-<li>Exponential Loss：指数损失函数</li>
-</ul>
-<p>$$<br>L(Y,f(X)) &#x3D; \frac{1}{m}\sum^m_{i&#x3D;1}\exp(-y_i \cdot f(x_i))<br>$$</p>
-<ul>
-<li>Log-likelihood Loss：①对数似然损失函数；②交叉熵损失函数<ul>
-<li>BCE（Binary Cross Entropy）:二元交叉熵</li>
-<li>CCE（Complement Cross Entropy）：互补交叉熵</li>
-<li>SCCE：稀疏多分类交叉熵</li>
-</ul>
-</li>
-<li>Huber</li>
-</ul>
-<h3 id="Huber"><a href="#Huber" class="headerlink" title="Huber"></a>Huber</h3><p>$$<br>L_\delta(y,f(x)) &#x3D; \begin{cases}<br>    \frac{1}{2}(y-f(x))^2 &amp;,|y-f(x)| \le\delta<br>    \\<br>    \delta|y-f(x)| - \frac{1}{2}\delta^2 &amp;,other<br>\end{cases}<br>$$</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20210117/20210117-NeuralNetwork-1.gif" alt="Huber"></p>
-<p>让我们来分析一下Huber函数的数学本质和优缺点。</p>
-<p>从表达式上可见，Huber函数在估计量偏移样本量小的时候，本质上是平方损失函数；而当偏移大的时候，本质上是绝对误差。也就是说Huber是对MSE和MAE的融合</p>
-<p><strong>接下来从实际效果上思考Huber的优缺点</strong>。首先我们要分析一下MAE和MSE：考虑平方误差函数，当有一个样本的误差（大于1）较大的时候，这个误差会被严重放大，并且如果这是一个异常值，那么模型就会对这单个值作出谦让、调整（或称为适应），这就需要更多的正常值样本来平衡；再考虑绝对误差，对绝对值函数求导可知道MAE对小误差和大误差的导数是一样的，那么当一些误差发生小的偏移时（这种误差是可以被接受的，可以理解为噪声），模型应该作出轻微的调整而不是和大误差一样。所以这时候就可见Huber函数的优点啦！😜由于融合了小偏差时MSE的稳定性和大偏差时MAE的鲁棒性，使得Huber具有更加优秀的性能</p>
-<h3 id="Log-likelihood-Loss"><a href="#Log-likelihood-Loss" class="headerlink" title="Log-likelihood Loss"></a>Log-likelihood Loss</h3><blockquote>
-<p>该损失函数一般用于分类器损失计算和评价</p>
-</blockquote>
-<p>$$<br>L(Y,P(Y|X)) &#x3D; - \log P(Y|X) &#x3D; -\frac{1}{N}\sum_{i&#x3D;1}^N\sum_{j&#x3D;1}^M y_{ij} \log p_{ij}<br>$$</p>
-<p>上式中符号意义为：</p>
-<ul>
-<li>输入样本X，样本量为N</li>
-<li>输出样本Y，样本可能的值有M种</li>
-<li>真实类别判别指标（注意是二值的）<br>  $$<br>  y_{ij}<br>  $$</li>
-<li>输入i分类器输出属于j可能的概率<br>  $$<br>  p_{ij}<br>  $$</li>
-</ul>
-<blockquote>
-<p>这个玩意之所以还有个名字叫交叉熵损失，是因为和信息论中的信息熵数学表达式十分相似</p>
-</blockquote>
-<h4 id="BCE二元交叉熵函数"><a href="#BCE二元交叉熵函数" class="headerlink" title="BCE二元交叉熵函数"></a>BCE二元交叉熵函数</h4><p>当分类器输出只有两种情况时（M&#x3D;2），上式退化为二元交叉熵函数，如下式：</p>
-<p>$$<br>L &#x3D; - \frac{1}{N} \sum^N_{i &#x3D; 1} (\hat {y_i} \log \hat{y_i} + (1-\hat{y_i}) \log(1-\hat{y_i}))<br>$$</p>
-<p>显然，该式还可以继续退化：</p>
-<blockquote>
-<p>此时称为：categorical_crossentropy</p>
-</blockquote>
-<p>$$<br>\because \hat y_i &#x3D; [0,1]<br>\\ \therefore<br>L &#x3D; -\frac{1}{N}\sum^N_{i&#x3D;1} \hat{y_i}\log \hat{y_i}<br>$$</p>
-<h2 id="评价函数"><a href="#评价函数" class="headerlink" title="评价函数"></a>评价函数</h2><ul>
-<li>MAE、MSE、RMSE</li>
-<li>MAPE（Mean Absolute Percentage Error）：平均绝对百分比误差</li>
-</ul>
-<p>$$<br>MAPE &#x3D; \frac{1}{N} \sum^N_{i&#x3D;1} | \frac{\hat{y_i} - y_i}{y_i} | \cdot 100%<br>$$</p>
-<blockquote>
-<p>BUG☢真实值同时为零时，分母为0！</p>
-</blockquote>
-<ul>
-<li>SMAPE（Symmetric Mean Absolute Percentage Error）：对称平均绝对百分比误差</li>
-</ul>
-<p>$$<br>SMAPE &#x3D; \frac{1}{N} \sum^N_{i&#x3D;1} | \frac{\hat{y_i} - y_i}{(|\hat{y_i}|+|y_i|) &#x2F;2 } | \cdot 100%<br>$$</p>
-<blockquote>
-<p>BUG☢推测值和真实值同时为零时，分母为0！</p>
-</blockquote>
-<ul>
-<li>R Squared：决定系数</li>
-<li>Confusion Matrix：混淆矩阵<ul>
-<li>准确率</li>
-<li>精确率</li>
-<li>召回率</li>
-</ul>
-</li>
-</ul>
-<h3 id="R-Squared"><a href="#R-Squared" class="headerlink" title="R Squared"></a>R Squared</h3><blockquote>
-<p>最好的衡量线性回归法的指标</p>
-</blockquote>
-<p>$$<br>R^2 &#x3D; 1- \frac{\sum^n_{i&#x3D;1}|\hat{y_i} - y_i |^2 }{\sum^n_{i&#x3D;1}|\overline{y_i} - y_i |^2}<br>$$</p>
-<p>上式中的分母部分，可以理解为一个模型（<strong>基准模型</strong>）：</p>
-<p>$$<br>|\overline{y_i} - y_i |^2<br>$$</p>
-<p>该指标取值范围为[0,1]；如果小于0，则代表你的模型预测结果还不如基准模型</p>
-<h3 id="Confusion-Matrix"><a href="#Confusion-Matrix" class="headerlink" title="Confusion Matrix"></a>Confusion Matrix</h3><blockquote>
-<p>混淆矩阵也称误差矩阵，是表示精度评价的一种标准格式，用n行n列的矩阵形式来表示。此处给出的数学表示基于二分类</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th align="center"></th>
-<th align="center">预测正例</th>
-<th align="center">预测反例</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">真实正例</td>
-<td align="center">TP(真正)</td>
-<td align="center">FN(假反)</td>
-</tr>
-<tr>
-<td align="center">真实假例</td>
-<td align="center">FP(假正)</td>
-<td align="center">TN(真反)</td>
-</tr>
-</tbody></table>
-<p>准确率（Accuracy）：被预测对的样本，但是样本不平衡时效果差</p>
-<p>$$<br>A &#x3D; \frac{TP+TN}{TP+FP+TN+FN}<br>$$</p>
-<p>精准率（Precision）：预测为正的样本多少为对的</p>
-<p>$$<br>P &#x3D; \frac{TP}{TP+FP}<br>$$</p>
-<p>召回率（Recall）：实际正样本中多少预测对了</p>
-<p>$$<br>R &#x3D; \frac{TP}{TP+FN}<br>$$</p>
-<h2 id="神经网络原理简摘"><a href="#神经网络原理简摘" class="headerlink" title="神经网络原理简摘"></a>神经网络原理简摘</h2><p>考虑一个最简单的浅层全连接神经网络，那么需要训练的模型参数就是神经元中的权重和偏置，采用（对损失函数）梯度下降的方法：</p>
-<p>$$<br>w :&#x3D; w-\alpha\cdot\frac{\partial J(w,b)}{\partial w}<br>\\<br>b :&#x3D; b-\alpha\cdot\frac{\partial J(w,b)}{\partial b}<br>$$</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NeuralNetwork/" rel="tag">NeuralNetwork</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E3%80%81%E8%AF%84%E4%BB%B7%E5%87%BD%E6%95%B0/" rel="tag">损失函数、评价函数</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%9E%E7%BA%BF%E6%80%A7%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0/" rel="tag">非线性激活函数</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
@@ -598,7 +448,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2022
+        2022-2023
         <i class="ri-heart-fill heart_icon"></i> RY.J
       </li>
     </ul>

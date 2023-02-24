@@ -153,6 +153,86 @@
     
     
     <article
+  id="post-read-RC-byTimer"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/16/read-RC-byTimer/"
+    >读取RC遥控信号（PWM和PPM）</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/16/read-RC-byTimer/" class="article-date">
+  <time datetime="2022-07-15T16:20:37.000Z" itemprop="datePublished">2022-07-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">9 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：受益于毕业后的狂欢🐟博客鸽了半个月。也不算是完全鸽掉，这段时间搞了一艘RC船，通信部分是基础中的基础，因此记录一下自己写的STM32读取接收机信号的成果。</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20220717/20220717_PPMPWM_1.jpg" alt="RC接收机"></p>
+<p>图片中就是市面上最常见的“富士”系列接收机，可以输出数个通道的数据（对应于RC遥控器上的各个控制通道），而这些远程传输来的数据以PWM信号的形式供给舵机或者自驾仪，比如这款可以输出10个通道PWM信号。同时这款接收机还支持输出PPM信号（和1通道共用引脚），PPM信号如下图所示，只要使用1个引脚就能传输多个通道的数据，相比PWM来说节省了大量的走线和空间，这个信号也是笔者更偏爱的接收方式。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220717/20220717_PPMPWM_2.png" alt="PPMandPWM"></p> 
+      <a class="article-more-link" href="/2022/07/16/read-RC-byTimer/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PPM/" rel="tag">PPM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWM/" rel="tag">PWM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RC/" rel="tag">RC</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-YOLO"
   class="article article-type-post"
   itemscope
@@ -331,93 +411,6 @@
 </article>
 
     
-    <article
-  id="post-airplane-Model"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/02/05/airplane-Model/"
-    >固定翼飞行器动力学分析</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/02/05/airplane-Model/" class="article-date">
-  <time datetime="2022-02-05T10:04:16.000Z" itemprop="datePublished">2022-02-05</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E7%B3%BB%E7%BB%9F/">动力学系统</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">3.2k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">11 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：固定翼飞行器相对多旋翼飞行器具有载荷大、航程远等特性，在B端、C端、M端皆占大半江山。此次新年之际，笔者亲手搭建了一台性价比较高的“冲浪者”，并且尝试一下午就成功使用日本手首飞成功，有些玩航模的朋友夸俺天赋好😆但这其实离不开笔者在上手之前学习的固定翼相关空气动力学，所以个人认为很有必要记录一下，以便日后其他小伙伴借鉴快速入门</p>
-<blockquote>
-<p>本次飞行视频已上次至<strong>BiliBili</strong>视频平台，欢迎点击<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1rS4y1y7YG/">传送门</a>观看</p>
-</blockquote>
-</blockquote>
-<h2 id="机翼的空气动力特性"><a href="#机翼的空气动力特性" class="headerlink" title="机翼的空气动力特性"></a>机翼的空气动力特性</h2><p>为了方便分析，一般取机翼的切面形状进行空气动力学计算，即翼型。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-1.png" alt="翼型概念"></p>
-<p>下图为几种常见的翼型，在不同用途的飞行器上有着各自的优势，具体我们留到下方<strong>常见翼型特性</strong>一节讲解分析。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-2.png" alt="各种翼型"></p>
-<p>笔者玩的<em><strong>冲浪者</strong></em>主机翼显然采用的是超临界型翼型设计，下图展示的为将机翼拆下后翅根处的截面。（都这么努力了😁是不是要扫描文末的二维码请咖啡呀☕）</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220205/20220205-airplane-3.jpg" alt="冲浪者翼型"></p>
-<p>接下来，对翼型进行理论分析，介绍各项重要参数以及升力计算方法。图中，贯穿中央的水平<strong>实</strong>直线名为<code>展弦</code>；还有一根从前缘到后缘，贯穿内切圆圆心的<strong>虚</strong>线名为<code>中弧线</code>；翼型的上包实线名为<code>上弧线</code>；翼型的下包实线名为<code>下弧线</code>；其他关键机械设计参数皆标于图上。</p> 
-      <a class="article-more-link" href="/2022/02/05/airplane-Model/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A8%E5%8A%9B%E5%AD%A6%E5%88%86%E6%9E%90/" rel="tag">动力学分析</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BA%E5%AE%9A%E7%BF%BC/" rel="tag">固定翼</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
@@ -435,7 +428,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2022
+        2022-2023
         <i class="ri-heart-fill heart_icon"></i> RY.J
       </li>
     </ul>

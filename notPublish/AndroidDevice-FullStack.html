@@ -13,7 +13,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
       />
-      <title>Tag: 椭圆拟合 |  Singularity-blog</title>
+      <title>全栈DIY智能Android设备 |  Singularity-blog</title>
   <meta name="generator" content="hexo-theme-ayer">
       
       <link rel="shortcut icon" href="/S-favicon.ico" />
@@ -54,73 +54,194 @@
       
     <main class="content on">
       <section class="outer">
-  
-  <ul class="ads">
+  <article
+  id="page-"
+  class="article article-type-page"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
     
-        <li>
-            <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1rS4y1y7YG?spm_id_from=333.999.0.0">
-                <img src="http://imgjry.fangyikuan.xyz/myAdv/Skyer.jpg" width="120" alt="冲浪者DIY">
-            </a>
-        </li>
-    
-</ul>
-  
-  
-  <article class="articles">
-    
-    
-    <h1 class="page-type-title">#&nbsp椭圆拟合</h1>
-    
-    
-  
-  
-  
-  
-  
-  
-  <div class="archives-wrap">
-    <div class="archive-year-wrap">
-      <a href="/archives/2022" class="archive-year">2022</a>
-    </div>
-    <div class="archives">
-      
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2022/08/28/ElectricCompass-FromZeroToInf/" class="archive-article-date">
-  <time datetime="2022-08-28T03:01:53.000Z" itemprop="datePublished">08/28</time>
-</a>
+    <header class="article-header">
        
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2022/08/28/ElectricCompass-FromZeroToInf/"
-    >电子罗盘的理论分析与实际应用（AK09915）</a> 
-</h2>
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  全栈DIY智能Android设备
+</h1>
  
 
+      
     </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IIC/" rel="tag">IIC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A4%AD%E5%9C%86%E6%8B%9F%E5%90%88/" rel="tag">椭圆拟合</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E5%AD%90%E7%BD%97%E7%9B%98/" rel="tag">电子罗盘</a></li></ul>
-
-    
-  </div>
-</article>
-      
+       
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="DDR4设计要点"><a href="#DDR4设计要点" class="headerlink" title="DDR4设计要点"></a>DDR4设计要点</h2><ul>
+<li>信号线分组：<ul>
+<li>时钟</li>
+<li>地址</li>
+<li>命令控制</li>
+<li>数据</li>
+</ul>
+</li>
+<li>布线规则：<ul>
+<li>组内等长，同组同层</li>
+<li>组间尽量等长</li>
+<li>差分线采取3W原则</li>
+<li>单端50，差分100Ohm</li>
+<li>DDR走线范围内，不走其他信号，走线参考平面不能断</li>
+<li>菊花链拓扑</li>
+<li>时钟：高速差分布线规则，接收端做阻抗匹配- 地址、命令：端接匹配（匹配电阻接VTT端接电源）<ul>
+<li>长度参考于 时钟差分长度 误差小于50mil</li>
+</ul>
+</li>
+<li>数据线无需端接，内部ODT<ul>
+<li>DQ长度参考于DQS的差分长度误差＜15mil，DQS差分误差＜5mil，<blockquote>
+<p>ODT是由于DDR与CPU数据传输（读写）是双向的。为了满足终端匹配，写时，CPU作为发送端所以接口的ODT关闭，DDR作为接收端所以ODT打开；读时，CPU与DDR角色对调，ODT的开关情况对调。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>电源线<ul>
+<li>VTT端接电源：百毫安级，单独DDR电源IC产生，走线尽量粗</li>
+<li>Vref是VDDQ的一半，直接电阻分压即可</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>等长注意事项：<ul>
+<li>若芯片有Pin-Delay，绕线时要确保P-D已开</li>
+<li>同层or换层，最终的目标都是“等时”。所以要注意换层带来的延时</li>
+<li>Z轴延时能开必须开，注意设置正确的层叠和参数</li>
+<li>表层（单参考）与内层（双参考）传播速度不同，走线时需要考虑，或尽量避免表层走线</li>
+<li>蛇形线，单端线按3W，差分线按5W</li>
+<li>各信号组：组内3H，组间5H，DQS和CLK距离其他5H，H是到主参考面距离</li>
+</ul>
+</li>
+</ul>
+<h2 id="Bootloader"><a href="#Bootloader" class="headerlink" title="Bootloader"></a>Bootloader</h2><p>Bootloader本质上就是<strong>一类</strong>裸机程序，用来初始化CPU、RAM等基础SoC资源，并引导操作系统。因为所有CPU刚上电后<code>PC</code>寄存器值都是初始化为存储空间的固定位置（比如ARM系是<code>0x00000000</code>,X86系是<code>0xFFFFFFF0</code>），人话是复位后第一条指令的执行的位置是固定的，但不同系CPU不一样。另外，每个SoC上电后需要执行的初始化动作&#x2F;配置都不一样，一个板子有多个操作系统的引导问题，升级操作系统需要一个维护硬件运行的程序，所以就有了Bootloader，统一（Universal）解决SoC和操作系统的引导问题。</p>
+<blockquote>
+<p>传送门：<a target="_blank" rel="noopener" href="https://ftp.denx.de/pub/u-boot/">U-Boot官方仓</a>，<a target="_blank" rel="noopener" href="https://u-boot.readthedocs.io/en/latest/">U-Boot官方文档</a></p>
+</blockquote>
+<p>U-Boot是<strong>一个</strong>主流开源的Bootloader实现，全称：Universal Boot Loader。后面将会看到U-Boot在源码结构、编译方法上和Linux内核的非常像！这是因为U-Boot代码就是Linux内核的超级简化版，尤其驱动部分高度相似。接下来具体地看一个U-Boot工程的目录结构（将其中的子文件夹分为3类）：</p>
+<ul>
+<li>硬件（处理器架构、板级外设）相关<ul>
+<li><strong>arch</strong>：CPU架构相关代码。其下有子文件夹：arm、mips、x86等</li>
+<li><strong>board</strong>：板级相关文件。其下子文件夹按产商分：nvidia、nokia、samsung等</li>
+<li><strong>include</strong>：UBoot的头文件。其下很多子目录，最常在<code>configs</code>文件夹中<em><strong>修改和目标板相关的配置</strong></em>头文件</li>
+<li><strong>configs</strong>：板级默认配置文件，一般名称都是<code>xxx_defconfig</code>例：sun50iw10p1_defconfig。用于make xxx_defconfig生成.config配置文件</li>
+</ul>
+</li>
+<li>通用函数和程序<ul>
+<li><strong>common</strong>：与CPU架构无关的通用代码，如内存探测</li>
+<li><strong>driver</strong>：通用驱动</li>
+<li><strong>fs</strong>：文件系统代码</li>
+<li><strong>disk</strong>：磁盘驱动的分区处理</li>
+<li><strong>lib</strong>：库文件</li>
+<li><strong>net</strong>：网络协议栈，调嵌入式设备时常挂载的<code>nfs</code>就是这里实现的</li>
+<li><strong>post</strong>：上电自检，可按需增加特定硬件的<strong>自检程序</strong></li>
+</ul>
+</li>
+<li>U-Boot自家的东西<ul>
+<li><strong>api</strong>：为其他应用提供与硬件无关的API</li>
+<li><strong>cmd</strong>：命令工具</li>
+<li><strong>dts</strong>：用来编译U-Boot的设备树的Makefile文件</li>
+<li><strong>doc</strong>：说明文档</li>
+<li><strong>examples</strong>：示例程序，helloworld</li>
+<li><strong>test</strong>：测试脚本</li>
+<li><strong>tools</strong>：创建S-RECORD和BIN镜像的工具</li>
+</ul>
+</li>
+</ul>
+<p>配置和编译U-Boot的完整流程为：</p>
+<ol>
+<li>在主机上配置 交叉编译工具链；</li>
+<li>在U-Boot的根目录下，执行<code>make xxx_defconfig</code>，生成<code>.config</code>文件；<code>xxx_defconfig</code>放置于configs目录下，一般根据板子的实际硬件进行配置编写；</li>
+<li>在U-Boot的根目录，执行<code>make</code>编译出需要的镜像。另外地，运行<code>cat ./include/config.h</code>可以观察到，这个头文件内容被自动生成为相关硬件的资源头文件。</li>
+</ol>
+ 
+      <!-- reward -->
       
     </div>
-  </div>
-  
-  
+    
 
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/notPublish/AndroidDevice-FullStack.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
   
+    
+</article>
+
 </section>
       <footer class="footer">
   <div class="outer">
     <ul>
       <li>
         Copyrights &copy;
-        2022
+        2022-2023
         <i class="ri-heart-fill heart_icon"></i> RY.J
       </li>
     </ul>
