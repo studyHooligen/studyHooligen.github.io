@@ -13,7 +13,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
       />
-      <title> Singularity-blog</title>
+      <title>Linux文件系统网络映射至Window |  Singularity-blog</title>
   <meta name="generator" content="hexo-theme-ayer">
       
       <link rel="shortcut icon" href="/S-favicon.ico" />
@@ -53,379 +53,192 @@
     
       
     <main class="content on">
+      <section class="outer">
+  <article
+  id="post-MapLinuxFs2Win"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Linux文件系统网络映射至Window
+</h1>
+ 
+
       
-<section class="cover">
-    
-  <div class="cover-frame">
-    <div class="bg-box">
-      <img src="/images/cover5.jpg" alt="image frame" />
-    </div>
-    <div class="cover-inner text-center text-white">
-      <h1><a href="/">Singularity-blog</a></h1>
-      <div id="subtitle-box">
-        
-        <span id="subtitle"></span>
-        
-      </div>
-      <div>
-        
-      </div>
-    </div>
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/03/22/MapLinuxFs2Win/" class="article-date">
+  <time datetime="2023-03-22T06:19:52.000Z" itemprop="datePublished">2023-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
   </div>
-  <div class="cover-learn-more">
-    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
-  </div>
-</section>
-
-
-
-<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
-
-
-<!-- Subtitle -->
-
-  <script>
-    try {
-      var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
-        startDelay: 0,
-        typeSpeed: 200,
-        loop: true,
-        backSpeed: 100,
-        showCursor: true
-      });
-    } catch (err) {
-      console.log(err)
-    }
-  </script>
   
-<div id="main">
-  <section class="outer">
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">375</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">1 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+
+
+
   
-  <ul class="ads">
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>对于笔者这种Windows晚期患者🚝同时生产环境是Linux🐧的用户，非常需要比git同步还要方便快捷的工具。同时考虑到存储的成本，用网络映射其实是最好的方法，特别是对于虚拟机环境来说。</p>
+<p>本文主要介绍把Ubuntu（Linux）中的文件系统映射到Windows中的方法，其实就是<code>samba</code>工具。</p>
+<ol>
+<li><p>首先安装<code>samba</code>工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install samba samba-common</span><br></pre></td></tr></table></figure></li>
+<li><p>然后编辑配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/samba/smb.conf</span><br></pre></td></tr></table></figure>
+<p>在配置文件的最后加：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span>codemap<span class="punctuation">]</span></span><br><span class="line"> comment = root</span><br><span class="line"> path = /home/gory/Public</span><br><span class="line"> valid users = root</span><br><span class="line"> browseable = yes</span><br><span class="line"> read only = no</span><br><span class="line"> writable = yes</span><br><span class="line"> guest ok = no</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>⚠️上面的path路径，<code>/home/gory</code>是笔者Ubuntu系统中<code>~</code>用户路径的解析式，读者应该更改为自己的路径。</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-1.png" alt="Ubuntu目录"></p>
+</li>
+<li><p>创建映射的项目文件系统（对应上面的<code>path</code>）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> /home/gory/codemap</span><br></pre></td></tr></table></figure></li>
+<li><p>创建网络访问账号</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbpasswd -a root</span><br></pre></td></tr></table></figure>
+<p>并根据提示设置登录密码</p>
+</li>
+<li><p>重启<code>samba</code>服务器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbd restart</span><br></pre></td></tr></table></figure></li>
+<li><p>在Ubuntu（Linux）端使用<code>ifconfig</code>等命令查ip地址，或者在Windows端用IP扫描软件找ip，或者任何其他获得ip的方法。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-2.png" alt="ifconfig"></p>
+</li>
+<li><p>打开Window系统中的<strong>映射网络驱动器</strong>（在“此电脑”上右键），文件夹一栏填入：<code>\\192.168.abc.efg\codemap</code>，这里的ip应该写你上一步查到的ip。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-3.png" alt="映射网络驱动器"></p>
+</li>
+<li><p>然后根据Windows弹出的认证页面填登录密码就可以在Windows文件管理器中，操作Linux映射的网络磁盘了。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-4.png" alt="映射结果"></p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
     
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
         <li>
-            <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1rS4y1y7YG?spm_id_from=333.999.0.0">
-                <img src="http://imgjry.fangyikuan.xyz/myAdv/Skyer.jpg" width="120" alt="冲浪者DIY">
-            </a>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
         </li>
-    
-</ul>
-  
-  
-  
-<div class="notice" style="margin-top:50px">
-    <i class="ri-heart-fill"></i>
-    <div class="notice-content">目前在做GD32替代STM32作为主控的各种飞行器研究，欢迎感兴趣的朋友联系我。</div>
-</div>
-
-
-<style>
-    .notice {
-        padding: 20px;
-        border: 1px dashed #e6e6e6;
-        color: #969696;
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        background: #fbfbfb50;
-        border-radius: 10px;
-    }
-
-    .notice i {
-        float: left;
-        color: #999;
-        font-size: 16px;
-        padding-right: 10px;
-        vertical-align: middle;
-        margin-top: -2px;
-    }
-
-    .notice-content {
-        display: initial;
-        vertical-align: middle;
-    }
-</style>
-  
-  <article class="articles">
-    
-    
-    
-    
-    <article
-  id="post-Camera-model-IntrinsicMatrix"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/12/08/Camera-model-IntrinsicMatrix/"
-    >相机针孔模型&amp;内参矩阵&amp;标定</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/12/08/Camera-model-IntrinsicMatrix/" class="article-date">
-  <time datetime="2020-12-08T03:46:12.000Z" itemprop="datePublished">2020-12-08</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">974</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
+      </ul>
     </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>本文是笔者的CV处女篇，聊聊最基础的相机（针孔）模型和该模型下对应的<strong>内参数矩阵</strong>，最后分享一下用Matlab标定内参矩阵的工具</p>
-</blockquote>
-<h2 id="针孔相机模型"><a href="#针孔相机模型" class="headerlink" title="针孔相机模型"></a>针孔相机模型</h2><p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-1.png" alt="针孔模型"></p>
-<p>对！就是初中生都知道的小孔成像原理，如上图所示：可以把相机内部的感光面抽象为像素平面，镜头抽象为光心和对应的焦距。坐标轴的标准定义如上图，z轴为相机正向，y向下，xyz满足右手螺旋。</p>
-<p>那么根据三角相似原理，有：</p>
-<p>$$<br>\frac Z f &#x3D; -\frac{X}{X’}&#x3D; -\frac{Y}{Y’}<br>$$</p>
-<p>图中负号对应于物理上的倒像。那么为了简化模型，我们可以作如下对称等效处理及归一化处理</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20201208/20201208-camera-2.png" alt="归一化成像面"></p>
-<p>那么，去掉负号并且整理：</p> 
-      <a class="article-more-link" href="/2020/12/08/Camera-model-IntrinsicMatrix/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
     
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9B%B8%E6%9C%BA/" rel="tag">相机</a></li></ul>
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2023/03/22/MapLinuxFs2Win/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
 
     </footer>
   </div>
 
    
+  <nav class="article-nav">
     
-</article>
-
     
-    <article
-  id="post-design-digitalFilter-With-Matlab"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
+      <a href="/2023/02/22/LinuxDriver/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">速通Linux驱动程序</div>
+      </a>
     
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/24/design-digitalFilter-With-Matlab/"
-    >数字滤波器设计</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/11/24/design-digitalFilter-With-Matlab/" class="article-date">
-  <time datetime="2020-11-24T00:32:45.000Z" itemprop="datePublished">2020-11-24</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E8%B0%83%E8%B0%90-%E6%BB%A4%E6%B3%A2/">调谐&滤波</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.1k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>这又是一篇懒人福利博客嘿嘿嘿😝</p>
-</blockquote>
-<h2 id="设计步骤概览"><a href="#设计步骤概览" class="headerlink" title="设计步骤概览"></a>设计步骤概览</h2><ul>
-<li><p>使用designfilt函数设计&#x2F;修改一个滤波器</p>
-  <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df = designfilt(resp,Name,Value);   <span class="comment">%设计滤波器</span></span><br><span class="line">designfilt(df); <span class="comment">%修改已存在滤波器</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用filter函数对指定信号序列进行滤波测试</p>
-</li>
-<li><p>使用fvtool工具箱可视化设计的滤波器</p>
-</li>
-</ul>
-<h2 id="designfilt函数使用方法"><a href="#designfilt函数使用方法" class="headerlink" title="designfilt函数使用方法"></a>designfilt函数使用方法</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df = designfilt(resp,Name,Value);</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>第一个参数为滤波器类型，然后是Name+Value的属性配置键值对（可以有很多组）</p>
-<blockquote>
-<p>主要配置的重要属性有：滤波器类型、频率约束、幅度约束、滤波器阶数、设计算法、采样率</p>
-</blockquote>
-</blockquote> 
-      <a class="article-more-link" href="/2020/11/24/design-digitalFilter-With-Matlab/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Matlab/" rel="tag">Matlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BB%A4%E6%B3%A2%E5%99%A8/" rel="tag">滤波器</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-Analog-Modulation-and-Demodulation"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/11/10/Analog-Modulation-and-Demodulation/"
-    >模拟调制解调技术</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/11/10/Analog-Modulation-and-Demodulation/" class="article-date">
-  <time datetime="2020-11-10T07:00:29.000Z" itemprop="datePublished">2020-11-10</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：由于低频的信号不容易通过天线发射出去，所以调制解调的意义在于将信号放到高频载波上，从而实现无线远程通信</p>
-</blockquote>
-<h2 id="调幅AM"><a href="#调幅AM" class="headerlink" title="调幅AM"></a>调幅AM</h2><p>$$<br>载波 c(t) &#x3D; \cos (\omega_c t)<br>\\<br>基带信号m(t)均值为0<br>\\ \Rightarrow<br>已调信号s_{AM} &#x3D; (A_0 + m(t))\cos (\omega_c t)<br>$$</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20201110/20201110-AM-1.png" alt="AM"></p>
-<p>则如上图，显然有频谱关系：</p>
-<p>$$<br>S_{AM} (\omega) &#x3D; \pi A_0 [\delta(\omega + \omega_c) + \delta(\omega - \omega_c)] +  \frac{1}{2} [M(\omega + \omega_c) + M(\omega - \omega_c)]<br>$$</p>
-<blockquote>
-<p>注意：调制加入的直流偏量要大于原信号的最大值，否则会出现“过调幅”，不能使用包络检波</p>
-</blockquote> 
-      <a class="article-more-link" href="/2020/11/10/Analog-Modulation-and-Demodulation/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%97%A0%E7%BA%BF%E9%80%9A%E4%BF%A1/" rel="tag">无线通信</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-  </article>
-  
-
-  
-  <nav class="page-nav">
-    
-    <a class="extend prev" rel="prev" href="/page/10/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/12/">下一页</a>
   </nav>
-  
-</section>
-</div>
 
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
       <footer class="footer">
   <div class="outer">
     <ul>
@@ -559,6 +372,22 @@
 <script src="/js/lazyload.min.js"></script>
 
 <!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
 
 <script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
 <link

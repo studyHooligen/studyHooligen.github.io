@@ -153,6 +153,109 @@
     
     
     <article
+  id="post-MapLinuxFs2Win"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2023/03/22/MapLinuxFs2Win/"
+    >Linux文件系统网络映射至Window</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/03/22/MapLinuxFs2Win/" class="article-date">
+  <time datetime="2023-03-22T06:19:52.000Z" itemprop="datePublished">2023-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">375</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">1 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>对于笔者这种Windows晚期患者🚝同时生产环境是Linux🐧的用户，非常需要比git同步还要方便快捷的工具。同时考虑到存储的成本，用网络映射其实是最好的方法，特别是对于虚拟机环境来说。</p>
+<p>本文主要介绍把Ubuntu（Linux）中的文件系统映射到Windows中的方法，其实就是<code>samba</code>工具。</p>
+<ol>
+<li><p>首先安装<code>samba</code>工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install samba samba-common</span><br></pre></td></tr></table></figure></li>
+<li><p>然后编辑配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/samba/smb.conf</span><br></pre></td></tr></table></figure>
+<p>在配置文件的最后加：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span>codemap<span class="punctuation">]</span></span><br><span class="line"> comment = root</span><br><span class="line"> path = /home/gory/Public</span><br><span class="line"> valid users = root</span><br><span class="line"> browseable = yes</span><br><span class="line"> read only = no</span><br><span class="line"> writable = yes</span><br><span class="line"> guest ok = no</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>⚠️上面的path路径，<code>/home/gory</code>是笔者Ubuntu系统中<code>~</code>用户路径的解析式，读者应该更改为自己的路径。</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-1.png" alt="Ubuntu目录"></p>
+</li>
+<li><p>创建映射的项目文件系统（对应上面的<code>path</code>）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> /home/gory/codemap</span><br></pre></td></tr></table></figure></li>
+<li><p>创建网络访问账号</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbpasswd -a root</span><br></pre></td></tr></table></figure>
+<p>并根据提示设置登录密码</p>
+</li>
+<li><p>重启<code>samba</code>服务器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbd restart</span><br></pre></td></tr></table></figure></li>
+<li><p>在Ubuntu（Linux）端使用<code>ifconfig</code>等命令查ip地址，或者在Windows端用IP扫描软件找ip，或者任何其他获得ip的方法。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-2.png" alt="ifconfig"></p>
+</li>
+<li><p>打开Window系统中的<strong>映射网络驱动器</strong>（在“此电脑”上右键），文件夹一栏填入：<code>\\192.168.abc.efg\codemap</code>，这里的ip应该写你上一步查到的ip。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-3.png" alt="映射网络驱动器"></p>
+</li>
+<li><p>然后根据Windows弹出的认证页面填登录密码就可以在Windows文件管理器中，操作Linux映射的网络磁盘了。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-4.png" alt="映射结果"></p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-LinuxDriver"
   class="article article-type-post"
   itemscope
@@ -185,7 +288,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">8.9k</span>
+            <span class="post-count">9.1k</span>
         </span>
     </span>
 
@@ -333,100 +436,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IIC/" rel="tag">IIC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A4%AD%E7%90%83%E6%8B%9F%E5%90%88/" rel="tag">椭球拟合</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E5%AD%90%E7%BD%97%E7%9B%98/" rel="tag">电子罗盘</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-ICM42688P-DrvBySPI"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/07/28/ICM42688P-DrvBySPI/"
-    >六轴传感器（ICM42688）驱动及姿态估计</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/07/28/ICM42688P-DrvBySPI/" class="article-date">
-  <time datetime="2022-07-28T12:07:57.000Z" itemprop="datePublished">2022-07-28</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">8.3k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">35 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：打算给小巡洋舰搞点花活，顺便做个飞控，记录一下其中最为关键的惯性导航（IMU）。本次项目中使用的是TDK出的最新MEMS传感器以提高项目的生命周期，因此本文将先简单介绍ICM42688这个片子，接着探讨SPI驱动方法，最后记录六轴MEMS传感器的工作原理。</p>
-</blockquote>
-<h2 id="ICM42688简介"><a href="#ICM42688简介" class="headerlink" title="ICM42688简介"></a>ICM42688简介</h2><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-1.png" alt="ICM42688芯片"></p>
-<p>这款6轴MEMS运动跟踪传感器内有一个三轴陀螺仪和一个三轴加速度计，通信方面支持I3C接口、常规的IIC、SPI通信和2kB的FIFO，并且按照TDK的老传统这个片子里也是带数字处理单元的。这个片子目前算是消费电子里的顶流了，参数如下：</p>
-<ul>
-<li>陀螺仪噪声密度：$0.0028°&#x2F;s&#x2F;\sqrt{Hz}$</li>
-<li>加速度计噪声密度：$70\mu g&#x2F;\sqrt{Hz}$</li>
-<li>8档陀螺仪量程：$\pm15.6 \sim 2000dps$</li>
-<li>4档加速度计量程：2&#x2F;4&#x2F;8&#x2F;16g</li>
-<li>前端ADC精度：16bits</li>
-<li>SPI通信速率达24MHz</li>
-<li>最后，温漂参数也是非常不错：<ul>
-<li>陀螺仪SSF-Temp为$\pm 0.005 % &#x2F;° C$，ZRO-Temp为$\pm 0.005 °&#x2F;s&#x2F;° C$</li>
-<li>加速度计SSF-Temp为$\pm 0.005 % &#x2F;°C$，ZGO-Temp为$\pm 0.15 mg&#x2F;° C$</li>
-</ul>
-</li>
-</ul>
-<p>至于内置的APEX数字运动处理器也是非常优秀了，可以说是针对消费电子设计的，支持检测拿起、记录步数、倾斜测试等。这些功能在机器人应用上虽然犹如鸡肋，但是应该可以做一些花活。</p>
-<h2 id="SPI总线"><a href="#SPI总线" class="headerlink" title="SPI总线"></a>SPI总线</h2> 
-      <a class="article-more-link" href="/2022/07/28/ICM42688P-DrvBySPI/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IMU/" rel="tag">IMU</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mahony-Filter/" rel="tag">Mahony Filter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPI/" rel="tag">SPI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32H7/" rel="tag">STM32H7</a></li></ul>
 
     </footer>
   </div>

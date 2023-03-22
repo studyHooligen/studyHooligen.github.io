@@ -153,6 +153,100 @@
     
     
     <article
+  id="post-ICM42688P-DrvBySPI"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/07/28/ICM42688P-DrvBySPI/"
+    >六轴传感器（ICM42688）驱动及姿态估计</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/07/28/ICM42688P-DrvBySPI/" class="article-date">
+  <time datetime="2022-07-28T12:07:57.000Z" itemprop="datePublished">2022-07-28</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">8.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">35 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：打算给小巡洋舰搞点花活，顺便做个飞控，记录一下其中最为关键的惯性导航（IMU）。本次项目中使用的是TDK出的最新MEMS传感器以提高项目的生命周期，因此本文将先简单介绍ICM42688这个片子，接着探讨SPI驱动方法，最后记录六轴MEMS传感器的工作原理。</p>
+</blockquote>
+<h2 id="ICM42688简介"><a href="#ICM42688简介" class="headerlink" title="ICM42688简介"></a>ICM42688简介</h2><p><img src="http://imgjry.fangyikuan.xyz/20220728/20220728-ICM42688SPI-1.png" alt="ICM42688芯片"></p>
+<p>这款6轴MEMS运动跟踪传感器内有一个三轴陀螺仪和一个三轴加速度计，通信方面支持I3C接口、常规的IIC、SPI通信和2kB的FIFO，并且按照TDK的老传统这个片子里也是带数字处理单元的。这个片子目前算是消费电子里的顶流了，参数如下：</p>
+<ul>
+<li>陀螺仪噪声密度：$0.0028°&#x2F;s&#x2F;\sqrt{Hz}$</li>
+<li>加速度计噪声密度：$70\mu g&#x2F;\sqrt{Hz}$</li>
+<li>8档陀螺仪量程：$\pm15.6 \sim 2000dps$</li>
+<li>4档加速度计量程：2&#x2F;4&#x2F;8&#x2F;16g</li>
+<li>前端ADC精度：16bits</li>
+<li>SPI通信速率达24MHz</li>
+<li>最后，温漂参数也是非常不错：<ul>
+<li>陀螺仪SSF-Temp为$\pm 0.005 % &#x2F;° C$，ZRO-Temp为$\pm 0.005 °&#x2F;s&#x2F;° C$</li>
+<li>加速度计SSF-Temp为$\pm 0.005 % &#x2F;°C$，ZGO-Temp为$\pm 0.15 mg&#x2F;° C$</li>
+</ul>
+</li>
+</ul>
+<p>至于内置的APEX数字运动处理器也是非常优秀了，可以说是针对消费电子设计的，支持检测拿起、记录步数、倾斜测试等。这些功能在机器人应用上虽然犹如鸡肋，但是应该可以做一些花活。</p>
+<h2 id="SPI总线"><a href="#SPI总线" class="headerlink" title="SPI总线"></a>SPI总线</h2> 
+      <a class="article-more-link" href="/2022/07/28/ICM42688P-DrvBySPI/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IMU/" rel="tag">IMU</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mahony-Filter/" rel="tag">Mahony Filter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SPI/" rel="tag">SPI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STM32H7/" rel="tag">STM32H7</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-read-RC-byTimer"
   class="article article-type-post"
   itemscope
@@ -313,95 +407,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Anchor-Bounding-Box/" rel="tag">Anchor &amp; Bounding Box</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NMS/" rel="tag">NMS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/YOLO/" rel="tag">YOLO</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-AXI4BusType"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/03/10/AXI4BusType/"
-    >AXI4总线</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/03/10/AXI4BusType/" class="article-date">
-  <time datetime="2022-03-10T07:19:26.000Z" itemprop="datePublished">2022-03-10</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">2.1k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">7 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>在现代SoC设计或者FPGA中，基本都会和ARM有所关联，而用到ARM的场景基本离不开AXI总线。而AXI-4总线针对不同的用途，分化出了三种不同的类型：AXI-Full（完整版）、AXI-Stream、AXI-Lite，本文中将依次介绍这三种类型的AXI用途和具体技术细节。</p>
-<blockquote>
-<p>Attention：本文中讨论的是ARM公司AMBA4中的AXI-4</p>
-</blockquote>
-</blockquote>
-<h2 id="AXI（Full）"><a href="#AXI（Full）" class="headerlink" title="AXI（Full）"></a>AXI（Full）</h2><blockquote>
-<p>场景：高性能地址映射通信</p>
-</blockquote>
-<p>完整版的AXI-4总线特性：允许最大256轮的数据突发传输，支持多域。与其他大部分总线一样，AXI也分主机端（M：<strong>Manager</strong>&#x2F;<strong>Master</strong>）和从机端（S：<strong>Subordinate</strong>&#x2F;<strong>Slave</strong>），而特色就是AXI-4里除了全局的时钟复位信号外还有5个通道。下图展示了AXI主机向从机写、读数据时各通道传输的信息和工作流程。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-1.png" alt="写传输"></p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-2.png" alt="读传输"></p>
-<p>出来点对点的读写操作外，AXI-4是支持多主机多从机，这很符合现代SoC的多协处理器设计理念需求，比如手机的CPU芯片除了常规多核CPU外肯定还有DMA和GPU等（2020年之后手机芯片上顺带个DPU都是很常见的了），这些协处理器都需要作为主机访问共同的一段内存。而多主从机设计到总线仲裁，AXI-4规范了下图所示的总线互联器（<strong>Interconnect</strong>），在后面介绍<code>ID</code>时会看到互联器的另一重要功能——提供口令地址映射转换。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220311/20220311-AXI4-3.png" alt="多主从机"></p>
-<p>下表是完整版的AXI-4总线中各个通道的信号线，并概况性地注明了每个信号的功能，同时用<code>,</code>分隔一个信号中的不同缩写以方便阅读（如<code>AWLEN</code>中隔开了地址通道<code>A</code>、写操作<code>W</code>、长度<code>LEN</code>）。</p> 
-      <a class="article-more-link" href="/2022/03/10/AXI4BusType/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AXI/" rel="tag">AXI</a></li></ul>
 
     </footer>
   </div>
