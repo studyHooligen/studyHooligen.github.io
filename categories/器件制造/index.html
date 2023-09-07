@@ -13,7 +13,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
       />
-      <title>Linux文件系统网络映射至Window |  Singularity-blog</title>
+      <title>器件制造 |  Singularity-blog</title>
   <meta name="generator" content="hexo-theme-ayer">
       
       <link rel="shortcut icon" href="/S-favicon.ico" />
@@ -54,199 +54,68 @@
       
     <main class="content on">
       <section class="outer">
-  <article
-  id="post-MapLinuxFs2Win"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Linux文件系统网络映射至Window
-</h1>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2023/03/22/MapLinuxFs2Win/" class="article-date">
-  <time datetime="2023-03-22T06:19:52.000Z" itemprop="datePublished">2023-03-22</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
-  </div>
   
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">375</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">1 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-
-
-
-  
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>对于笔者这种Windows晚期患者🚝同时生产环境是Linux🐧的用户，非常需要比git同步还要方便快捷的工具。同时考虑到存储的成本，用网络映射其实是最好的方法，特别是对于虚拟机环境来说。</p>
-<p>本文主要介绍把Ubuntu（Linux）中的文件系统映射到Windows中的方法，其实就是<code>samba</code>工具。</p>
-<ol>
-<li><p>首先安装<code>samba</code>工具</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install samba samba-common</span><br></pre></td></tr></table></figure></li>
-<li><p>然后编辑配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/samba/smb.conf</span><br></pre></td></tr></table></figure>
-<p>在配置文件的最后加：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span>codemap<span class="punctuation">]</span></span><br><span class="line"> comment = root</span><br><span class="line"> path = /home/gory/Public</span><br><span class="line"> valid users = root</span><br><span class="line"> browseable = yes</span><br><span class="line"> read only = no</span><br><span class="line"> writable = yes</span><br><span class="line"> guest ok = no</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>⚠️上面的path路径，<code>/home/gory</code>是笔者Ubuntu系统中<code>~</code>用户路径的解析式，读者应该更改为自己的路径。</p>
-</blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-1.png" alt="Ubuntu目录"></p>
-<span id="more"></span></li>
-<li><p>创建映射的项目文件系统（对应上面的<code>path</code>）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> /home/gory/codemap</span><br></pre></td></tr></table></figure></li>
-<li><p>创建网络访问账号</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbpasswd -a root</span><br></pre></td></tr></table></figure>
-<p>并根据提示设置登录密码</p>
-</li>
-<li><p>重启<code>samba</code>服务器</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbd restart</span><br></pre></td></tr></table></figure></li>
-<li><p>在Ubuntu（Linux）端使用<code>ifconfig</code>等命令查ip地址，或者在Windows端用IP扫描软件找ip，或者任何其他获得ip的方法。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-2.png" alt="ifconfig"></p>
-</li>
-<li><p>打开Window系统中的<strong>映射网络驱动器</strong>（在“此电脑”上右键），文件夹一栏填入：<code>\\192.168.abc.efg\codemap</code>，这里的ip应该写你上一步查到的ip。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-3.png" alt="映射网络驱动器"></p>
-</li>
-<li><p>然后根据Windows弹出的认证页面填登录密码就可以在Windows文件管理器中，操作Linux映射的网络磁盘了。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-4.png" alt="映射结果"></p>
-</li>
-</ol>
- 
-      <!-- reward -->
-      
-    </div>
+  <ul class="ads">
     
-
-    <!-- copyright -->
-    
-    <div class="declare">
-      <ul class="post-copyright">
         <li>
-          <i class="ri-copyright-line"></i>
-          <strong>Copyright： </strong>
-          
-          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
-          
+            <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1rS4y1y7YG?spm_id_from=333.999.0.0">
+                <img src="http://imgjry.fangyikuan.xyz/myAdv/Skyer.jpg" width="120" alt="冲浪者DIY">
+            </a>
         </li>
-      </ul>
-    </div>
     
-    <footer class="article-footer">
-       
-<div class="share-btn">
-      <span class="share-sns share-outer">
-        <i class="ri-share-forward-line"></i>
-        分享
-      </span>
-      <div class="share-wrap">
-        <i class="arrow"></i>
-        <div class="share-icons">
-          
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="ri-weibo-fill"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="ri-wechat-fill"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="ri-qq-fill"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="ri-douban-line"></i>
-          </a>
-          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a> -->
-          
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="ri-facebook-circle-fill"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="ri-twitter-fill"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="ri-google-fill"></i>
-          </a>
-        </div>
-      </div>
-</div>
-
-<div class="wx-share-modal">
-    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2023/03/22/MapLinuxFs2Win/" alt="微信分享二维码">
+</ul>
+  
+  
+  <article class="articles">
+    
+    
+    <h1 class="page-type-title">器件制造</h1>
+    
+    
+  
+  
+  
+  
+  
+  
+  <div class="archives-wrap">
+    <div class="archive-year-wrap">
+      <a href="/archives/2023" class="archive-year">2023</a>
     </div>
-</div>
+    <div class="archives">
+      
+      <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      <a href="/2023/09/01/mechanicofmaterial/" class="archive-article-date">
+  <time datetime="2023-09-01T15:26:33.000Z" itemprop="datePublished">09/01</time>
+</a>
+       
+<h2 itemprop="name">
+  <a class="archive-article-title" href="/2023/09/01/mechanicofmaterial/"
+    >速通材料力学</a> 
+</h2>
+ 
 
-<div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li></ul>
-
-    </footer>
+    </header>
+    
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%99%A8%E4%BB%B6%E5%88%B6%E9%80%A0/">器件制造</a>
   </div>
 
-   
-  <nav class="article-nav">
-    
-      <a href="/2023/09/01/mechanicofmaterial/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            速通材料力学
-          
-        </div>
-      </a>
     
     
-      <a href="/2023/02/22/LinuxDriver/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">速通Linux驱动程序</div>
-      </a>
-    
-  </nav>
+  </div>
+</article>
+      
+      
+    </div>
+  </div>
+  
+  
 
   
-   
-    
-    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
-    <div id="twikoo" class="twikoo"></div>
-    <script>
-        twikoo.init({
-            envId: ""
-        })
-    </script>
- 
-</article>
-
 </section>
       <footer class="footer">
   <div class="outer">
@@ -381,22 +250,6 @@
 <script src="/js/lazyload.min.js"></script>
 
 <!-- Tocbot -->
- 
-<script src="/js/tocbot.min.js"></script>
-
-<script>
-  tocbot.init({
-    tocSelector: ".tocbot",
-    contentSelector: ".article-entry",
-    headingSelector: "h1, h2, h3, h4, h5, h6",
-    hasInnerContainers: true,
-    scrollSmooth: true,
-    scrollContainer: "main",
-    positionFixedSelector: ".tocbot",
-    positionFixedClass: "is-position-fixed",
-    fixedSidebarOffset: "auto",
-  });
-</script>
 
 <script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
 <link
