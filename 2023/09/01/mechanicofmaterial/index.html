@@ -13,7 +13,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1"
       />
-      <title> Singularity-blog</title>
+      <title>mechanicofmaterial |  Singularity-blog</title>
   <meta name="generator" content="hexo-theme-ayer">
       
       <link rel="shortcut icon" href="/S-favicon.ico" />
@@ -53,107 +53,9 @@
     
       
     <main class="content on">
-      
-<section class="cover">
-    
-  <div class="cover-frame">
-    <div class="bg-box">
-      <img src="/images/cover5.jpg" alt="image frame" />
-    </div>
-    <div class="cover-inner text-center text-white">
-      <h1><a href="/">Singularity-blog</a></h1>
-      <div id="subtitle-box">
-        
-        <span id="subtitle"></span>
-        
-      </div>
-      <div>
-        
-      </div>
-    </div>
-  </div>
-  <div class="cover-learn-more">
-    <a href="javascript:void(0)" class="anchor"><i class="ri-arrow-down-line"></i></a>
-  </div>
-</section>
-
-
-
-<script src="https://cdn.staticfile.org/typed.js/2.0.12/typed.min.js"></script>
-
-
-<!-- Subtitle -->
-
-  <script>
-    try {
-      var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
-        startDelay: 0,
-        typeSpeed: 200,
-        loop: true,
-        backSpeed: 100,
-        showCursor: true
-      });
-    } catch (err) {
-      console.log(err)
-    }
-  </script>
-  
-<div id="main">
-  <section class="outer">
-  
-  <ul class="ads">
-    
-        <li>
-            <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1rS4y1y7YG?spm_id_from=333.999.0.0">
-                <img src="http://imgjry.fangyikuan.xyz/myAdv/Skyer.jpg" width="120" alt="冲浪者DIY">
-            </a>
-        </li>
-    
-</ul>
-  
-  
-  
-<div class="notice" style="margin-top:50px">
-    <i class="ri-heart-fill"></i>
-    <div class="notice-content">目前在做GD32替代STM32作为主控的各种飞行器研究，欢迎感兴趣的朋友联系我。</div>
-</div>
-
-
-<style>
-    .notice {
-        padding: 20px;
-        border: 1px dashed #e6e6e6;
-        color: #969696;
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        background: #fbfbfb50;
-        border-radius: 10px;
-    }
-
-    .notice i {
-        float: left;
-        color: #999;
-        font-size: 16px;
-        padding-right: 10px;
-        vertical-align: middle;
-        margin-top: -2px;
-    }
-
-    .notice-content {
-        display: initial;
-        vertical-align: middle;
-    }
-</style>
-  
-  <article class="articles">
-    
-    
-    
-    
-    <article
-  id="post-developPythonWithCppModule"
+      <section class="outer">
+  <article
+  id="post-mechanicofmaterial"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -163,29 +65,24 @@
     
     <header class="article-header">
        
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/09/04/developPythonWithCppModule/"
-    >为Python扩展C/C++接口</a> 
-</h2>
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  mechanicofmaterial
+</h1>
  
 
       
     </header>
      
     <div class="article-meta">
-      <a href="/2020/09/04/developPythonWithCppModule/" class="article-date">
-  <time datetime="2020-09-04T03:28:32.000Z" itemprop="datePublished">2020-09-04</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
-  </div>
-  
+      <a href="/2023/09/01/mechanicofmaterial/" class="article-date">
+  <time datetime="2023-09-01T15:26:33.000Z" itemprop="datePublished">2023-09-01</time>
+</a>   
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.6k</span>
+            <span class="post-count">1.9k</span>
         </span>
     </span>
 
@@ -201,212 +98,179 @@
  
     </div>
       
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：身为脚本语言的Python受到万千AI开发者的青睐，而C和C++以优秀的执行效率收到嵌入式工程师和游戏开发者的热爱，将两者结合就将更加无敌了呢🚀</p>
-<blockquote>
-<p>本文主要分享将C++函数导出为Python扩展模块，供python调用，以同时具有py的便利性和C艹的高效性</p>
-</blockquote>
-</blockquote>
-<h2 id="DEMO"><a href="#DEMO" class="headerlink" title="DEMO"></a>DEMO</h2><p>首先，可以想到最基础的文件至少有3个：</p>
-<ul>
-<li>C++目标函数源文件</li>
-<li>Python主程序脚本文件</li>
-<li>编译链接文件</li>
-</ul>
-<h3 id="首先来看看高效的C-源文件吧"><a href="#首先来看看高效的C-源文件吧" class="headerlink" title="首先来看看高效的C++源文件吧"></a>首先来看看高效的C++源文件吧</h3><blockquote>
-<p>childModule.cpp</p>
-<blockquote>
-<p>先直接贴上代码😜别跑！说明就跟在后面</p>
-</blockquote>
-</blockquote> 
-      <a class="article-more-link" href="/2020/09/04/developPythonWithCppModule/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
+    <div class="tocbot"></div>
 
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-C/" rel="tag">C&#x2F;C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%B7%B7%E5%90%88%E7%BC%96%E7%A8%8B/" rel="tag">混合编程</a></li></ul>
 
-    </footer>
-  </div>
 
-   
-    
-</article>
 
-    
-    <article
-  id="post-BasicInformationTheory"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/09/01/BasicInformationTheory/"
-    >基础信息论知识汇总</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/09/01/BasicInformationTheory/" class="article-date">
-  <time datetime="2020-09-01T15:50:03.000Z" itemprop="datePublished">2020-09-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/My%E5%A4%A7%E5%AD%A6/">My大学</a>
-  </div>
   
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">4.5k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">21 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
     <div class="article-entry" itemprop="articleBody">
        
-  <blockquote>
-<p>这是一篇笔者的《信息论与编码》课内学习笔记，最近刚考完信息论，分享下自己的笔记吧😀希望能出个好成绩</p>
-<blockquote>
-<p>个人感觉这门课最有用的就是香农三大定理了，尤其是香农公式给出了信噪比和带宽的需求关系</p>
-</blockquote>
-</blockquote>
-<h2 id="离散单符号信源"><a href="#离散单符号信源" class="headerlink" title="离散单符号信源"></a>离散单符号信源</h2><h3 id="基础概率表示"><a href="#基础概率表示" class="headerlink" title="基础概率表示"></a>基础概率表示</h3><ul>
-<li>无条件概率（先验概率）<br>  $$<br>  p(a_i)<br>  $$</li>
-<li>条件概率(后验概率)<br>  $$<br>  p(a_i&#x2F;b_j)<br>  $$</li>
-<li>联合概率<br>  $$<br>  p(a_ib_j)&#x3D;p(b_j)p(a_i&#x2F;b_j)&#x3D;p(a_i)p(b_j&#x2F;a_i)<br>  $$<h3 id="信息量"><a href="#信息量" class="headerlink" title="信息量"></a>信息量</h3></li>
-<li>概率的降函数</li>
-<li>度量<br>  $$<br>  自信息量I(x_i)&#x3D;\log \frac 1{p(x_i)} &#x3D; -\log p(x_i) \\<br>  联合自信息量 I(a_ib_j)&#x3D;-\log_2p(a_ib_j) \\<br>  条件自信息量 I(a_i&#x2F;b_j)&#x3D;-\log_2p(a_i&#x2F;b_j) \\<br>  互信息量I(x_i;y_i) &#x3D; \log_2 \frac {p(x_i|y_i)} {p(x_i)}&#x3D; I(x_i)-I(x_i&#x2F;y_i) \\<br>  条件互信息量 I(a_i;b_j&#x2F;c_k)&#x3D;\log _2\frac {p(a_i&#x2F;b_jc_k)}{p(a_i&#x2F;c_k)}<br>  $$<ul>
-<li>bit：2底</li>
-<li>nat：e底</li>
-<li>hart：10底</li>
+  <h2 id="基本概念和术语"><a href="#基本概念和术语" class="headerlink" title="基本概念和术语"></a>基本概念和术语</h2><ul>
+<li><p>构件&#x2F;零件：组成机械与结构的各组成部分</p>
+</li>
+<li><p>保证构件正常或安全工作的条件：</p>
+<ul>
+<li>强度（在外力作用下抵抗塑性变形和断裂的能力），对应应力，单位Pa<br>对应的实验测试方法<ul>
+<li>拉伸实验——拉伸强度、屈服强度、抗拉强度（tensile strength）</li>
+<li>三点弯曲实验——抗弯强度（Shear strength）</li>
+<li>压缩实验——抗压强度（compression strength）</li>
 </ul>
 </li>
-<li>互信息量性质<ul>
-<li>互易性<br>  $$<br>  I(a_i;b_j) &#x3D; I(b_j;a_i)<br>  $$</li>
-<li>统计独立时，互信息量为0</li>
-<li>只有互信息量可为负,此时表示信道受到干扰或者错误</li>
+<li>刚度（Stiffness）（受力时抵抗弹性变形的能力），对应应变</li>
+<li>硬度（金属材料抵抗更硬的物体压入其内的能力），属于表面特征。硬度定义方式包括：<ul>
+<li>刻划硬度（Scratch hardness）</li>
+<li>压入硬度（Indentation hardness）</li>
+<li>回弹硬度（Rebound hardness，动态硬度dynamic hardness，或绝对硬度）</li>
 </ul>
 </li>
-<li>联合互信息量<br>  $$<br>  I(a_i;b_jc_k)&#x3D;I(a_i;c_k)+I(a_i;b_j|c_k)<br>  $$</li>
-</ul> 
-      <a class="article-more-link" href="/2020/09/01/BasicInformationTheory/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
-    <article
-  id="post-mshCommandWithArguments"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/01/mshCommandWithArguments/"
-    >MSH控制台添加带参命令</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/08/01/mshCommandWithArguments/" class="article-date">
-  <time datetime="2020-08-01T13:59:12.000Z" itemprop="datePublished">2020-08-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">999</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：之前的<a href="/2020/06/03/MCURTTMSH/">一篇文章</a>分享了移植RT-Thread和其最具吸引力的FinSH控制台。但是没有讲详细的添加命令到控制台上，直到最近笔者在对外输出带参命令的时候发现参数进去后是乱码的，所以打算把坑记录一下</p>
-</blockquote>
-<h2 id="添加MSH命令的代码规则（C）"><a href="#添加MSH命令的代码规则（C）" class="headerlink" title="添加MSH命令的代码规则（C）"></a>添加MSH命令的代码规则（C）</h2><p>一般来说导出函数到MSH命令列表非常简单，调用MSH_CMD_EXPORT宏命令即可</p>
+</ul>
+</li>
+<li><p>连续性假设：材料无空隙地充满整个构件</p>
+</li>
+<li><p>均匀性假设：构件内每一处的力学性能都相同</p>
+</li>
+<li><p>各向同性假设：构件某一处材料沿各个方向的力学性能相同。</p>
+</li>
+<li><p>各向异性假设：各个方向的力学性能不同。</p>
+</li>
+<li><p>内力：构件内部各<strong>部分之间</strong>因受力后变形而引起的相互作用力</p>
 <ul>
-<li><p>简单命令（不带参数）</p>
-<p>  在该情况下，不通过控制台传入参数，所以对函数的形式没有要求，如下是一个对外提供PWM使能的命令demo：</p>
-  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">enablePWM</span><span class="params">(<span class="type">void</span>)</span>;   <span class="comment">//函数声明</span></span><br><span class="line"></span><br><span class="line">MSH_CMD_EXPORT(enablePWM,enable the PWM ouput of High-Res timer);   <span class="comment">//导出函数到MSH命令列表</span></span><br></pre></td></tr></table></figure></li>
-</ul> 
-      <a class="article-more-link" href="/2020/08/01/mshCommandWithArguments/"
-        >阅读更多...</a
-      >
-       
+<li>应力的积分，可以算内力</li>
+<li>内力的分类：轴力，剪力，扭矩，弯矩</li>
+<li>单位：N</li>
+</ul>
+</li>
+<li><p>应力：单个点的力特征，单位是Pa</p>
+</li>
+<li><p>变形：构件尺寸与形状的变化称为变形。</p>
+<ul>
+<li>弹性变形：外力解除后能消失的变形</li>
+<li>塑性变形&#x2F;残余变形：外力解除后不能消失的变形<blockquote>
+<p>在材料力学里，所有材料都会变形</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>应变</strong>：变形的程度，无量纲</p>
+<ul>
+<li>线应变<br>$$<br>\epsilon &#x3D; \Delta L &#x2F; L<br>$$</li>
+<li>切应变</li>
+</ul>
+</li>
+<li><p>材料的应力-应变曲线<br><img src="http://imgjry.fangyikuan.xyz/20230902/20230902_MecOfMat_1.jpg" alt="低碳钢应变应力"></p>
+<p>如上图是低碳钢拉伸时的应力应变曲线。可以分为四个阶段：</p>
+<span id="more"></span>
+<ul>
+<li>弹性阶段。这里当应力小于<strong>比例极限</strong> $\sigma _p$ 时，应力应变服从胡可定律：$\sigma &#x3D; E \epsilon$，常系数$E$为材料的杨氏弹性模量。</li>
+<li>屈服阶段</li>
+<li>强化阶段</li>
+<li>局部变形阶段</li>
+</ul>
+</li>
+<li><p>塑性材料与脆性材料</p>
+<ul>
+<li>评价指标：断后生长率$\delta&#x3D;\Delta l &#x2F; l_0 \times 100%$</li>
+<li>脆性材料：$\delta &lt; 5%$</li>
+<li>塑性材料：$\delta &gt; 5%$</li>
+<li>判断材料失效的方法：塑性材料发生塑性变形，脆性材料断了</li>
+</ul>
+</li>
+<li><p>卸载定律：如果拉伸达到强化阶段，样品开始卸载，那么弹性部分将服从胡可定律恢复，而塑性变形的应变将保留。</p>
+</li>
+<li><p>冷作硬化：冷作的意思就是金属材料在<strong>结晶温度以下</strong>的低温环境，受加工产生大量塑性变形，使表层的晶粒拉长、晶格畸变，实现材料表面的硬度增加。</p>
+</li>
+<li><p>名义屈服极限$\sigma_{0.2}$：对于没明显屈服阶段的材料，工程上常以卸载后残余应变为0.2%的应力作为屈服强度</p>
+</li>
+<li><p>压缩与拉伸的关系：</p>
+<ul>
+<li>塑性材料的拉伸和压缩性能相同；</li>
+<li>脆性材料压缩时的强度极限远高于拉伸的强度极限，抗压性远远抗拉性</li>
+</ul>
+</li>
+<li><p>许用应力：构件工作时允许的最大应力值$[\sigma] &#x3D; \sigma_u&#x2F;n$</p>
+<ul>
+<li>n是安全因数</li>
+<li>$\sigma_u$是极限应力：塑性材料取屈服极限$\sigma_s$或$\sigma_{0.2}$，脆性材料取强度极限$\sigma_b$或$\sigma_{bc}$</li>
+</ul>
+</li>
+<li><p>泊松比$\mu&#x3D;-\epsilon’&#x2F;\epsilon$，表示材料横向的应变$\epsilon’$与轴向受拉压产生应变的比。这是材料的常数，对于各向同性材料，$0&lt;\mu&lt;0.5$</p>
+</li>
+<li><p>变形满足（线性时不变）叠加原理：几组载荷同时作用的总效果，等于各组载荷单独作用产生的效果的和。</p>
+<blockquote>
+<p>条件：材料是线弹性的，或者小变形</p>
+</blockquote>
+</li>
+<li><p>应力集中：因杆件外形突然变化而引起的局部应力急剧增大的现象</p>
+<ul>
+<li>理论应力集中因数：$K&#x3D; \frac {理论应力集中因数\sigma_{max}}{ 截面平均应力\sigma }$</li>
+</ul>
+</li>
+<li><p>圆轴扭转时横截面上的内力和应力，用扭矩$T$表示(方向以右手螺旋法则，沿截面外法线方向为正)</p>
+</li>
+<li><p>切应力互等定理：在两个相互垂直的面上，切应力必然成对出现，且数值相等，两者都垂直于两平面的交线，其方向为共同指向或共同背离该交线。<br><img src="http://imgjry.fangyikuan.xyz/20230902/20230902_MecOfMat_2.jpg" alt="切应力互等定理"></p>
+</li>
+<li><p>剪切胡克定律：$\tau &#x3D; G\cdot y$</p>
+<ul>
+<li>G为剪切弹性模量，且和其他常数有：$G&#x3D;\frac E {2(1+\mu)}$</li>
+</ul>
+</li>
+<li><p>圆轴扭转时横截面上的应力：$\tau_\rho &#x3D; \frac {T\rho}{I_p}$</p>
+<ul>
+<li>$\rho$是距轴线的径向距离</li>
+<li>$I_p&#x3D;\int_A\rho^2dA$</li>
+<li>横截面上任一点切应力大小与该点到圆心的距离成正比</li>
+<li>且最大应力点在圆截面边缘上：$\tau_{max}&#x3D;T&#x2F;W_t$，其中$W_t&#x3D;I_p&#x2F;R$为抗扭截面系数</li>
+</ul>
+</li>
+<li><p>圆轴扭转变形与刚度条件</p>
+<ul>
+<li>扭转角$\phi &#x3D; \frac {Tl}{抗扭刚度GI_p}$</li>
+<li>单位长度扭转角$\phi’&#x3D;\phi&#x2F;l&#x3D;T&#x2F;{GI_p}$</li>
+<li>许用单位长度扭转角$[\phi’]&gt; \phi’$</li>
+</ul>
+</li>
+<li><p>弯曲内力：杆件弯曲时有两个内力，剪力FS，弯矩M</p>
+<ul>
+<li>在集中力作用的地方，剪力图有突变，外力F向下，剪力图向下变，变化值&#x3D;F值；弯矩图有折角</li>
+<li>在集中力偶作用的地方，剪力图无突变；弯矩图有突变，Me顺时针转，弯矩图向上变（朝增加方向），变化值&#x3D;Me值</li>
+<li>在均布力作用的梁段上，剪力图为斜直线；弯矩图为二次抛物线，均布力向下作用，抛物线开口向下。抛物线的极值在剪力为零的截面上</li>
+</ul>
+</li>
+<li><p>弯曲应力</p>
+<ul>
+<li>中性层和中性轴的概念：梁内既不伸长也不缩短的一层纤维，此层纤维称<strong>中性层</strong>。中性层与横截面的交线称为中性轴。中性轴通过截面形心<br><img src="http://imgjry.fangyikuan.xyz/20230902/20230902_MecOfMat_3.png" alt="中性层和中性轴"></li>
+<li>横截面上弯曲正应力：横截面上弯曲正应力沿截面高度直线变化，与该点到中性轴的距离成正比，中性轴上为零<ul>
+<li>正应力公式：$\sigma&#x3D;My&#x2F;I_z$</li>
+<li>最大正应力发生在离中性轴最远的边缘</li>
+</ul>
+</li>
+<li>矩形截面梁弯曲切应力$\tau&#x3D;\frac{F_sS_z}{I_zb}$。强度沿截面高度按抛物线分布，最大切应力在中性轴上</li>
+</ul>
+</li>
+<li><p>弯曲变形</p>
+<ul>
+<li>梁的横截面形心沿竖直方向的位移w称为挠度</li>
+<li>变形后的轴线称为挠曲线。梁横截面对其原来位置转过的角度θ称为转角。在工程问题中，梁的转角一般很小，挠曲线是一条非常平坦的曲线，所以$\theta\approx dw&#x2F;dx$<blockquote>
+<p>对弯曲变形的计算略，毕竟笔者不专业搞材料，只是用来计算机仿真</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>强度理论：关于“构件发生强度失效起因”的假说，利用简单应力状态实验结果，建立复杂应力状态强度条件</p>
+<ul>
+<li>两类破坏形式：脆性断裂和塑性屈服，因此有两类强度理论，断裂强度理论和屈服强度理论</li>
+<li>四种常用强度理论：<ul>
+<li>最大拉应力理论（第一强度理论）</li>
+<li>最大伸长线应变理论（第二强度理论）</li>
+<li>最大切应力理论（第三强度理论）</li>
+<li>畸变能密度理论（第四强度理论）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ 
       <!-- reward -->
       
     </div>
@@ -414,30 +278,95 @@
 
     <!-- copyright -->
     
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
     <footer class="article-footer">
        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FinSH/" rel="tag">FinSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSH/" rel="tag">MSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RT-Thread/" rel="tag">RT-Thread</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">实时操作系统</a></li></ul>
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
 
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2023/09/01/mechanicofmaterial/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
     </footer>
   </div>
 
    
+  <nav class="article-nav">
     
-</article>
-
     
-  </article>
-  
-
-  
-  <nav class="page-nav">
+      <a href="/2023/03/22/MapLinuxFs2Win/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Linux文件系统网络映射至Window</div>
+      </a>
     
-    <a class="extend prev" rel="prev" href="/page/14/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/16/">下一页</a>
   </nav>
-  
-</section>
-</div>
 
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
       <footer class="footer">
   <div class="outer">
     <ul>
@@ -571,6 +500,22 @@
 <script src="/js/lazyload.min.js"></script>
 
 <!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
 
 <script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
 <link

@@ -153,6 +153,98 @@
     
     
     <article
+  id="post-HighFreqAmp"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/04/HighFreqAmp/"
+    >高频小信号放大器</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/11/04/HighFreqAmp/" class="article-date">
+  <time datetime="2020-11-04T08:07:19.000Z" itemprop="datePublished">2020-11-04</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">915</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">4 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>在高频情况下，晶体管放大器必须要考虑极间电容和引脚电感带来的高频影响。相对于现代通信科技，也许这里的高频用的不是很恰当，严谨来说，本文中论述的放大器模型适用的为MHz级别放大器</p>
+</blockquote>
+<h2 id="指标声明"><a href="#指标声明" class="headerlink" title="指标声明"></a>指标声明</h2><ul>
+<li>电压增益<br>  $$<br>  A_v &#x3D; 20 \log \frac{V_o}{V_i}<br>  $$</li>
+<li>功率增益<br>  $$<br>  A_P &#x3D; 10 \log \frac{P_o}{P_i}<br>  $$</li>
+<li>通频带<blockquote>
+<p>3dB处为截止点<br>  $$<br>  B &#x3D; 2 \Delta f_{0.7}<br>  $$</p>
+</blockquote>
+</li>
+<li>矩形系数<blockquote>
+<p>可以按照需求选取参考点<br>  $$<br>  K_{r0.1} &#x3D; \frac{2\Delta f_{0.1}}{2\Delta f_{0.7}}<br>  $$</p>
+</blockquote>
+</li>
+<li>抑制比<br>  $$<br>  d_n &#x3D; 20 \log \frac{谐振增益A_0}{干扰增益A_n}<br>  $$</li>
+<li>噪声系数<br>  $$<br>  N &#x3D; \frac{ 输入信噪比 \frac{P_{si}}{P_{ni}} }{输出信噪比 \frac{P_{so}}{P_{no}} }<br>  $$</li>
+</ul>
+<h2 id="三极管物理模型等效电路"><a href="#三极管物理模型等效电路" class="headerlink" title="三极管物理模型等效电路"></a>三极管物理模型等效电路</h2><p><img src="http://imgjry.fangyikuan.xyz/20201104/20201104-HFAMP-1.png" alt="等效模型"></p> 
+      <a class="article-more-link" href="/2020/11/04/HighFreqAmp/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%89%E6%9E%81%E7%AE%A1/" rel="tag">三极管</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%A2%91%E7%94%B5%E8%B7%AF/" rel="tag">高频电路</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-HikCameraDriver"
   class="article article-type-post"
   itemscope
@@ -327,98 +419,13 @@
 </article>
 
     
-    <article
-  id="post-githubOnLinux"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/09/18/githubOnLinux/"
-    >git使用配置</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/09/18/githubOnLinux/" class="article-date">
-  <time datetime="2020-09-18T15:02:15.000Z" itemprop="datePublished">2020-09-18</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">569</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">2 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：今天给新买的云服务器和虚拟机配环境，分别安装的CentOS和Ubuntu。发现对Git的配置十分模糊，那么就写一篇博客来防止遗忘吧。<br>2022年6月更：本文中的操作内容经过两年的操作检验，在windows和linux上是通用的；本次更新补充在win上配置的小九九。</p>
-</blockquote>
-<h2 id="主要步骤"><a href="#主要步骤" class="headerlink" title="主要步骤"></a>主要步骤</h2><ol>
-<li>本地安装git</li>
-<li>配置账号</li>
-<li>生成ssh密钥</li>
-<li>公钥导入到GitHub上</li>
-<li>密钥加入本地ssh环境</li>
-<li>测试ssh是否正常</li>
-</ol> 
-      <a class="article-more-link" href="/2020/09/18/githubOnLinux/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/12/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/14/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/12/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/14/">下一页</a>
   </nav>
   
 </section>

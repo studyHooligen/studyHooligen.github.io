@@ -153,6 +153,128 @@
     
     
     <article
+  id="post-mechanicofmaterial"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2023/09/01/mechanicofmaterial/"
+    >mechanicofmaterial</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/09/01/mechanicofmaterial/" class="article-date">
+  <time datetime="2023-09-01T15:26:33.000Z" itemprop="datePublished">2023-09-01</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">6 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="基本概念和术语"><a href="#基本概念和术语" class="headerlink" title="基本概念和术语"></a>基本概念和术语</h2><ul>
+<li><p>构件&#x2F;零件：组成机械与结构的各组成部分</p>
+</li>
+<li><p>保证构件正常或安全工作的条件：</p>
+<ul>
+<li>强度（在外力作用下抵抗塑性变形和断裂的能力），对应应力，单位Pa<br>对应的实验测试方法<ul>
+<li>拉伸实验——拉伸强度、屈服强度、抗拉强度（tensile strength）</li>
+<li>三点弯曲实验——抗弯强度（Shear strength）</li>
+<li>压缩实验——抗压强度（compression strength）</li>
+</ul>
+</li>
+<li>刚度（Stiffness）（受力时抵抗弹性变形的能力），对应应变</li>
+<li>硬度（金属材料抵抗更硬的物体压入其内的能力），属于表面特征。硬度定义方式包括：<ul>
+<li>刻划硬度（Scratch hardness）</li>
+<li>压入硬度（Indentation hardness）</li>
+<li>回弹硬度（Rebound hardness，动态硬度dynamic hardness，或绝对硬度）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>连续性假设：材料无空隙地充满整个构件</p>
+</li>
+<li><p>均匀性假设：构件内每一处的力学性能都相同</p>
+</li>
+<li><p>各向同性假设：构件某一处材料沿各个方向的力学性能相同。</p>
+</li>
+<li><p>各向异性假设：各个方向的力学性能不同。</p>
+</li>
+<li><p>内力：构件内部各<strong>部分之间</strong>因受力后变形而引起的相互作用力</p>
+<ul>
+<li>应力的积分，可以算内力</li>
+<li>内力的分类：轴力，剪力，扭矩，弯矩</li>
+<li>单位：N</li>
+</ul>
+</li>
+<li><p>应力：单个点的力特征，单位是Pa</p>
+</li>
+<li><p>变形：构件尺寸与形状的变化称为变形。</p>
+<ul>
+<li>弹性变形：外力解除后能消失的变形</li>
+<li>塑性变形&#x2F;残余变形：外力解除后不能消失的变形<blockquote>
+<p>在材料力学里，所有材料都会变形</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>应变</strong>：变形的程度，无量纲</p>
+<ul>
+<li>线应变<br>$$<br>\epsilon &#x3D; \Delta L &#x2F; L<br>$$</li>
+<li>切应变</li>
+</ul>
+</li>
+<li><p>材料的应力-应变曲线<br><img src="http://imgjry.fangyikuan.xyz/20230902/20230902_MecOfMat_1.jpg" alt="低碳钢应变应力"></p>
+<p>如上图是低碳钢拉伸时的应力应变曲线。可以分为四个阶段：</p> 
+      <a class="article-more-link" href="/2023/09/01/mechanicofmaterial/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-MapLinuxFs2Win"
   class="article article-type-post"
   itemscope
@@ -215,27 +337,11 @@
 <blockquote>
 <p>⚠️上面的path路径，<code>/home/gory</code>是笔者Ubuntu系统中<code>~</code>用户路径的解析式，读者应该更改为自己的路径。</p>
 </blockquote>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-1.png" alt="Ubuntu目录"></p>
-</li>
-<li><p>创建映射的项目文件系统（对应上面的<code>path</code>）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> /home/gory/codemap</span><br></pre></td></tr></table></figure></li>
-<li><p>创建网络访问账号</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbpasswd -a root</span><br></pre></td></tr></table></figure>
-<p>并根据提示设置登录密码</p>
-</li>
-<li><p>重启<code>samba</code>服务器</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo smbd restart</span><br></pre></td></tr></table></figure></li>
-<li><p>在Ubuntu（Linux）端使用<code>ifconfig</code>等命令查ip地址，或者在Windows端用IP扫描软件找ip，或者任何其他获得ip的方法。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-2.png" alt="ifconfig"></p>
-</li>
-<li><p>打开Window系统中的<strong>映射网络驱动器</strong>（在“此电脑”上右键），文件夹一栏填入：<code>\\192.168.abc.efg\codemap</code>，这里的ip应该写你上一步查到的ip。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-3.png" alt="映射网络驱动器"></p>
-</li>
-<li><p>然后根据Windows弹出的认证页面填登录密码就可以在Windows文件管理器中，操作Linux映射的网络磁盘了。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-4.png" alt="映射结果"></p>
-</li>
-</ol>
- 
+<p><img src="http://imgjry.fangyikuan.xyz/20230322/20230322-FsMap-1.png" alt="Ubuntu目录"></p> 
+      <a class="article-more-link" href="/2023/03/22/MapLinuxFs2Win/"
+        >阅读更多...</a
+      >
+       
       <!-- reward -->
       
     </div>
@@ -362,96 +468,13 @@
 </article>
 
     
-    <article
-  id="post-ElectricCompass-FromZeroToInf"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/08/28/ElectricCompass-FromZeroToInf/"
-    >电子罗盘的理论分析与实际应用（AK09915）</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/08/28/ElectricCompass-FromZeroToInf/" class="article-date">
-  <time datetime="2022-08-28T03:01:53.000Z" itemprop="datePublished">2022-08-28</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E4%BC%A0%E6%84%9F%E5%99%A8/">传感器</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">5.2k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">22 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：继上篇6轴IMU之后，本文将介绍电子罗盘的原理（数学模型）和以<code>AK09915</code>为目标的应用实例。</p>
-</blockquote>
-<h2 id="磁基础知识"><a href="#磁基础知识" class="headerlink" title="磁基础知识"></a>磁基础知识</h2><h3 id="磁的分类"><a href="#磁的分类" class="headerlink" title="磁的分类"></a>磁的分类</h3><ul>
-<li>硬磁：也就是永磁性材料。因为这种材料的矫顽力高&#x2F;磁滞回线面基大，所以在被<em>磁化后将很难退磁</em>。</li>
-<li>软磁：普通的纯铁就是很好的例子，可以被磁铁吸住（纯铁被磁化），但是把磁铁拿掉后，很快将不表现出磁性（退磁）。这种材料的矫顽力小&#x2F;磁滞回线面基小，所以被<em>磁化后将快速退磁</em>；这种材料一般使用的目的就是<strong>增加磁导率</strong>，比如做成电感的磁芯可以加大电感量（$L&#x3D;\mu\cdot S_{磁芯} \cdot N^2&#x2F;l_{磁路}$）而又不带来大损耗。<br><img src="http://imgjry.fangyikuan.xyz/20220828/20220828-electCompass-1.png" alt="硬磁与软磁"></li>
-<li>地磁：地球产生的磁场，可以理解地球为永磁体，这里我们并不关注地球的磁性从何而来，只关心地磁场的模型（如下图）。NOTE：在地表测量地磁的磁感应强度范围约是0.4~0.6高斯，地磁场的大磁极轴与地球自转轴有一个约11.5°夹角。<br><img src="http://imgjry.fangyikuan.xyz/20220828/20220828-electCompass-2.gif" alt="地磁场"></li>
-</ul>
-<h3 id="磁物理量"><a href="#磁物理量" class="headerlink" title="磁物理量"></a>磁物理量</h3><p>首先是常见的磁感应强度$B$，磁场强度$H$，表征磁介质磁性能力的磁导率$\mu&#x3D;B&#x2F;H$。磁感应强度$B$的单位有国际标准单位“特斯拉”(<strong>T</strong>)，也有常听到的“高斯”(<strong>G</strong>)，这两个量的关系为：$1T&#x3D;10^4G$。</p> 
-      <a class="article-more-link" href="/2022/08/28/ElectricCompass-FromZeroToInf/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IIC/" rel="tag">IIC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A4%AD%E7%90%83%E6%8B%9F%E5%90%88/" rel="tag">椭球拟合</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%B5%E5%AD%90%E7%BD%97%E7%9B%98/" rel="tag">电子罗盘</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
   </nav>
   
 </section>

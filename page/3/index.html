@@ -153,6 +153,96 @@
     
     
     <article
+  id="post-YOLO"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2022/03/19/YOLO/"
+    >YOLO</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2022/03/19/YOLO/" class="article-date">
+  <time datetime="2022-03-19T03:16:54.000Z" itemprop="datePublished">2022-03-19</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本来笔者已决定退CV坑了，但最近要研究生复试了，还是回顾下去年研究的YOLO顺便简单记录一下备查。</p>
+</blockquote>
+<h2 id="YOLO长话短说"><a href="#YOLO长话短说" class="headerlink" title="YOLO长话短说"></a>YOLO长话短说</h2><p>个人感觉有深度学习基础的情况下，去学习一个YOLO的网络还是相对容易的，但笔者认为YOLO的精髓不在于网络结构而在于其One-Stage的各种思想。下图是<code>YOLO3</code>的网络结构，里面的小积木打开来看无非是卷积层（Conv）、正则化（BN：Batch Normalization）、激活层（Leaky Relu）以及由这3个家伙一起（DBL）构成的残差块（Res Unit）。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/20220319/20220319-YOLO-1.png" alt="YOLO3"></p>
+<p>笔者在这里直接讨论YOLO3，略过了YOLO1、2和忽视更新的4、5的原因是：这是YOLO系列发展过程中的一个重要节点！</p>
+<blockquote>
+<p>从理解算法设计思想的角度来看，学3就够了</p>
+</blockquote>
+<ul>
+<li>YOLO1发布时，最大的贡献是做了<strong>Bounding Box</strong>的思想（下面聊），至于网络结构就是最最最简单的全卷积网络，输出一个尺度的特征图；</li>
+<li>YOLO2个人认为没啥大突破，就是调卷积结构和训练技巧（当然不可否认这些工作是很重要且必要的）</li>
+<li>YOLO3则是划时代的发布，正如我们观察上面框图所见，YOLO3的输出有3个不同尺寸的特征图（$y_1,y_2,y_3$），每个特征图中又有针对尺寸分布设计的<strong>Anchor</strong>,直接解决了物体的<strong>多尺度</strong>问题（远近、大小）；其次，用了预训练的<strong>Darknet-53</strong>做骨干网，并且从尾巴往前分别抽3个特征图，用于相应尺度的进一步识别；还有一个重要的思想——<strong>信息共享</strong>，也就是大尺寸识别网络的中间结果会传递给小一级尺寸的网络；</li>
+<li>YOLO4和5就没有太多突破性的思想了，和2差不多都是网络优化和训练技巧</li>
+</ul>
+<p>好，如果读者是初学者的话，想必看不懂上面这些天书在讲什么（上面这段准备面试啥的应该够了），笔者将在下文中详细记录自己学习过程中的对各个重要拗口概念的理解。</p> 
+      <a class="article-more-link" href="/2022/03/19/YOLO/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Anchor-Bounding-Box/" rel="tag">Anchor &amp; Bounding Box</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/NMS/" rel="tag">NMS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/YOLO/" rel="tag">YOLO</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-AXI4BusType"
   class="article article-type-post"
   itemscope
@@ -328,96 +418,13 @@
 </article>
 
     
-    <article
-  id="post-DigitalPLL"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2022/01/17/DigitalPLL/"
-    >PLL&amp;数字PLL</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2022/01/17/DigitalPLL/" class="article-date">
-  <time datetime="2022-01-17T01:27:52.000Z" itemprop="datePublished">2022-01-17</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80/">硬件基础</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.5k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">5 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：随着当前数字SOC等IC设计技术的发展，越来越多的模拟电路模块被数字化。数字化显然会带来如更好的稳定性、移植性等优点，并且易于分析、结果可预测。本文中将介绍传统的锁相环（PLL：Phase-Locked Loop）的工作原理，以及数字化为可在CMOS-ASIC中实现的全数字锁相环（ADPLL：All-Digital PLL）。</p>
-</blockquote>
-<h2 id="PLL"><a href="#PLL" class="headerlink" title="PLL"></a>PLL</h2><p><img src="http://imgjry.fangyikuan.xyz/20220117/20220117-PLL-1.jpg" alt="PLL"></p>
-<p>上框图为传统的模拟PLL，显然主要有<code>PD</code>、<code>LF</code>、<code>VCO</code>三大主要构成。首先介绍的是压控振荡器<strong>VCO</strong>，一般模拟电路实现的该模块有如下的特性曲线，也就是输出信号的频率与输入的电压（在工作范围内）成线性关系：</p>
-<p>$$<br>F_{VCO} &#x3D; \omega_o + K_{vco}\cdot u_c<br>$$</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20220117/20220117-PLL-2.png" alt="VCO"></p>
-<p>现在将振荡器输出的信号表示为：</p>
-<p>$$<br>u_o(t) &#x3D; A_{o} \sin(\omega_o t + \theta_o)<br>$$</p> 
-      <a class="article-more-link" href="/2022/01/17/DigitalPLL/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PLL/" rel="tag">PLL</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/2/">上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/4/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/2/">上一页</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/4/">下一页</a>
   </nav>
   
 </section>
