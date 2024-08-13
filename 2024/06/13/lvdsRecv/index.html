@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="奇点博客——博文内容涵盖：自动化控制、硬件设计、嵌入式软件、金融、个人认知" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>LVDS接收数据流（这一篇就够了） |  Singularity-blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/S-favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-lvdsRecv"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  LVDS接收数据流（这一篇就够了）
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2024/06/13/lvdsRecv/" class="article-date">
+  <time datetime="2024-06-13T05:55:06.000Z" itemprop="datePublished">2024-06-13</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">5.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">25 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本文将以驱动AFE5832高速模拟前端为开发目标，依次分析设计需求、方案原理、在Zynq Ultrascale+上的Verilog实现，最后扩展分享更通用、更有鲁棒性的LVDS Receiver。注：本文针对具有Verilog语言基础和FPGA基础概念的用户。</p>
+</blockquote>
+<h2 id="接口设计需求简析"><a href="#接口设计需求简析" class="headerlink" title="接口设计需求简析"></a>接口设计需求简析</h2><p><a target="_blank" rel="noopener" href="https://www.ti.com.cn/product/cn/AFE5832">AFE5832</a>是TI公司的一款适用于超声应用的模拟前端芯片，内含从LNA、LPF、到ADC的完整信号链和其他超声需要的辅助模块。采样方面，总共有32路输入，16个ADC，每个ADC支持12bit@40MSPS或者10bit@50MSPS采样，每个ADC的结果分别用一个LVDS的Lane串行输出。配置方面使用SPI接口，可以直接用AXI-SPI的IP核控制，不作介绍，所以接下来的篇幅将开始集中在LVDS方面。</p>
+<blockquote>
+<p>NOTE：笔者使用ZYNQ的PS的SPI，发现有BUG，只能EMIO出信号，MIO一样的代码不行</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_1.png" alt="AFE5832"></p>
+<p>AFE5832的LVDS数据输出接口如下图，有16对Data Lane（<strong>DOUT</strong>），和1对串行数据时钟Serial Data CLK Lane（<strong>DCLK</strong>），以及1对用来划分数据帧的Frame CLK Lane（<strong>FCLK</strong>）。</p>
+<span id="more"></span>
+
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_2.png" alt="AFE832LVDS"></p>
+<p>为了更好地理解这18对Lane的用途，下图截取了Datasheet上的时序说明。注意，这里手册上说明时序是使用单端信号表征，并且名字不是很统一（DCLK这里又变成Bit Clock output了，但这好像更好理解了）。很明显，数据Lane是工作在DDR（Double-Data Rate）的模式，在DCLK的时钟上下边沿抓数据。具体下图中的各参数，本文为规避风险不放，因为TI现在完整的Datasheet是用户签NDA才有的，想要具体了解，可以私信笔者学术交流。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_3.png" alt="LVDSTiming"></p>
+<p>所以，在FPGA侧的LVDS接收器的目标概括为：</p>
+<ul>
+<li>ADC工作转换率：$f_c &#x3D; 80$MSPS</li>
+<li>ADC转换位数：$N_{ser}&#x3D;12$</li>
+<li>帧时钟频率：$f_{Fclk}&#x3D;0.5\times f_c &#x3D; 40$MHz</li>
+<li>数据Lane的波特率：$f_D &#x3D; N_{ser} \times f_c &#x3D; 960$MHz</li>
+<li>时钟Lane频率：$f_{Dclk}&#x3D;f_D&#x2F;2&#x3D;480$MHz</li>
+<li>16路LVDS receiver + 1:12  deserializer</li>
+<li>并帧识别划分后分双通道输出数据（如下图所示，每个ADC轮番转换两个通道，这也是FCLK帧信号的主要用途）</li>
+</ul>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_4.png" alt="FCLK帧时钟用途"></p>
+<h2 id="FPGA的LVDS接收器方案"><a href="#FPGA的LVDS接收器方案" class="headerlink" title="FPGA的LVDS接收器方案"></a>FPGA的LVDS接收器方案</h2><p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_5.svg" alt="LVDS接收器框图"></p>
+<h3 id="FPGA关键原语"><a href="#FPGA关键原语" class="headerlink" title="FPGA关键原语"></a>FPGA关键原语</h3><blockquote>
+<p>这里笔者使用的是AMD的 Ultrascale+ 系列FPGA，如果用Intel或国产的也是差不多的，读者应当注意对应移植细节。<br>这里做概念介绍方便理解代码，具体例化的接口定义请参考《UG571 UltraScale Architecture SelectIO Resources》</p>
+</blockquote>
+<ul>
+<li><p>IBUFDS：差分输入信号转单端数字信号<br><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_6.png" alt="IBUFDS"></p>
+</li>
+<li><p>IDELAYE3：任何输入信号都可以用IDELAYE3进行延迟，除了时钟信号（必须用PLL或MMCM）。里面的Tap Delay Line支持512级延迟调节，但是每一级的延迟时间是没校准的，需要使用 IDELAYCTR 组件来额外补偿控制。<br><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_7.png" alt="IDELAYE3"></p>
+</li>
+<li><p>ISERDESE3：把串行输入（D口）的数据按一组并行输出。在SDR模式下支持1:2和1:4串转并，在DDR模式下支持1:4和1:8。</p>
+<p>  <img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_8.png" alt="ISERDESE3"><br>  如下图，是ISERDES的DATA_WIDTH为8时，DDR模式的时序。可见使用ISERDES可以在电路初级就完成时钟的降频（降低4倍），这对应可以带来大量的功耗优化、资源节省和布线时序优化。<br>  <img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_9.png" alt="ISERDES时序"></p>
+</li>
+</ul>
+<h3 id="关键模块Verilog实现"><a href="#关键模块Verilog实现" class="headerlink" title="关键模块Verilog实现"></a>关键模块Verilog实现</h3><p>在给出具体代码前，我们先按照上面给出的框架，将接收器分为数个子模块：</p>
+<ul>
+<li>顶层封装 <code>LVDS_recv</code><ul>
+<li>时钟生成 <code>clkgen</code></li>
+<li>帧信号采样器 <code>sipo12</code></li>
+<li>数据串并转换器 <code>sipo12</code><ul>
+<li>位偏移器 <code>bitSlip</code> </li>
+<li>ISERDES等FPGA资源模块</li>
+</ul>
+</li>
+<li>位偏移对齐控制器 <code>bitslip_ctrl</code></li>
+<li>帧识别及写入控制器 <code>frame_ctrl</code></li>
+<li>多组输入单输出FIFO缓存器（MISO） <code>FIFO_MISO</code></li>
+<li>切片组合器 <code>gearbox</code></li>
+</ul>
+</li>
+</ul>
+<p>接下来，开始按照依赖关系，给出各个子模块的代码。最后给出顶层模块，和行为仿真的结果。这里上板的测试不方便给出，因为具体完整测试涉及到AFE5832的细节涉及保密条款。</p>
+<h4 id="时钟生成器"><a href="#时钟生成器" class="headerlink" title="时钟生成器"></a>时钟生成器</h4><p>时钟恢复绝对是一切的基础，如果收不到时钟，那就是查硬件问题（顺序：查给AFE的$f_{adc}$正确输出 → 查AFE的时钟接收电路是否有正确的100Ω阻抗端接 → 查是否正确给了AFE初始化指令来让内部PLL正常工作 → 查供电 → 查FPGA的LVDS接收端是否有正确的100Ω阻抗端接）。</p>
+<p>这里代码中没有什么复杂的操作，就是像框图里面由MMCM&#x2F;PLL跟踪数据时钟。有一个细节点就是锁相环的反馈要来自过时钟驱动器(<code>bufg</code>)的信号，这样可以去除驱动器的延迟。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> clkgen #(</span><br><span class="line">      <span class="keyword">parameter</span> <span class="keyword">real</span>    CLKIN_PERIOD = <span class="number">2</span>        <span class="comment">// Clock period (ns) of input clock on clkin_p)</span></span><br><span class="line">    )</span><br><span class="line">    (</span><br><span class="line">    <span class="keyword">input</span> lvds_bclkin_p,    <span class="comment">// LVDS 源同步数据时钟 差分+</span></span><br><span class="line">    <span class="keyword">input</span> lvds_bclkin_n,    <span class="comment">// 差分-</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">input</span> rstn,             <span class="comment">// 异步复位</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">output</span> bps_div2,        <span class="comment">// DDR数据采样时钟，0相移</span></span><br><span class="line">    <span class="keyword">output</span> bps_div8,        <span class="comment">// 字节（切片）时钟</span></span><br><span class="line">    <span class="keyword">output</span> PLL_locked       <span class="comment">// PLL 锁定成功</span></span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> bclkin_p, bclkin_n;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 输入缓冲器</span></span><br><span class="line">    IBUFGDS_DIFF_OUT # (</span><br><span class="line">        <span class="variable">.DIFF_TERM</span>        (<span class="string">&quot;TRUE&quot;</span>)</span><br><span class="line">    )</span><br><span class="line">    iob_clk_in (</span><br><span class="line">        <span class="variable">.I</span>                (lvds_bclkin_p),</span><br><span class="line">        <span class="variable">.IB</span>               (lvds_bclkin_n),</span><br><span class="line">        <span class="variable">.O</span>                (bclkin_p),</span><br><span class="line">        <span class="variable">.OB</span>               (bclkin_n)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 用来防止VCO频率不够</span></span><br><span class="line">    <span class="comment">// F_VCO 范围是 800MHz~1600MHz</span></span><br><span class="line">    <span class="comment">// 本设计跟踪的 dclk 范围 120M~480M</span></span><br><span class="line">    <span class="comment">// <span class="doctag">NOTE:</span> 将VCO的比例因子缩放到 VCO频率接近1200MHz</span></span><br><span class="line">    <span class="comment">// localparam VCO_MULTIPLIER = (CLKIN_PERIOD &gt;11.666) ? 2 : 1 ;</span></span><br><span class="line">    <span class="keyword">localparam</span> <span class="keyword">integer</span> VCO_MULTIPLIER = (CLKIN_PERIOD /(<span class="number">1</span>/<span class="number">1</span><span class="variable">.200</span>));</span><br><span class="line">    <span class="comment">/****</span></span><br><span class="line"><span class="comment">    ** FB通道和输入时钟同频，也就是 f_fb = f_bps/2</span></span><br><span class="line"><span class="comment">    ****/</span></span><br><span class="line">    MMCME3_BASE # (</span><br><span class="line">        <span class="variable">.CLKIN1_PERIOD</span>      (CLKIN_PERIOD),</span><br><span class="line">        <span class="variable">.BANDWIDTH</span>          (<span class="string">&quot;OPTIMIZED&quot;</span>),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.CLKFBOUT_MULT_F</span>    (VCO_MULTIPLIER),</span><br><span class="line">        <span class="variable">.CLKFBOUT_PHASE</span>     (<span class="number">180</span><span class="variable">.0</span>),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.DIVCLK_DIVIDE</span>      (<span class="number">1</span>),</span><br><span class="line">        <span class="variable">.REF_JITTER1</span>        (<span class="number">0</span><span class="variable">.100</span>)</span><br><span class="line">    )</span><br><span class="line">    rx_mmcm_adv_inst (</span><br><span class="line">        <span class="variable">.CLKFBOUT</span>       (bps_d2_pll),</span><br><span class="line">        <span class="variable">.CLKFBOUTB</span>      (),</span><br><span class="line">        <span class="variable">.CLKOUT0</span>        (),</span><br><span class="line">        <span class="variable">.CLKOUT0B</span>       (),</span><br><span class="line">        <span class="variable">.CLKOUT1</span>        (),</span><br><span class="line">        <span class="variable">.CLKOUT1B</span>       (),</span><br><span class="line">        <span class="variable">.CLKOUT2</span>        (),</span><br><span class="line">        <span class="variable">.CLKOUT2B</span>       (),</span><br><span class="line">        <span class="variable">.CLKOUT3</span>        (),</span><br><span class="line">        <span class="variable">.CLKOUT3B</span>       (),</span><br><span class="line">        <span class="variable">.CLKOUT4</span>        (),</span><br><span class="line">        <span class="variable">.CLKOUT5</span>        (),</span><br><span class="line">        <span class="variable">.CLKOUT6</span>        (),</span><br><span class="line">        <span class="variable">.LOCKED</span>         (PLL_locked),</span><br><span class="line">        <span class="variable">.CLKFBIN</span>        (bps_div2),</span><br><span class="line">        <span class="variable">.CLKIN1</span>         (bclkin_p),</span><br><span class="line">        <span class="variable">.PWRDWN</span>         (<span class="number">1&#x27;b0</span>),</span><br><span class="line">        <span class="variable">.RST</span>            (~rstn)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 时钟打出去</span></span><br><span class="line">    BUFG  bg_2     (<span class="variable">.I</span>(bps_d2_pll),      <span class="variable">.O</span>(bps_div2)) ;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// * 供给iserdes的bclk_div时钟要和bclk时钟同源</span></span><br><span class="line">    BUFGCE_DIV #(</span><br><span class="line">        <span class="variable">.BUFGCE_DIVIDE</span>(<span class="number">4</span>)</span><br><span class="line">    )   bg_8(</span><br><span class="line">        <span class="variable">.I</span>(bps_d2_pll),</span><br><span class="line">        <span class="variable">.O</span>(bps_div8)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="帧-x2F-数据采样器"><a href="#帧-x2F-数据采样器" class="headerlink" title="帧&#x2F;数据采样器"></a>帧&#x2F;数据采样器</h4><p>和框图里面的设计一致，就是用原语来实现最基础的串并转换。这样比纯逻辑门做有更好的时序收敛性和更好的功耗。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> sipo12(</span><br><span class="line">    <span class="keyword">input</span> lvds_din_p,   <span class="comment">// LVDS 数据线 差分+</span></span><br><span class="line">    <span class="keyword">input</span> lvds_din_n,   <span class="comment">// 差分-</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">input</span> rstn,     <span class="comment">// 异步复位</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">input</span> bps_div2, <span class="comment">// DDR时钟</span></span><br><span class="line">    <span class="keyword">input</span> bps_div8, <span class="comment">// 字节时钟</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">input</span> [<span class="number">2</span>:<span class="number">0</span>] Nslip,  <span class="comment">// 位滑动量</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">output</span> [<span class="number">7</span>:<span class="number">0</span>] pdout  <span class="comment">// 字节输出</span></span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">7</span>:<span class="number">0</span>] des_out_curr;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 差分转单端</span></span><br><span class="line">    IBUFDS # (</span><br><span class="line">        <span class="variable">.DIFF_TERM</span>     (<span class="string">&quot;TRUE&quot;</span>)</span><br><span class="line">    )</span><br><span class="line">    iob_clk_in (</span><br><span class="line">        <span class="variable">.I</span>                (lvds_din_p),</span><br><span class="line">        <span class="variable">.IB</span>               (lvds_din_n),</span><br><span class="line">        <span class="variable">.O</span>                (datain_i)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// DDR 串并转换 采样器</span></span><br><span class="line">    <span class="comment">// 1:8</span></span><br><span class="line">    ISERDESE3 #(</span><br><span class="line">        <span class="variable">.DATA_WIDTH</span>      (<span class="number">8</span>),   <span class="comment">// DDR, 8位</span></span><br><span class="line">        <span class="variable">.SIM_DEVICE</span>   	(<span class="string">&quot;ULTRASCALE_PLUS&quot;</span>),    <span class="comment">// FPGA器件</span></span><br><span class="line">        <span class="variable">.FIFO_ENABLE</span>     (<span class="string">&quot;FALSE&quot;</span>),     <span class="comment">// 不用FIFO</span></span><br><span class="line">        <span class="variable">.FIFO_SYNC_MODE</span>  (<span class="string">&quot;FALSE&quot;</span>) )</span><br><span class="line">    iserdes_m (</span><br><span class="line">        <span class="variable">.D</span>               (datain_i),    <span class="comment">// 串行数据线输入</span></span><br><span class="line">        <span class="variable">.RST</span>             (~rstn),       <span class="comment">// 复位</span></span><br><span class="line"></span><br><span class="line">        <span class="variable">.CLK</span>             ( bps_div2),   <span class="comment">// DDR采样时钟</span></span><br><span class="line">        <span class="variable">.CLK_B</span>           (~bps_div2),   <span class="comment">// TODO : 这个或门要优化成BUF</span></span><br><span class="line"></span><br><span class="line">        <span class="variable">.CLKDIV</span>          ( bps_div8),   <span class="comment">// 字节时钟</span></span><br><span class="line">        <span class="variable">.Q</span>               (des_out_curr), <span class="comment">// 字节数据</span></span><br><span class="line"></span><br><span class="line">        <span class="variable">.FIFO_RD_CLK</span>     (<span class="number">1&#x27;b0</span>),</span><br><span class="line">        <span class="variable">.FIFO_RD_EN</span>      (<span class="number">1&#x27;b0</span>),</span><br><span class="line">        <span class="variable">.FIFO_EMPTY</span>      (),</span><br><span class="line">        <span class="variable">.INTERNAL_DIVCLK</span> ()</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 位滑动器</span></span><br><span class="line">    bitSlip slip_inst(</span><br><span class="line">        <span class="variable">.Din</span>(des_out_curr),</span><br><span class="line">        <span class="variable">.clk</span>(bps_div8),</span><br><span class="line">        <span class="variable">.Nslip</span>(Nslip),</span><br><span class="line">        <span class="variable">.rstn</span>(rstn),</span><br><span class="line">        <span class="variable">.Dout</span>(pdout)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="位偏移器"><a href="#位偏移器" class="headerlink" title="位偏移器"></a>位偏移器</h4><p>上面<code>sipo12</code>模块中，例化了一个位偏移器。这个模块的用途是，因为<code>ISERDES</code>被复位后开始抓数据的时间点，有非常大概率不是一个字节的第一个位，所以要对抓到的数据进行滑动匹配对齐。这里笔者使用的方案是比较笨但是好理解的，读者也可以升级为使用帧信号触发<code>ISERDES</code>复位逐渐逼近对齐的方案。偏移器的具体代码很简单，就是拼接：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bitSlip(</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">7</span>:<span class="number">0</span>] Din,</span><br><span class="line">    <span class="keyword">input</span> clk,</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">2</span>:<span class="number">0</span>] Nslip,</span><br><span class="line">    <span class="keyword">input</span> rstn,</span><br><span class="line">    <span class="keyword">output</span> [<span class="number">7</span>:<span class="number">0</span>] Dout</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// *输入的Din默认在外部为REG驱动，如果不是这里要加一级</span></span><br><span class="line">    <span class="comment">// *二级缓存REG</span></span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">7</span>:<span class="number">0</span>] pre_din;</span><br><span class="line">    <span class="comment">// *输出REG</span></span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">7</span>:<span class="number">0</span>] concat_dout;</span><br><span class="line">    <span class="keyword">assign</span> Dout = concat_dout;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">always</span> @(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rstn) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!rstn) <span class="keyword">begin</span></span><br><span class="line">            pre_din &lt;= <span class="number">0</span>;</span><br><span class="line">            concat_dout &lt;= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            <span class="comment">//* 缓冲REG，就是直接拿</span></span><br><span class="line">            pre_din &lt;= Din;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//* 根据位移量，拼接数据</span></span><br><span class="line">            <span class="comment">//  note: 下面的拼法，代表发射机先发低位再发高位</span></span><br><span class="line">            <span class="keyword">case</span>(Nslip)</span><br><span class="line">                <span class="number">1</span>: concat_dout &lt;= &#123;Din[<span class="number">0</span>],pre_din[<span class="number">7</span>:<span class="number">1</span>]&#125;;</span><br><span class="line">                <span class="number">2</span>: concat_dout &lt;= &#123;Din[<span class="number">1</span>:<span class="number">0</span>],pre_din[<span class="number">7</span>:<span class="number">2</span>]&#125;;</span><br><span class="line">                <span class="number">3</span>: concat_dout &lt;= &#123;Din[<span class="number">2</span>:<span class="number">0</span>],pre_din[<span class="number">7</span>:<span class="number">3</span>]&#125;;</span><br><span class="line">                <span class="number">4</span>: concat_dout &lt;= &#123;Din[<span class="number">3</span>:<span class="number">0</span>],pre_din[<span class="number">7</span>:<span class="number">4</span>]&#125;;</span><br><span class="line">                <span class="number">5</span>: concat_dout &lt;= &#123;Din[<span class="number">4</span>:<span class="number">0</span>],pre_din[<span class="number">7</span>:<span class="number">5</span>]&#125;;</span><br><span class="line">                <span class="number">6</span>: concat_dout &lt;= &#123;Din[<span class="number">5</span>:<span class="number">0</span>],pre_din[<span class="number">7</span>:<span class="number">6</span>]&#125;;</span><br><span class="line">                <span class="number">7</span>: concat_dout &lt;= &#123;Din[<span class="number">6</span>:<span class="number">0</span>],pre_din[<span class="number">7</span>]&#125;;</span><br><span class="line">                <span class="keyword">default</span> : concat_dout &lt;= pre_din;</span><br><span class="line">            <span class="keyword">endcase</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="位偏移对齐控制器"><a href="#位偏移对齐控制器" class="headerlink" title="位偏移对齐控制器"></a>位偏移对齐控制器</h4><p>识别位偏移的方法也很简单，就是把帧信号当作数据用<code>sipo</code>去抓，当正确对齐的情况下，抓出来的数据只可能是：<code>1111_1111</code>，<code>1111_0000</code>，<code>0000_0000</code>三种。基于这个思想，模块的代码为:</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bitslip_ctrl(</span><br><span class="line">    <span class="keyword">input</span> clk,          </span><br><span class="line">    <span class="keyword">input</span> rstn,</span><br><span class="line"></span><br><span class="line">    <span class="keyword">input</span> [<span class="number">7</span>:<span class="number">0</span>] f8b_in,         <span class="comment">// 帧信号采样结果</span></span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> [<span class="number">2</span>:<span class="number">0</span>] Nslip,     <span class="comment">// 位滑动量</span></span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> [<span class="number">1</span>:<span class="number">0</span>] status,    <span class="comment">// 状态，见 BSLIP_[INIT/SLIPING/LOCK/FAIL]</span></span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> ERROR            <span class="comment">// 错误标志</span></span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 状态机 4种工作状态</span></span><br><span class="line">    <span class="keyword">localparam</span> BSLIP_INIT = <span class="number">2&#x27;b00</span>;</span><br><span class="line">    <span class="keyword">localparam</span> BSLIP_SLIPING = <span class="number">2&#x27;b01</span>;</span><br><span class="line">    <span class="keyword">localparam</span> BSLIP_LOCK = <span class="number">2&#x27;b10</span>;</span><br><span class="line">    <span class="keyword">localparam</span> BSLIP_FAIL = <span class="number">2&#x27;b11</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> patternFit;</span><br><span class="line">    <span class="keyword">wire</span> pattern_A,pattern_B,pattern_C;</span><br><span class="line">    <span class="keyword">assign</span> pattern_A = f8b_in == <span class="number">8&#x27;b1111_1111</span>;</span><br><span class="line">    <span class="keyword">assign</span> pattern_B = f8b_in == <span class="number">8&#x27;b0000_1111</span>;</span><br><span class="line">    <span class="keyword">assign</span> pattern_C = f8b_in == <span class="number">8&#x27;b0000_0000</span>;</span><br><span class="line">    <span class="keyword">assign</span> patternFit = pattern_A | pattern_B | pattern_C;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">1</span>:<span class="number">0</span>] pre_pattern; <span class="keyword">localparam</span> PT_A = <span class="number">0</span>, PT_B=<span class="number">1</span>, PT_C=<span class="number">2</span>, PT_NO=<span class="number">3</span>;</span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">1</span>:<span class="number">0</span>] fit_cnt;</span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">3</span>:<span class="number">0</span>] try_time;     <span class="comment">// 记录失败次数</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// pre_pattern 观测器实现</span></span><br><span class="line">    <span class="keyword">always</span>@(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rstn) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!rstn) <span class="keyword">begin</span></span><br><span class="line">            pre_pattern &lt;= PT_NO;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">if</span>(pattern_A)</span><br><span class="line">                pre_pattern &lt;= PT_A;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(pattern_B)</span><br><span class="line">                pre_pattern &lt;= PT_B;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(pattern_C)</span><br><span class="line">                pre_pattern &lt;= PT_C;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                pre_pattern &lt;= PT_NO;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 滑动状态机</span></span><br><span class="line">    <span class="keyword">always</span>@(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rstn) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!rstn) <span class="keyword">begin</span></span><br><span class="line">            try_time &lt;= <span class="number">0</span>;</span><br><span class="line">            Nslip &lt;=<span class="number">0</span>;</span><br><span class="line">            status &lt;= BSLIP_INIT;</span><br><span class="line">            fit_cnt &lt;= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">case</span>(status)</span><br><span class="line">                </span><br><span class="line">                BSLIP_INIT : status &lt;= BSLIP_SLIPING;</span><br><span class="line">                </span><br><span class="line">                BSLIP_SLIPING : <span class="keyword">begin</span></span><br><span class="line">                    <span class="comment">// 只有匹配两次pattern且满足pattern的连续关系，才LOCK</span></span><br><span class="line">                    <span class="keyword">if</span>(patternFit) <span class="keyword">begin</span></span><br><span class="line">                        <span class="keyword">if</span>(fit_cnt == <span class="number">2</span>)</span><br><span class="line">                            status &lt;= BSLIP_LOCK;</span><br><span class="line">                        <span class="keyword">else</span> <span class="keyword">begin</span>  <span class="comment">// fit_cnt = 0 or 1</span></span><br><span class="line">                            <span class="keyword">case</span>(pre_pattern)</span><br><span class="line">                                PT_A: <span class="keyword">begin</span></span><br><span class="line">                                    <span class="keyword">if</span>(pattern_B)</span><br><span class="line">                                        fit_cnt &lt;= fit_cnt+<span class="number">1</span>;</span><br><span class="line">                                    <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">                                        fit_cnt &lt;=<span class="number">0</span>;</span><br><span class="line">                                    <span class="keyword">end</span></span><br><span class="line">                                <span class="keyword">end</span></span><br><span class="line">                                </span><br><span class="line">                                PT_B: <span class="keyword">begin</span></span><br><span class="line">                                    <span class="keyword">if</span>(pattern_C)</span><br><span class="line">                                        fit_cnt &lt;= fit_cnt+<span class="number">1</span>;</span><br><span class="line">                                    <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">                                        fit_cnt &lt;=<span class="number">0</span>;</span><br><span class="line">                                    <span class="keyword">end</span></span><br><span class="line">                                <span class="keyword">end</span></span><br><span class="line">                                </span><br><span class="line">                                PT_C: <span class="keyword">begin</span></span><br><span class="line">                                    <span class="keyword">if</span>(pattern_A)</span><br><span class="line">                                        fit_cnt &lt;= fit_cnt+<span class="number">1</span>;</span><br><span class="line">                                    <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">                                        fit_cnt &lt;=<span class="number">0</span>;</span><br><span class="line">                                    <span class="keyword">end</span></span><br><span class="line">                                <span class="keyword">end</span></span><br><span class="line">                                </span><br><span class="line">                                <span class="keyword">default</span>: <span class="keyword">begin</span></span><br><span class="line">                                    fit_cnt &lt;= <span class="number">0</span>;</span><br><span class="line">                                <span class="keyword">end</span></span><br><span class="line">                            <span class="keyword">endcase</span></span><br><span class="line">                        <span class="keyword">end</span></span><br><span class="line">                    <span class="keyword">end</span></span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span>(Nslip == <span class="number">7</span>)</span><br><span class="line">                        status &lt;= BSLIP_FAIL;</span><br><span class="line">                        <span class="keyword">else</span></span><br><span class="line">                        Nslip &lt;= Nslip+<span class="number">1</span>;</span><br><span class="line"><span class="comment">//                        status &lt;= BSLIP_INIT;</span></span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                </span><br><span class="line">                BSLIP_LOCK : <span class="keyword">begin</span></span><br><span class="line">                    <span class="keyword">if</span>(patternFit)</span><br><span class="line">                        status &lt;= status;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                        status &lt;= BSLIP_FAIL;                 </span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                </span><br><span class="line">                <span class="comment">// FAIL状态下，清空重新开始</span></span><br><span class="line">                <span class="keyword">default</span>: <span class="keyword">begin</span></span><br><span class="line">                    Nslip &lt;=<span class="number">0</span>;</span><br><span class="line">                    status &lt;= BSLIP_INIT;</span><br><span class="line">                    fit_cnt &lt;= <span class="number">0</span>;</span><br><span class="line">                    </span><br><span class="line">                    try_time &lt;= try_time +<span class="number">1</span>;</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                </span><br><span class="line">            <span class="keyword">endcase</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 错误位判断</span></span><br><span class="line">    <span class="comment">// NOTE：清标志位只能通过子模块复位完成</span></span><br><span class="line">    <span class="keyword">always</span>@(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rstn) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!rstn) <span class="keyword">begin</span></span><br><span class="line">            ERROR &lt;=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">if</span>(try_time == <span class="number">4&#x27;b1110</span>)</span><br><span class="line">                ERROR &lt;= <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span> ERROR &lt;= ERROR;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="切片组合器"><a href="#切片组合器" class="headerlink" title="切片组合器"></a>切片组合器</h4><p>我们使用的AFE采样精度是12位，也就是LVDS输出的一字有12位，但是我们用<code>sipo</code>抓的数据是8位，那么也就是我们需要对这些字节进行分切拼接。很明显，在帧信号的一个周期里面有2个采样数据（高电平一个、低电平一个），也就是24位，我们会抓到3个字节，其中，第一个字节和第二个字节的前半段拼起来是一个采样数据，第二个字节的后半段与第三个字节拼起来是第二个采样数据。因此，切片组合器实现为：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> gearbox(</span><br><span class="line">    <span class="keyword">input</span> clk,</span><br><span class="line">    <span class="keyword">input</span> rstn,</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">input</span> [<span class="number">1</span>:<span class="number">0</span>] Nslice,     <span class="comment">// 切片编号</span></span><br><span class="line">    <span class="keyword">input</span> [<span class="number">7</span>:<span class="number">0</span>] pdin,       <span class="comment">// 字节数据</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> [<span class="number">11</span>:<span class="number">0</span>] pdout <span class="comment">// 拼接结果</span></span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">7</span>:<span class="number">0</span>] store_last_des;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 存储每一次的REG</span></span><br><span class="line">    <span class="keyword">always</span> @(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rstn)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!rstn) <span class="keyword">begin</span></span><br><span class="line">            store_last_des &lt;= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span>  <span class="keyword">begin</span></span><br><span class="line">            store_last_des &lt;= pdin;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 根据状态机拼接输出</span></span><br><span class="line">    <span class="keyword">always</span> @(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rstn)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(! rstn)</span><br><span class="line">        <span class="keyword">begin</span></span><br><span class="line">            pdout &lt;= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">case</span>(Nslice)</span><br><span class="line">                <span class="number">2&#x27;h1</span>   : pdout &lt;= pdout;</span><br><span class="line">                <span class="number">2&#x27;h2</span>   : pdout &lt;= &#123;pdin[<span class="number">3</span>:<span class="number">0</span>],store_last_des[<span class="number">7</span>:<span class="number">0</span>]&#125;;</span><br><span class="line">                <span class="number">2&#x27;h3</span>   : pdout &lt;= &#123;pdin[<span class="number">7</span>:<span class="number">0</span>],store_last_des[<span class="number">7</span>:<span class="number">4</span>]&#125;;</span><br><span class="line">                <span class="keyword">default</span> : pdout &lt;= <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">endcase</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="帧识别器及写入控制器"><a href="#帧识别器及写入控制器" class="headerlink" title="帧识别器及写入控制器"></a>帧识别器及写入控制器</h4><p>切片组合器的原理很简单，但前提是识别出切片的状态。前面说了帧信号是说明了采样数据的字划分的，并且我们也在位对齐环节对帧信号进行了采样，那么类似的采样的结果本质上就是切片编码。具体的，<code>1111_1111</code>就是第一个字节，<code>1111_0000</code>是第二个，<code>0000_0000</code>是第三个。但是要注意，3个字节切片，只有两个ADC采样结果，所以只有2&#x2F;3的时钟点需要存数据（写FIFO），因此本控制同时根据切片位置给出FIFO使能信号。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> frame_ctrl(</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">7</span>:<span class="number">0</span>] f8b_in,</span><br><span class="line">    <span class="keyword">input</span> init_seq_finish,</span><br><span class="line"></span><br><span class="line">    <span class="keyword">input</span> recvEn,           <span class="comment">// 全局接收使能，用于控制FIFO写入</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> [<span class="number">1</span>:<span class="number">0</span>] Nslice,    <span class="comment">// 切片号</span></span><br><span class="line">    <span class="keyword">output</span> [<span class="number">1</span>:<span class="number">0</span>] FIFOen         <span class="comment">// FIFO写使能</span></span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">1</span>:<span class="number">0</span>] fifo_en_by_slice;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">assign</span> FIFOen = recvEn ? fifo_en_by_slice : <span class="number">2&#x27;b00</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">always</span> @(*) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">case</span>(f8b_in)</span><br><span class="line">            <span class="number">8&#x27;hff</span> : <span class="keyword">begin</span></span><br><span class="line">                Nslice &lt;= <span class="number">1</span>;</span><br><span class="line">                fifo_en_by_slice &lt;= <span class="number">2&#x27;b00</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">            <span class="number">8&#x27;h0f</span> : <span class="keyword">begin</span></span><br><span class="line">                Nslice &lt;= <span class="number">2</span>;</span><br><span class="line">                fifo_en_by_slice &lt;= <span class="number">2&#x27;b10</span> &amp; &#123;<span class="number">2</span>&#123;init_seq_finish&#125;&#125;;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">            <span class="number">8&#x27;h00</span> : <span class="keyword">begin</span></span><br><span class="line">                Nslice &lt;= <span class="number">3</span>;</span><br><span class="line">                fifo_en_by_slice &lt;= <span class="number">2&#x27;b01</span> &amp; &#123;<span class="number">2</span>&#123;init_seq_finish&#125;&#125;;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">default</span> : <span class="keyword">begin</span></span><br><span class="line">                Nslice &lt;= <span class="number">0</span>;</span><br><span class="line">                fifo_en_by_slice &lt;= <span class="number">2&#x27;b00</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">endcase</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="MISO缓冲器"><a href="#MISO缓冲器" class="headerlink" title="MISO缓冲器"></a>MISO缓冲器</h4><p>这个是为了方便读取数据到处理器的DDR设计的，因为使用的FPGA的PS与PL数据流交互是用的AXI，同时考虑到数据缓冲和多通道的需求，笔者设计了MISO这个缓冲器。具体思想是，首先例化了多个（通道数一致）跨时钟域的异步FIFO来缓冲数据，读写都是native端口，写入fifo的使能控制就是上面<code>frame_ctrl</code>来的；读fifo，则是设计了一个多通道轮询器来控制读使能，当用户连续读这个模块的端口时，实际在内部是轮流读各个通道数据FIFO。具体代码如下：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> FIFO_MISO#(</span><br><span class="line">    <span class="keyword">parameter</span> N_CHANNEL = <span class="number">16</span>,   <span class="comment">// 需要缓冲数据的通道数</span></span><br><span class="line">    <span class="keyword">parameter</span> WID_WORD  = <span class="number">12</span>    <span class="comment">// 数据宽度</span></span><br><span class="line">    )(</span><br><span class="line">    <span class="keyword">input</span> rst,</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// FIFO 写入接口</span></span><br><span class="line">    <span class="keyword">input</span> wr_clk,</span><br><span class="line">    <span class="keyword">input</span> [ (N_CHANNEL*WID_WORD -<span class="number">1</span> ) :<span class="number">0</span> ] wr_dataBus,</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">1</span>:<span class="number">0</span>] wr_enAB,</span><br><span class="line">    <span class="keyword">output</span> wrst_busy,</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 读接口，与fifo native标准一致</span></span><br><span class="line">    <span class="keyword">input</span> rd_clk,</span><br><span class="line">    <span class="keyword">output</span> [ (WID_WORD-<span class="number">1</span>) :<span class="number">0</span>] rd_data,</span><br><span class="line">    <span class="keyword">input</span> rd_en,</span><br><span class="line">    <span class="keyword">output</span> [<span class="number">5</span>:<span class="number">0</span>] rd_cnt,</span><br><span class="line">    <span class="keyword">output</span> rrst_busy,</span><br><span class="line">    <span class="keyword">output</span> rd_empty</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> [( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> ):<span class="number">0</span>] fifo_rd_en_bus;</span><br><span class="line">    <span class="keyword">wire</span> [( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> ):<span class="number">0</span>] fifo_full_bus;</span><br><span class="line">    <span class="keyword">wire</span> [( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> ):<span class="number">0</span>] fifo_empty_bus;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">5</span>:<span class="number">0</span>] fifo_cnt_bus [( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> ):<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">wire</span> [( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> ):<span class="number">0</span>] fifo_wrst_busy;</span><br><span class="line">    <span class="keyword">wire</span> [( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> ):<span class="number">0</span>] fifo_rrst_busy;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> [ WID_WORD-<span class="number">1</span> :<span class="number">0</span> ] fifo_rdout_bus [ (<span class="number">2</span>*N_CHANNEL-<span class="number">1</span>) :<span class="number">0</span> ];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 例化FIFO，这里分AB是因为帧信号一周期有两个数据</span></span><br><span class="line">    <span class="keyword">generate</span></span><br><span class="line">    <span class="keyword">genvar</span> gi;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(gi = <span class="number">0</span>; gi &lt; N_CHANNEL; gi = gi+<span class="number">1</span>) <span class="keyword">begin</span>:fifo_gen</span><br><span class="line">    </span><br><span class="line">        fifo_generator_0 FIFO_channelA (</span><br><span class="line">            <span class="variable">.rst</span>(rst),                      <span class="comment">// input wire rst</span></span><br><span class="line">            <span class="variable">.wr_clk</span>(wr_clk),                <span class="comment">// input wire wr_clk</span></span><br><span class="line">            <span class="variable">.rd_clk</span>(rd_clk),                <span class="comment">// input wire rd_clk</span></span><br><span class="line">            <span class="variable">.din</span>(wr_dataBus[gi*<span class="number">12</span> +: <span class="number">12</span>]),                      <span class="comment">// input wire [11 : 0] din</span></span><br><span class="line">            <span class="variable">.wr_en</span>(wr_enAB[<span class="number">0</span>]),                  <span class="comment">// input wire wr_en</span></span><br><span class="line">            <span class="variable">.rd_en</span>(fifo_rd_en_bus[gi*<span class="number">2</span>]),                  <span class="comment">// input wire rd_en</span></span><br><span class="line">            <span class="variable">.dout</span>(fifo_rdout_bus[gi*<span class="number">2</span>]),                    <span class="comment">// output wire [11 : 0] dout</span></span><br><span class="line">            <span class="variable">.full</span>(fifo_full_bus[gi*<span class="number">2</span>]),                    <span class="comment">// output wire full</span></span><br><span class="line">            <span class="variable">.empty</span>(fifo_empty_bus[gi*<span class="number">2</span>]),                  <span class="comment">// output wire empty</span></span><br><span class="line">            <span class="variable">.rd_data_count</span>(fifo_cnt_bus[gi*<span class="number">2</span>]),  <span class="comment">// output wire [5 : 0] rd_data_count</span></span><br><span class="line">            <span class="variable">.wr_rst_busy</span>(fifo_wrst_busy[gi*<span class="number">2</span>]),      <span class="comment">// output wire wr_rst_busy</span></span><br><span class="line">            <span class="variable">.rd_rst_busy</span>(fifo_rrst_busy[gi*<span class="number">2</span>])      <span class="comment">// output wire rd_rst_busy</span></span><br><span class="line">        );</span><br><span class="line">        </span><br><span class="line">        fifo_generator_0 FIFO_channelB (</span><br><span class="line">            <span class="variable">.rst</span>(rst),                      <span class="comment">// input wire rst</span></span><br><span class="line">            <span class="variable">.wr_clk</span>(wr_clk),                <span class="comment">// input wire wr_clk</span></span><br><span class="line">            <span class="variable">.rd_clk</span>(rd_clk),                <span class="comment">// input wire rd_clk</span></span><br><span class="line">            <span class="variable">.din</span>(wr_dataBus[gi*<span class="number">12</span> +: <span class="number">12</span>]),  <span class="comment">// input wire [11 : 0] din</span></span><br><span class="line">            <span class="variable">.wr_en</span>(wr_enAB[<span class="number">1</span>]),         <span class="comment">// input wire wr_en</span></span><br><span class="line">            <span class="variable">.rd_en</span>(fifo_rd_en_bus[gi*<span class="number">2</span>+<span class="number">1</span>]),    <span class="comment">// input wire rd_en</span></span><br><span class="line">            <span class="variable">.dout</span>(fifo_rdout_bus[gi*<span class="number">2</span>+<span class="number">1</span>]),                    <span class="comment">// output wire [11 : 0] dout</span></span><br><span class="line">            <span class="variable">.full</span>(fifo_full_bus[gi*<span class="number">2</span>+<span class="number">1</span>]),             <span class="comment">// output wire full</span></span><br><span class="line">            <span class="variable">.empty</span>(fifo_empty_bus[gi*<span class="number">2</span>+<span class="number">1</span>]),         <span class="comment">// output wire empty</span></span><br><span class="line">            <span class="variable">.rd_data_count</span>(fifo_cnt_bus[gi*<span class="number">2</span>+<span class="number">1</span>]),  <span class="comment">// output wire [5 : 0] rd_data_count</span></span><br><span class="line">            <span class="variable">.wr_rst_busy</span>(fifo_wrst_busy[gi*<span class="number">2</span>+<span class="number">1</span>]),      <span class="comment">// output wire wr_rst_busy</span></span><br><span class="line">            <span class="variable">.rd_rst_busy</span>(fifo_rrst_busy[gi*<span class="number">2</span>+<span class="number">1</span>])      <span class="comment">// output wire rd_rst_busy</span></span><br><span class="line">        );</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">endgenerate</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">assign</span> rd_cnt = fifo_cnt_bus[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">assign</span> wrst_busy = (fifo_wrst_busy != &#123;( <span class="number">2</span>*N_CHANNEL )&#123;<span class="number">1&#x27;b0</span>&#125;&#125; );</span><br><span class="line">    <span class="keyword">assign</span> rrst_busy = (fifo_rrst_busy != &#123;( <span class="number">2</span>*N_CHANNEL )&#123;<span class="number">1&#x27;b0</span>&#125;&#125; );</span><br><span class="line">    <span class="keyword">assign</span> rd_empty = fifo_empty_bus[( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> )];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">reg</span> [ <span class="built_in">$clog2</span>(N_CHANNEL*<span class="number">2</span>)-<span class="number">1</span> : <span class="number">0</span> ] reading_idx;</span><br><span class="line">    <span class="keyword">reg</span> [( <span class="number">2</span>*N_CHANNEL -<span class="number">1</span> ):<span class="number">0</span>] fifo_rd_en_ctrl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">generate</span> </span><br><span class="line">    <span class="keyword">for</span>(gi = <span class="number">0</span>; gi &lt; (<span class="number">2</span>*N_CHANNEL); gi = gi+<span class="number">1</span>) <span class="keyword">begin</span>: and_ren</span><br><span class="line">        <span class="keyword">assign</span> fifo_rd_en_bus[gi] = rd_en &amp; fifo_rd_en_ctrl[gi];</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">endgenerate</span></span><br><span class="line"><span class="comment">//    assign fifo_rd_en_bus = &#123;(2*N_CHANNEL)&#123;rd_en&#125;&#125; &amp; fifo_rd_en_ctrl;</span></span><br><span class="line">    <span class="keyword">always</span> @ (<span class="keyword">posedge</span> rd_clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(rst) <span class="keyword">begin</span></span><br><span class="line">            reading_idx &lt;= <span class="number">0</span>;</span><br><span class="line">            fifo_rd_en_ctrl &lt;= <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">if</span>(rd_en)</span><br><span class="line">                fifo_rd_en_ctrl &lt;= &#123;fifo_rd_en_ctrl[N_CHANNEL*<span class="number">2</span>-<span class="number">2</span>:<span class="number">0</span>],fifo_rd_en_ctrl[N_CHANNEL*<span class="number">2</span>-<span class="number">1</span>]&#125;;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                fifo_rd_en_ctrl &lt;= fifo_rd_en_ctrl;</span><br><span class="line">                </span><br><span class="line">            <span class="keyword">if</span>(rd_en)</span><br><span class="line">                <span class="keyword">if</span>(reading_idx == (<span class="number">2</span>*N_CHANNEL-<span class="number">1</span>))</span><br><span class="line">                    reading_idx &lt;= <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    reading_idx &lt;= reading_idx +<span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                reading_idx &lt;= reading_idx;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="keyword">assign</span> rd_data = fifo_rdout_bus[reading_idx];</span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="顶层封装及例化构建采样器"><a href="#顶层封装及例化构建采样器" class="headerlink" title="顶层封装及例化构建采样器"></a>顶层封装及例化构建采样器</h4><p>这里对各个子模块进行拼装，还有对外部输入的控制信号，做跨时钟域的处理。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> LVDS_recv #(</span><br><span class="line">    <span class="keyword">parameter</span> <span class="keyword">real</span> LVDS_DDR_CLK_MHZ = <span class="number">120</span></span><br><span class="line">) (</span><br><span class="line">    <span class="keyword">input</span> lvds_fclk_p,</span><br><span class="line">    <span class="keyword">input</span> lvds_fclk_n,</span><br><span class="line">    <span class="keyword">input</span> lvds_dclk_p,</span><br><span class="line">    <span class="keyword">input</span> lvds_dclk_n,</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">15</span>:<span class="number">0</span>] lvds_data_p,</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">15</span>:<span class="number">0</span>] lvds_data_n,</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">input</span> recvEn,   <span class="comment">// 接收使能</span></span><br><span class="line">    <span class="keyword">input</span> flush,    <span class="comment">// 清除FIFO中剩余数据</span></span><br><span class="line">    <span class="keyword">input</span> rstn,</span><br><span class="line"></span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> ready,</span><br><span class="line">    </span><br><span class="line">    (* X_INTERFACE_INFO = <span class="string">&quot;xilinx.com:interface:fifo_read:1.0 GroupRD RD_EN&quot;</span> *)</span><br><span class="line">    <span class="keyword">input</span> rd_en,</span><br><span class="line">    (* X_INTERFACE_INFO = <span class="string">&quot;xilinx.com:interface:fifo_read:1.0 GroupRD EMPTY&quot;</span> *)</span><br><span class="line">    <span class="keyword">output</span> empty,</span><br><span class="line">    (* X_INTERFACE_INFO = <span class="string">&quot;xilinx.com:interface:fifo_read:1.0 GroupRD ALMOST_EMPTY&quot;</span> *)</span><br><span class="line">    <span class="keyword">output</span> almost_empty,</span><br><span class="line">    (* X_INTERFACE_INFO = <span class="string">&quot;xilinx.com:interface:fifo_read:1.0 GroupRD RD_DATA&quot;</span> *)</span><br><span class="line">    <span class="keyword">output</span> [<span class="number">11</span>:<span class="number">0</span>]dout,</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">output</span> [<span class="number">5</span>:<span class="number">0</span>] valid_cnt,</span><br><span class="line">    <span class="keyword">input</span> rd_clk</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> bps_div2, bps_div8;</span><br><span class="line">    <span class="keyword">wire</span> PLL_locked;</span><br><span class="line">    <span class="keyword">wire</span> init_seq_finish;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 最重要的，不依赖任何子模块的：时钟恢复</span></span><br><span class="line">    clkgen #(</span><br><span class="line">        <span class="variable">.CLKIN_PERIOD</span>((<span class="number">1</span>/LVDS_DDR_CLK_MHZ)*<span class="number">1000</span>)        <span class="comment">// Clock period (ns) of input clock on clkin_p)</span></span><br><span class="line">    ) clkgen_inst(</span><br><span class="line">        <span class="variable">.lvds_bclkin_p</span>(lvds_dclk_p),</span><br><span class="line">        <span class="variable">.lvds_bclkin_n</span>(lvds_dclk_n),</span><br><span class="line">        <span class="variable">.rstn</span>(rstn),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.bps_div2</span>(bps_div2),</span><br><span class="line">        <span class="variable">.bps_div8</span>(bps_div8),</span><br><span class="line">        <span class="variable">.PLL_locked</span>(PLL_locked)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">2</span>:<span class="number">0</span>] Nslip;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">1</span>:<span class="number">0</span>] frame_slice_control_gearbox;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">1</span>:<span class="number">0</span>] fifo_write_en;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 帧采样模块</span></span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">7</span>:<span class="number">0</span>] frame_samp_signal;</span><br><span class="line">    sipo12 frame_samp_inst(</span><br><span class="line">        <span class="variable">.lvds_din_p</span>(lvds_fclk_p),</span><br><span class="line">        <span class="variable">.lvds_din_n</span>(lvds_fclk_n),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.rstn</span>(rstn),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.bps_div2</span>(bps_div2),</span><br><span class="line">        <span class="variable">.bps_div8</span>(bps_div8),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.Nslip</span>(Nslip),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.pdout</span>(frame_samp_signal)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 切片拼接测试-------------------------------------</span></span><br><span class="line">    <span class="comment">// WARN!!!: 仅用于调试，使用时关闭！</span></span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">11</span>:<span class="number">0</span>] test_gearbox_out;</span><br><span class="line">    gearbox gb_test_inst(</span><br><span class="line">            <span class="variable">.clk</span>(bps_div8),</span><br><span class="line">            <span class="variable">.rstn</span>(rstn),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.Nslice</span>(frame_slice_control_gearbox),</span><br><span class="line">            <span class="variable">.pdin</span>(frame_samp_signal),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.pdout</span>(test_gearbox_out)</span><br><span class="line">        );</span><br><span class="line">    <span class="comment">//* -------------------------------------------------</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 跨时钟域处理，从ui_clk 到 bps_div8</span></span><br><span class="line">    <span class="keyword">reg</span> recv_en_buf, recv_en_buf_async; <span class="comment">// 跨时钟域处理</span></span><br><span class="line">    <span class="keyword">always</span> @(<span class="keyword">posedge</span> bps_div8) <span class="keyword">begin</span></span><br><span class="line">        recv_en_buf_async &lt;= recvEn;</span><br><span class="line">        recv_en_buf &lt;= recv_en_buf_async;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// * 例化切片组合控制器 和 FIFO写切片控制器</span></span><br><span class="line">    frame_ctrl slice_concat_write_ctrl_inst(</span><br><span class="line">        <span class="variable">.f8b_in</span>(frame_samp_signal),</span><br><span class="line">        <span class="variable">.Nslice</span>(frame_slice_control_gearbox),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.recvEn</span>(recv_en_buf),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.init_seq_finish</span>(init_seq_finish),</span><br><span class="line">        <span class="variable">.FIFOen</span>(fifo_write_en)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 帧对齐（划位控制）模块</span></span><br><span class="line">    <span class="comment">// tip: INIT(0), sliping(1), locked(2), error(3)</span></span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">1</span>:<span class="number">0</span>] slip_ctrl_status;</span><br><span class="line">    bitslip_ctrl slip_inst(</span><br><span class="line">        <span class="variable">.clk</span>(bps_div8),</span><br><span class="line">        <span class="variable">.rstn</span>(rstn),</span><br><span class="line">        <span class="variable">.f8b_in</span>(frame_samp_signal),</span><br><span class="line">        <span class="variable">.Nslip</span>(Nslip),</span><br><span class="line">        <span class="variable">.status</span>(slip_ctrl_status)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 例化data Lane采集通道</span></span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">7</span>:<span class="number">0</span>] dlane_des_curr[<span class="number">15</span>:<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">wire</span> [(<span class="number">12</span>*<span class="number">16</span>-<span class="number">1</span>):<span class="number">0</span>] word_get_from_lane_bus;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">11</span>:<span class="number">0</span>] word_get_from_lane[<span class="number">15</span>:<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">generate</span></span><br><span class="line">    <span class="keyword">genvar</span> gi;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(gi = <span class="number">0</span>; gi &lt; <span class="number">16</span>; gi = gi+<span class="number">1</span>) <span class="keyword">begin</span>: data_sipo_inst</span><br><span class="line">        <span class="keyword">assign</span> word_get_from_lane_bus[gi*<span class="number">12</span> +: <span class="number">12</span>] = word_get_from_lane[gi];</span><br><span class="line">        </span><br><span class="line">        sipo12 dsipo_inst(</span><br><span class="line">            <span class="variable">.lvds_din_p</span>(lvds_data_p[gi]),</span><br><span class="line">            <span class="variable">.lvds_din_n</span>(lvds_data_n[gi]),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.rstn</span>(rstn),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.bps_div2</span>(bps_div2),</span><br><span class="line">            <span class="variable">.bps_div8</span>(bps_div8),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.Nslip</span>(Nslip),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.pdout</span>(dlane_des_curr[gi])</span><br><span class="line">        );</span><br><span class="line">        </span><br><span class="line">        gearbox gb_inst(</span><br><span class="line">            <span class="variable">.clk</span>(bps_div8),</span><br><span class="line">            <span class="variable">.rstn</span>(rstn),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.Nslice</span>(frame_slice_control_gearbox),</span><br><span class="line">            <span class="variable">.pdin</span>(dlane_des_curr[gi]),</span><br><span class="line">            </span><br><span class="line">            <span class="variable">.pdout</span>(word_get_from_lane[gi])</span><br><span class="line">        );</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">endgenerate</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 多通道输入单通道输出FIFO模块例化</span></span><br><span class="line">    <span class="keyword">wire</span> fifo_wrst_busy,fifo_rrst_busy,fifo_empty;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">assign</span> empty = fifo_empty;</span><br><span class="line"><span class="comment">//    output almost_empty,</span></span><br><span class="line">    <span class="keyword">wire</span> rst_fifo;</span><br><span class="line">    </span><br><span class="line">    FIFO_MISO misoFIFO_inst(</span><br><span class="line">        <span class="variable">.rst</span>(rst_fifo),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.wr_clk</span>(bps_div8),</span><br><span class="line">        <span class="variable">.wr_dataBus</span>(word_get_from_lane_bus),</span><br><span class="line">        <span class="variable">.wr_enAB</span>(fifo_write_en),</span><br><span class="line">        <span class="variable">.wrst_busy</span>(fifo_wrst_busy),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.rd_clk</span>(rd_clk),</span><br><span class="line">        <span class="variable">.rd_data</span>(dout),</span><br><span class="line">        <span class="variable">.rd_en</span>(rd_en),</span><br><span class="line">        <span class="variable">.rd_cnt</span>(valid_cnt),</span><br><span class="line">        <span class="variable">.rrst_busy</span>(fifo_rrst_busy),</span><br><span class="line">        <span class="variable">.rd_empty</span>(fifo_empty)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//* 复位管理安全模块</span></span><br><span class="line">    </span><br><span class="line">    lvds_rstCtrl safe_rst_inst(</span><br><span class="line">        <span class="variable">.PLL_locked</span>(PLL_locked),</span><br><span class="line">        <span class="variable">.rst_in</span>(~rstn),</span><br><span class="line">        <span class="variable">.ui_clk</span>(rd_clk),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.flush</span>(flush),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.fifo_wrst_busy</span>(fifo_wrst_busy),</span><br><span class="line">        <span class="variable">.fifo_rrst_busy</span>(fifo_rrst_busy),</span><br><span class="line">        <span class="variable">.rst_o_FIFO</span>(rst_fifo),</span><br><span class="line"><span class="comment">//    .rst_o_SIPO,</span></span><br><span class="line"><span class="comment">//    .rst_o_gearBox</span></span><br><span class="line">        <span class="variable">.OK</span>(init_seq_finish)</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">always</span> @(<span class="keyword">posedge</span> rd_clk) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span> (~rstn) <span class="keyword">begin</span></span><br><span class="line">            ready &lt;= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            ready &lt;= init_seq_finish;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="仿真验证"><a href="#仿真验证" class="headerlink" title="仿真验证"></a>仿真验证</h4><p>先直接上仿真结果，再对着图给出仿真的思路和代码。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_10.png" alt="行为仿真结果"></p>
+<p>首先，我们仿真这个LVDS接收器，肯定是要先生成LVDS信号，以及随机的复位完成时间，来考察接收器锁定数据和帧切片的能力。下代码为数据生成器，笔者可以根据自己的应用大胆地更换数据生成器中的各个参数进行测试：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> paternData_gen(</span><br><span class="line">    <span class="keyword">output</span> fclk_p,</span><br><span class="line">    <span class="keyword">output</span> fclk_n,</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">output</span> dclk_p,</span><br><span class="line">    <span class="keyword">output</span> dclk_n,</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">output</span> [<span class="number">15</span>:<span class="number">0</span>] dLane_p,</span><br><span class="line">    <span class="keyword">output</span> [<span class="number">15</span>:<span class="number">0</span>] dLane_n,</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">output</span> [<span class="number">15</span>:<span class="number">0</span>] dLane,</span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> RST</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">reg</span> BPS_CLK_960M;</span><br><span class="line">    <span class="keyword">reg</span> BPS_CLK_DDR_480M;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*  时钟生成  */</span></span><br><span class="line">    <span class="keyword">parameter</span> <span class="keyword">real</span> PERIOD = <span class="number">1</span>/<span class="number">0</span><span class="variable">.96</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">always</span> <span class="keyword">begin</span></span><br><span class="line">        BPS_CLK_960M = <span class="number">1&#x27;b0</span>;</span><br><span class="line">        <span class="variable">#(PERIOD/2)</span> BPS_CLK_960M = <span class="number">1&#x27;b1</span>;</span><br><span class="line">        <span class="variable">#(PERIOD/2)</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">always</span> @ (<span class="keyword">posedge</span> BPS_CLK_960M)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(RST)</span><br><span class="line">            BPS_CLK_DDR_480M &lt;= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            BPS_CLK_DDR_480M &lt;= ~BPS_CLK_DDR_480M;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">				</span><br><span class="line">	OBUFDS #(</span><br><span class="line">        <span class="variable">.IOSTANDARD</span>(<span class="string">&quot;LVDS&quot;</span>), <span class="comment">// 指定I/O标准为LVDS</span></span><br><span class="line">        <span class="variable">.DIFF_TERM</span>(<span class="string">&quot;TRUE&quot;</span>)  <span class="comment">// 启用差分终端</span></span><br><span class="line">    ) obufds_inst (</span><br><span class="line">        <span class="variable">.I</span>(BPS_CLK_DDR_480M),       <span class="comment">// 单端输入</span></span><br><span class="line">        <span class="variable">.O</span>(dclk_p),       <span class="comment">// 差分正端输出</span></span><br><span class="line">        <span class="variable">.OB</span>(dclk_n)       <span class="comment">// 差分负端输出</span></span><br><span class="line">    );		</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*  生成测试数据  */</span></span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">3</span>:<span class="number">0</span>] ser_num;</span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">11</span>:<span class="number">0</span>] testData;</span><br><span class="line">    <span class="keyword">always</span>@(<span class="keyword">negedge</span> BPS_CLK_960M)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(RST)</span><br><span class="line">            testData &lt;= <span class="number">12&#x27;b0000_0000_0000</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">if</span>(ser_num == <span class="number">11</span>)</span><br><span class="line">                testData &lt;= testData + <span class="number">12&#x27;b000_0001_0000</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                testData &lt;= testData;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*  输出数据  */</span></span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">2</span>:<span class="number">0</span>] frame_status;</span><br><span class="line">    <span class="keyword">localparam</span> [<span class="number">2</span>:<span class="number">0</span>] FRAME_READY = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">localparam</span> [<span class="number">2</span>:<span class="number">0</span>] FRAME_CA = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">localparam</span> [<span class="number">2</span>:<span class="number">0</span>] FRAME_CB = <span class="number">2</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 帧状态机</span></span><br><span class="line">    <span class="keyword">always</span> @ (<span class="keyword">negedge</span> BPS_CLK_960M)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(RST)</span><br><span class="line">        <span class="keyword">begin</span></span><br><span class="line">            frame_status &lt;= FRAME_READY;</span><br><span class="line">            ser_num &lt;= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">if</span>(ser_num == <span class="number">11</span>)</span><br><span class="line">                ser_num &lt;= <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">if</span>( (frame_status == FRAME_CA) || (frame_status == FRAME_CB))</span><br><span class="line">                    ser_num &lt;= ser_num +<span class="number">1</span>;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    ser_num &lt;= ser_num;</span><br><span class="line">                </span><br><span class="line">        </span><br><span class="line">            <span class="keyword">case</span>(frame_status)</span><br><span class="line">                FRAME_READY :  frame_status &lt;= FRAME_CA;</span><br><span class="line">                FRAME_CA    :  <span class="keyword">begin</span></span><br><span class="line">                    <span class="keyword">if</span>(ser_num == <span class="number">11</span>)</span><br><span class="line">                        frame_status &lt;= FRAME_CB;</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                FRAME_CB    :  <span class="keyword">begin</span></span><br><span class="line">                    <span class="keyword">if</span>(ser_num == <span class="number">11</span>)</span><br><span class="line">                        frame_status &lt;= FRAME_CA;</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">                <span class="keyword">default</span>     :  frame_status &lt;= FRAME_CA;</span><br><span class="line">            <span class="keyword">endcase</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">11</span>:<span class="number">0</span>] testDataBus[<span class="number">15</span>:<span class="number">0</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">generate</span></span><br><span class="line">        <span class="keyword">genvar</span> ci;  </span><br><span class="line">        <span class="keyword">for</span>(ci = <span class="number">0</span>; ci &lt;<span class="number">16</span>; ci = ci+<span class="number">1</span>) <span class="keyword">begin</span>: gen_output_channel</span><br><span class="line">            <span class="keyword">assign</span> testDataBus[ci] = testData + ci;</span><br><span class="line">            <span class="keyword">assign</span> dLane[ci] = testDataBus[ci][ser_num];</span><br><span class="line">            		</span><br><span class="line">            OBUFDS #(</span><br><span class="line">                <span class="variable">.IOSTANDARD</span>(<span class="string">&quot;LVDS&quot;</span>), <span class="comment">// 指定I/O标准为LVDS</span></span><br><span class="line">                <span class="variable">.DIFF_TERM</span>(<span class="string">&quot;TRUE&quot;</span>)  <span class="comment">// 启用差分终端</span></span><br><span class="line">            ) dobufds_inst (</span><br><span class="line">                <span class="variable">.I</span>(dLane[ci]),       <span class="comment">// 单端输入</span></span><br><span class="line">                <span class="variable">.O</span>(dLane_p[ci]),       <span class="comment">// 差分正端输出</span></span><br><span class="line">                <span class="variable">.OB</span>(dLane_n[ci])       <span class="comment">// 差分负端输出</span></span><br><span class="line">            );	</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">endgenerate</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> frame_clk_s;</span><br><span class="line">    <span class="keyword">assign</span> frame_clk_s = (frame_status == FRAME_CA);</span><br><span class="line">    </span><br><span class="line">    OBUFDS #(</span><br><span class="line">        <span class="variable">.IOSTANDARD</span>(<span class="string">&quot;LVDS&quot;</span>), <span class="comment">// 指定I/O标准为LVDS</span></span><br><span class="line">        <span class="variable">.DIFF_TERM</span>(<span class="string">&quot;TRUE&quot;</span>)  <span class="comment">// 启用差分终端</span></span><br><span class="line">    ) fobufds_inst (</span><br><span class="line">        <span class="variable">.I</span>(frame_clk_s),       <span class="comment">// 单端输入</span></span><br><span class="line">        <span class="variable">.O</span>(fclk_p),       <span class="comment">// 差分正端输出</span></span><br><span class="line">        <span class="variable">.OB</span>(fclk_n)       <span class="comment">// 差分负端输出</span></span><br><span class="line">    );	</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*  初始化  */</span></span><br><span class="line">    <span class="keyword">initial</span> <span class="keyword">begin</span></span><br><span class="line">        RST = <span class="number">1</span>;</span><br><span class="line">        # (PERIOD*<span class="number">5</span>) RST = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<p>生成器生成数据，被LVDS接收器收到后，我们还要对接收器进行读取操作，来验证数据是否正确。因此构建一个读取器，代码为：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">module</span> fifo_reader(</span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> recvEn,</span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> flush,</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">input</span> empty,</span><br><span class="line">    <span class="keyword">input</span> almost_empty,</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">5</span>:<span class="number">0</span>] cnt,</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">11</span>:<span class="number">0</span>] rd_data,</span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> rd_en,</span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span> rd_clk</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*  时钟生成 600MHz */</span></span><br><span class="line">    <span class="keyword">parameter</span> <span class="keyword">real</span> PERIOD = <span class="number">1</span>/<span class="number">0</span><span class="variable">.600</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">initial</span> <span class="keyword">begin</span></span><br><span class="line">        recvEn = <span class="number">0</span>;</span><br><span class="line">        flush = <span class="number">0</span>;</span><br><span class="line">        <span class="variable">#(PERIOD * 300)</span> recvEn = <span class="number">1</span>;</span><br><span class="line">        <span class="variable">#(PERIOD * 120)</span> recvEn = <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="variable">#(PERIOD * 10)</span> flush = <span class="number">1</span>;</span><br><span class="line">        <span class="variable">#(PERIOD *1)</span> flush = <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="variable">#(PERIOD *10)</span> recvEn = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">always</span> <span class="keyword">begin</span></span><br><span class="line">        rd_clk = <span class="number">1&#x27;b0</span>;</span><br><span class="line">        <span class="variable">#(PERIOD/2)</span> rd_clk = <span class="number">1&#x27;b1</span>;</span><br><span class="line">        <span class="variable">#(PERIOD/2)</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">always</span>@(<span class="keyword">posedge</span> rd_clk) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!empty &amp;&amp; cnt&gt;<span class="number">2</span>)</span><br><span class="line">            rd_en &lt;= <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            rd_en &lt;= <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<p>最后，我们做一个testbench把上面几个测试的前后端拼接起来：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">`<span class="keyword">timescale</span> 1ns / 1ps</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">module</span> testBench_fifo_read(</span><br><span class="line">    </span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> fclk_p,fclk_n,dclk_p,dclk_n;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">15</span>:<span class="number">0</span>] dLane_p;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">15</span>:<span class="number">0</span>] dLane_n;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> rst;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">wire</span> empty, almost_empty,fifo_ren,fifo_rclk;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">11</span>:<span class="number">0</span>] fifo_rd_data;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">5</span>:<span class="number">0</span>] fifo_valid_cnt;</span><br><span class="line">    </span><br><span class="line">    paternData_gen data_generator(</span><br><span class="line">        <span class="variable">.fclk_p</span>(fclk_p),</span><br><span class="line">        <span class="variable">.fclk_n</span>(fclk_n),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.dclk_p</span>(dclk_p),</span><br><span class="line">        <span class="variable">.dclk_n</span>(dclk_n),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.dLane_p</span>(dLane_p),</span><br><span class="line">        <span class="variable">.dLane_n</span>(dLane_n),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.RST</span>(rst)</span><br><span class="line">    );</span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    LVDS_recv #(</span><br><span class="line">        <span class="variable">.LVDS_DDR_CLK_MHZ</span>(<span class="number">480</span>)</span><br><span class="line">    ) recv_inst(</span><br><span class="line">        <span class="variable">.lvds_fclk_p</span>(fclk_p),</span><br><span class="line">        <span class="variable">.lvds_fclk_n</span>(fclk_n),</span><br><span class="line">        <span class="variable">.lvds_dclk_p</span>(dclk_p),</span><br><span class="line">        <span class="variable">.lvds_dclk_n</span>(dclk_n),</span><br><span class="line">        <span class="variable">.lvds_data_p</span>(dLane_p),</span><br><span class="line">        <span class="variable">.lvds_data_n</span>(dLane_n),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.rstn</span>(~rst),</span><br><span class="line">        <span class="variable">.recvEn</span>(recvEn),</span><br><span class="line">        <span class="variable">.flush</span>(flush),</span><br><span class="line">    </span><br><span class="line">        <span class="variable">.rd_en</span>(fifo_ren),</span><br><span class="line">        <span class="variable">.empty</span>(empty),</span><br><span class="line">        <span class="variable">.almost_empty</span>(almost_empty),</span><br><span class="line">        <span class="variable">.valid_cnt</span>(fifo_valid_cnt),</span><br><span class="line">        <span class="variable">.dout</span>(fifo_rd_data),</span><br><span class="line">        <span class="variable">.rd_clk</span>(fifo_rclk)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    fifo_reader  reader_inst(</span><br><span class="line">        <span class="variable">.recvEn</span>(recvEn),</span><br><span class="line">        <span class="variable">.flush</span>(flush),</span><br><span class="line">        </span><br><span class="line">        <span class="variable">.empty</span>(empty),</span><br><span class="line">        <span class="variable">.almost_empty</span>(almost_empty),</span><br><span class="line">        <span class="variable">.cnt</span>(fifo_valid_cnt),</span><br><span class="line">        <span class="variable">.rd_data</span>(fifo_rd_data),</span><br><span class="line">        <span class="variable">.rd_en</span>(fifo_ren),</span><br><span class="line">        <span class="variable">.rd_clk</span>(fifo_rclk)</span><br><span class="line">    );</span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="AMD官方推荐的LVDS接收器完整架构"><a href="#AMD官方推荐的LVDS接收器完整架构" class="headerlink" title="AMD官方推荐的LVDS接收器完整架构"></a>AMD官方推荐的LVDS接收器完整架构</h2><blockquote>
+<p>见AMD的官方文档：《XAPP1315 LVDS Source Synchronous 7:1 Serialization and Deserialization Using Clock Multiplication》.</p>
+</blockquote>
+<p>上面我们实现的接收器，直接基于DCLK恢复时钟采样，没有考虑skew的问题，是因为在板级设计时笔者严格缩短了AFE5832至FPGA之间的Layout距离，并且Lane对内做了差分等长，对间同样做了等长。在工程应用中，很可能是控不到这么好的条件，比如子模块板间跨过多个连接座和线缆或者Layout工程师无法压榨。这就要在每一对Lane进入FPGA后使用IDELAY调节skew，以及CLK进去后由PLL和校准算法匹配数据采样点。</p>
+<p>下图是AMD给的DEMO推荐架构，加了<code>IDELAYCTRL</code>和<code>IDELAY</code>。实际使用时，让LVDS前级出固定测试数据<code>1010_1010...</code>，然后FPGA工程师往延迟值小和延迟值大两个方向依次对每个通道测试延迟边缘值（也就是会看到采出来的数据开始一直跳），然后将中值配置为永久延迟设置值。</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_11.png" alt="LVDS完整接收器架构"></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li>XAPP1208 Bitslip in Logic</li>
+<li>XAPP1315 LVDS Source Synchronous 7:1 Serialization and Deserialization Using Clock Multiplication</li>
+<li>XAPP524 Serial LVDS High-Speed ADC Interface</li>
+<li>XAPP1017 LVDS Source Synchronous DDR Deserialization (up to 1,600 Mb&#x2F;s)</li>
+<li>UG572 UltraScale Architecture Clocking Resources</li>
+<li>UG571 UltraScale Architecture SelectIO Resources</li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          Donate
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://www.singularity-blog.top/2024/06/13/lvdsRecv/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FPGA/" rel="tag">FPGA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LVDS/" rel="tag">LVDS</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2023/09/01/mechanicofmaterial/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">速通材料力学</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2022-2024
+        <i class="ri-heart-fill heart_icon"></i> RY.J
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/S-logo-side.svg" alt="Singularity-blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/aboutMe">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.png">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js"></script>
+<script src="https://cdn.staticfile.org/mathjax/2.7.7/config/TeX-AMS-MML_HTMLorMML-full.js"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true,
+  };
+</script>
+
+<!-- Katex -->
+ 
+    
+        <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.css">
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/katex.min.js"></script>
+        <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/auto-render.min.js"></script>
+        
+            <script src="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.staticfile.org/KaTeX/0.15.1/contrib/copy-tex.min.css">
+        
+    
+ 
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+ 
+<script src="/js/dz.js"></script>
+ 
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=1357887419&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -153,6 +153,86 @@
     
     
     <article
+  id="post-codeTemplateForVScode"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/09/04/codeTemplateForVScode/"
+    >VScode中使用代码模板</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/09/04/codeTemplateForVScode/" class="article-date">
+  <time datetime="2020-09-04T07:14:02.000Z" itemprop="datePublished">2020-09-04</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E6%8A%80%E8%83%BD/">编程技能</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">457</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">1 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>前言：平时在做项目时常常需要写大量的注释，来帮助其他人理解自己的代码结构，笔者就常常出现写注释时间和码代码时间对半开的情况，这里分享一下VScode里的模板功能</p>
+</blockquote>
+<p>首先感受一下使用模板有多方便：</p>
+<p><img src="http://imgjry.fangyikuan.xyz/202009/20200904-VSCode-1.png" alt="效果"></p>
+<p>这么多的注释格式都是模板一键生成的🌌不要太爽！</p> 
+      <a class="article-more-link" href="/2020/09/04/codeTemplateForVScode/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/VScode/" rel="tag">VScode</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-developPythonWithCppModule"
   class="article article-type-post"
   itemscope
@@ -343,89 +423,6 @@
 </article>
 
     
-    <article
-  id="post-mshCommandWithArguments"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/08/01/mshCommandWithArguments/"
-    >MSH控制台添加带参命令</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/08/01/mshCommandWithArguments/" class="article-date">
-  <time datetime="2020-08-01T13:59:12.000Z" itemprop="datePublished">2020-08-01</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">999</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>前言：之前的<a href="/2020/06/03/MCURTTMSH/">一篇文章</a>分享了移植RT-Thread和其最具吸引力的FinSH控制台。但是没有讲详细的添加命令到控制台上，直到最近笔者在对外输出带参命令的时候发现参数进去后是乱码的，所以打算把坑记录一下</p>
-</blockquote>
-<h2 id="添加MSH命令的代码规则（C）"><a href="#添加MSH命令的代码规则（C）" class="headerlink" title="添加MSH命令的代码规则（C）"></a>添加MSH命令的代码规则（C）</h2><p>一般来说导出函数到MSH命令列表非常简单，调用MSH_CMD_EXPORT宏命令即可</p>
-<ul>
-<li><p>简单命令（不带参数）</p>
-<p>  在该情况下，不通过控制台传入参数，所以对函数的形式没有要求，如下是一个对外提供PWM使能的命令demo：</p>
-  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">enablePWM</span><span class="params">(<span class="type">void</span>)</span>;   <span class="comment">//函数声明</span></span><br><span class="line"></span><br><span class="line">MSH_CMD_EXPORT(enablePWM,enable the PWM ouput of High-Res timer);   <span class="comment">//导出函数到MSH命令列表</span></span><br></pre></td></tr></table></figure></li>
-</ul> 
-      <a class="article-more-link" href="/2020/08/01/mshCommandWithArguments/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FinSH/" rel="tag">FinSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MSH/" rel="tag">MSH</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RT-Thread/" rel="tag">RT-Thread</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">实时操作系统</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
@@ -443,7 +440,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2022-2023
+        2022-2024
         <i class="ri-heart-fill heart_icon"></i> RY.J
       </li>
     </ul>

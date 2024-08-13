@@ -153,6 +153,89 @@
     
     
     <article
+  id="post-lvdsRecv"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2024/06/13/lvdsRecv/"
+    >LVDS接收数据流（这一篇就够了）</a> 
+</h2>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2024/06/13/lvdsRecv/" class="article-date">
+  <time datetime="2024-06-13T05:55:06.000Z" itemprop="datePublished">2024-06-13</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">5.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">25 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本文将以驱动AFE5832高速模拟前端为开发目标，依次分析设计需求、方案原理、在Zynq Ultrascale+上的Verilog实现，最后扩展分享更通用、更有鲁棒性的LVDS Receiver。注：本文针对具有Verilog语言基础和FPGA基础概念的用户。</p>
+</blockquote>
+<h2 id="接口设计需求简析"><a href="#接口设计需求简析" class="headerlink" title="接口设计需求简析"></a>接口设计需求简析</h2><p><a target="_blank" rel="noopener" href="https://www.ti.com.cn/product/cn/AFE5832">AFE5832</a>是TI公司的一款适用于超声应用的模拟前端芯片，内含从LNA、LPF、到ADC的完整信号链和其他超声需要的辅助模块。采样方面，总共有32路输入，16个ADC，每个ADC支持12bit@40MSPS或者10bit@50MSPS采样，每个ADC的结果分别用一个LVDS的Lane串行输出。配置方面使用SPI接口，可以直接用AXI-SPI的IP核控制，不作介绍，所以接下来的篇幅将开始集中在LVDS方面。</p>
+<blockquote>
+<p>NOTE：笔者使用ZYNQ的PS的SPI，发现有BUG，只能EMIO出信号，MIO一样的代码不行</p>
+</blockquote>
+<p><img src="http://imgjry.fangyikuan.xyz/202406/202406_LVDS_1.png" alt="AFE5832"></p>
+<p>AFE5832的LVDS数据输出接口如下图，有16对Data Lane（<strong>DOUT</strong>），和1对串行数据时钟Serial Data CLK Lane（<strong>DCLK</strong>），以及1对用来划分数据帧的Frame CLK Lane（<strong>FCLK</strong>）。</p> 
+      <a class="article-more-link" href="/2024/06/13/lvdsRecv/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FPGA/" rel="tag">FPGA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LVDS/" rel="tag">LVDS</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+    
+</article>
+
+    
+    <article
   id="post-mechanicofmaterial"
   class="article article-type-post"
   itemscope
@@ -367,113 +450,6 @@
 </article>
 
     
-    <article
-  id="post-LinuxDriver"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2023/02/22/LinuxDriver/"
-    >速通Linux驱动程序</a> 
-</h2>
- 
-
-      
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2023/02/22/LinuxDriver/" class="article-date">
-  <time datetime="2023-02-22T11:55:32.000Z" itemprop="datePublished">2023-02-22</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F%E9%A9%B1%E5%8A%A8/">嵌入式驱动</a>
-  </div>
-  
-<div class="word_count">
-    <span class="post-time">
-        <span class="post-meta-item-icon">
-            <i class="ri-quill-pen-line"></i>
-            <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">9.1k</span>
-        </span>
-    </span>
-
-    <span class="post-time">
-        &nbsp; | &nbsp;
-        <span class="post-meta-item-icon">
-            <i class="ri-book-open-line"></i>
-            <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">39 min</span>
-        </span>
-    </span>
-</div>
- 
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>痛苦，非常的痛苦！学Linux的驱动要么上天要么入土，因此笔者决定写这篇博客帮所有想入门Linux驱动的读者走地更安详。😇另外的，笔者在学习时具有一定程度的硬件知识储备和嵌入式裸机开发经验，因此本文将不会太多地帮助硬件小白，建议阅读学习笔者之前的硬件相关博客或其他大神的入门教程。</p>
-</blockquote>
-<h2 id="Linux设备驱动概念篇"><a href="#Linux设备驱动概念篇" class="headerlink" title="Linux设备驱动概念篇"></a>Linux设备驱动概念篇</h2><h3 id="驱动类型"><a href="#驱动类型" class="headerlink" title="驱动类型"></a>驱动类型</h3><p>Linux天下无敌，支持所有的硬件外设，所以提出了3个类别的驱动程序。</p>
-<table>
-<thead>
-<tr>
-<th align="center">驱动类型</th>
-<th align="center">特点</th>
-<th align="center">常见设备</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">字符设备</td>
-<td align="center">操作字节数据</td>
-<td align="center">GPIO、I2C、SPI、音频、显卡</td>
-</tr>
-<tr>
-<td align="center">块设备</td>
-<td align="center">一次操作一组（块）数据</td>
-<td align="center">EMMC、NAND、SD Card</td>
-</tr>
-<tr>
-<td align="center">网络设备</td>
-<td align="center">套接字（socket）操作</td>
-<td align="center">以太网</td>
-</tr>
-</tbody></table>
-<p>字符设备常常被创建为设备节点，以类似文件的形式存在于<code>/dev/</code>目录下（例如串口<code>/dev/tty</code>），这种形式操作起来和对普通文件的操作极其相似，同时字符设备类驱动是最常见的，做项目时写的最多的，但是3种驱动里最简单的。<br>另外两种驱动，块设备和网络设备，驱动模型写起来又臭又长，一般IC器件的厂家都把驱动写好了，属于Linux高手的玩物。</p>
-<p>因此，本文中将主要分享字符设备驱动的开发。</p>
-<h3 id="内核态"><a href="#内核态" class="headerlink" title="内核态"></a>内核态</h3><p>Linux在隔离业务应用和硬件这块做的非常好，操作系统上分为了：<strong>用户态</strong>和<strong>内核态</strong>。内核态提供服务给用户态调用，具有统一的抽象接口，使得用户态程序可以在不了解硬件的情况下很好地运行并操作所需硬件。显然，我们要编写的驱动程序就是工作在内核态，所以编写时要满足Linux的模型。</p>
-<p><img src="http://imgjry.fangyikuan.xyz/20230222/20230222-Linux-1.jpeg" alt="用户态与内核态"></p>
-<h3 id="驱动程序运行方式"><a href="#驱动程序运行方式" class="headerlink" title="驱动程序运行方式"></a>驱动程序运行方式</h3> 
-      <a class="article-more-link" href="/2023/02/22/LinuxDriver/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F/" rel="tag">驱动程序</a></li></ul>
-
-    </footer>
-  </div>
-
-   
-    
-</article>
-
-    
   </article>
   
 
@@ -491,7 +467,7 @@
     <ul>
       <li>
         Copyrights &copy;
-        2022-2023
+        2022-2024
         <i class="ri-heart-fill heart_icon"></i> RY.J
       </li>
     </ul>
